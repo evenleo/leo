@@ -5,13 +5,15 @@
 #include <sstream>
 #include <stdio.h>
 #include <unistd.h>
+#include <assert.h>
 
 namespace leo {
 
 LogFile::LogFile(std::string basename) 
-	:basename_(basename) {
+	: basename_(basename), bytes_writed_(0) {
 	std::string file_name = getFileName();
 	fp_ = ::fopen(getFileName().c_str(), "w");
+	assert(fp_);
 }
 
 LogFile::~LogFile() {

@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "bin/Scheduler_test"
+			"path" : "bin/Timer_test"
 		}
 	],
 	"backtrace" : 1,
@@ -26,25 +26,19 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 69,
+				"line" : 66,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 70,
+				"line" : 67,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
 				"line" : 45,
-				"parent" : 0
-			},
-			{
-				"command" : 1,
-				"file" : 0,
-				"line" : 46,
 				"parent" : 0
 			},
 			{
@@ -67,7 +61,7 @@
 			"includes" : 
 			[
 				{
-					"backtrace" : 5,
+					"backtrace" : 4,
 					"path" : "/home/even/workspace/leo/src"
 				}
 			],
@@ -85,7 +79,7 @@
 			"id" : "leo::@6890427a1f51a3e7e1df"
 		}
 	],
-	"id" : "Scheduler_test::@6890427a1f51a3e7e1df",
+	"id" : "Timer_test::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -97,10 +91,6 @@
 			{
 				"fragment" : "-rdynamic",
 				"role" : "flags"
-			},
-			{
-				"fragment" : "-Wl,-rpath,/usr/local/lib",
-				"role" : "libraries"
 			},
 			{
 				"backtrace" : 2,
@@ -118,24 +108,14 @@
 				"role" : "libraries"
 			},
 			{
-				"backtrace" : 4,
-				"fragment" : "/usr/local/lib/libprotobuf.so",
-				"role" : "libraries"
-			},
-			{
-				"backtrace" : 4,
-				"fragment" : "-lpthread",
-				"role" : "libraries"
-			},
-			{
 				"fragment" : "-lz",
 				"role" : "libraries"
 			}
 		],
 		"language" : "CXX"
 	},
-	"name" : "Scheduler_test",
-	"nameOnDisk" : "Scheduler_test",
+	"name" : "Timer_test",
+	"nameOnDisk" : "Timer_test",
 	"paths" : 
 	{
 		"build" : ".",
@@ -156,7 +136,7 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "test/Scheduler_test.cpp",
+			"path" : "test/Timer_test.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

@@ -15,6 +15,5 @@ int main() {
 	scheduler.cancel(timer_id);
 	printf("cancel\n");
 
-	getchar();
 	return 0;
 }

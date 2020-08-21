@@ -1403,7 +1403,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "general;dl;general;/usr/local/lib/libprotobuf.so;general;-lpthread;general;/usr/lib64/libz.so;"
+			"value" : "general;dl;general;/usr/lib64/libz.so;"
 		},
 		{
 			"name" : "leo_SOURCE_DIR",

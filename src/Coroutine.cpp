@@ -12,12 +12,13 @@ namespace leo {
 static thread_local uint64_t t_coroutine_id {0};
 
 Coroutine::Coroutine(Func cb, std::string name, uint32_t stack_size)
-	:c_id_(++t_coroutine_id), 
-	name_(name + "-" + std::to_string(c_id_)),
-	cb_(cb),
-	stack_size_(stack_size),
-	stack_(nullptr),
-	state_(CoroutineState::RUNNABLE) {
+	: c_id_(++t_coroutine_id), 
+	  name_(name + "-" + std::to_string(c_id_)),
+	  cb_(cb),
+	  stack_size_(stack_size),
+	  stack_(nullptr),
+	  state_(CoroutineState::RUNNABLE) 
+{
 	assert(stack_size > 0);
 	
 	stack_ = malloc(stack_size_);
@@ -37,13 +38,13 @@ Coroutine::Coroutine(Func cb, std::string name, uint32_t stack_size)
 }
 
 Coroutine::Coroutine()
-	:c_id_(++t_coroutine_id),
-	name_("Main-" + std::to_string(c_id_)),
-	cb_(nullptr),
-	stack_size_(0),
-	stack_(nullptr),
-	state_(CoroutineState::RUNNABLE) {
-	
+	: c_id_(++t_coroutine_id),
+	  name_("Main-" + std::to_string(c_id_)),
+	  cb_(nullptr),
+	  stack_size_(0),
+	  stack_(nullptr),
+	  state_(CoroutineState::RUNNABLE) 
+{
 	if (getcontext(&context_)) {
 		LOG_ERROR << "getcontext: errno=" << errno
 				<< " error string:" << strerror(errno);

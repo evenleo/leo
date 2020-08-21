@@ -1,7 +1,6 @@
 /**
  * 协程，可在当前协程和主协程间切换
  */ 
-
 #ifndef _MELON_COROUTINE_H_
 #define _MELON_COROUTINE_H_
 
@@ -36,7 +35,7 @@ public:
 	void swapIn();
 	Coroutine::Func getCallback();
 	std::string name();
-	void setState(CoroutineState state) { state_ = state; };
+	void setState(CoroutineState state) { state_ = state; }
 	CoroutineState getState() { return state_; }
 
 	static uint64_t GetCid();

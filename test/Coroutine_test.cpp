@@ -35,7 +35,5 @@ int main() {
 
 	LOG_DEBUG << "all coroutine terminated, " << "sum= " << sum;
 
-	getchar();
-
 	return 0;
 }

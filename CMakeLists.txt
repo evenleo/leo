@@ -43,7 +43,7 @@ file(GLOB_RECURSE headers ${PROJECT_SOURCE_DIR}/src/*.h)
 
 add_library(leo STATIC ${srcs})
 target_link_libraries(leo ${CMAKE_DL_LIBS}) 	#dlsym
-target_link_libraries(leo ${PROTOBUF_LIBRARIES}) #protobuf
+#target_link_libraries(leo ${PROTOBUF_LIBRARIES}) #protobuf
 target_link_libraries(leo ${ZLIB_LIBRARIES})	#zlib
 
 
@@ -69,5 +69,7 @@ target_link_libraries(Timer_test pthread leo)
 add_executable(Scheduler_test test/Scheduler_test.cpp)
 target_link_libraries(Scheduler_test pthread leo)
 
+add_executable(LogFile_test test/LogFile_test.cpp)
+target_link_libraries(LogFile_test pthread leo)
 
-
+ 

@@ -20,7 +20,8 @@
 						2,
 						3,
 						4,
-						5
+						5,
+						6
 					]
 				}
 			],
@@ -40,7 +41,8 @@
 						2,
 						3,
 						4,
-						5
+						5,
+						6
 					]
 				}
 			],
@@ -49,35 +51,42 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "AsyncFileAppender_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-AsyncFileAppender_test-0abb38ba3824066cbe8b.json",
+					"jsonFile" : "target-AsyncFileAppender_test-003d11ec09ab3137d303.json",
 					"name" : "AsyncFileAppender_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "Coroutine_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Coroutine_test-829c65d0f509c34ea3ee.json",
+					"jsonFile" : "target-Coroutine_test-75623b46cbb9a0105a80.json",
 					"name" : "Coroutine_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
+					"id" : "LogFile_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-LogFile_test-1782dc80e21e6979450b.json",
+					"name" : "LogFile_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
 					"id" : "Log_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Log_test-94d919ae2e5586c3ae7d.json",
+					"jsonFile" : "target-Log_test-f6bea7ad441062b1b6aa.json",
 					"name" : "Log_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "Scheduler_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Scheduler_test-71a758749364621bd77e.json",
+					"jsonFile" : "target-Scheduler_test-c4a95346ac6abe31c4c5.json",
 					"name" : "Scheduler_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "Timer_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Timer_test-5bfe87d3e76f3d1e4f78.json",
+					"jsonFile" : "target-Timer_test-e4160d73ec8959c1b7fb.json",
 					"name" : "Timer_test",
 					"projectIndex" : 0
 				},

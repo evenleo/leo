@@ -42,12 +42,6 @@
 				"parent" : 0
 			},
 			{
-				"command" : 1,
-				"file" : 0,
-				"line" : 46,
-				"parent" : 0
-			},
-			{
 				"command" : 2,
 				"file" : 0,
 				"line" : 20,
@@ -67,7 +61,7 @@
 			"includes" : 
 			[
 				{
-					"backtrace" : 5,
+					"backtrace" : 4,
 					"path" : "/home/even/workspace/leo/src"
 				}
 			],
@@ -99,10 +93,6 @@
 				"role" : "flags"
 			},
 			{
-				"fragment" : "-Wl,-rpath,/usr/local/lib",
-				"role" : "libraries"
-			},
-			{
 				"backtrace" : 2,
 				"fragment" : "-lpthread",
 				"role" : "libraries"
@@ -115,16 +105,6 @@
 			{
 				"backtrace" : 3,
 				"fragment" : "-ldl",
-				"role" : "libraries"
-			},
-			{
-				"backtrace" : 4,
-				"fragment" : "/usr/local/lib/libprotobuf.so",
-				"role" : "libraries"
-			},
-			{
-				"backtrace" : 4,
-				"fragment" : "-lpthread",
 				"role" : "libraries"
 			},
 			{
