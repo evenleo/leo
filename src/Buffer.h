@@ -15,13 +15,14 @@ namespace leo {
 // refer to muduo by Shuo Chen
 class Buffer {
 public:
-	typedef std::shared_ptr<Buffer> Ptr;
+	typedef std::shared_ptr<Buffer> ptr;
 	static const size_t kCheapPrepend = 8;
 	static const size_t kInitialSize = 1024;
 	explicit Buffer(size_t initialSize = kInitialSize)
-		:buffer_(kCheapPrepend + initialSize),
-		read_index_(kCheapPrepend),
-		write_index_(kCheapPrepend) {
+		: buffer_(kCheapPrepend + initialSize),
+		  read_index_(kCheapPrepend),
+		  write_index_(kCheapPrepend) 
+	{
 		assert(readableBytes() == 0);
 		assert(writableBytes() == initialSize);
 		assert(prependableBytes() == kCheapPrepend);
@@ -39,7 +40,7 @@ public:
 	void retrieve(size_t len) {
 		assert(len <= readableBytes());
 		if (len < readableBytes()) {
-		read_index_ += len;
+			read_index_ += len;
 		} else {
 			retrieveAll();
     	}
@@ -76,19 +77,19 @@ public:
 	int16_t peekInt16() const {
 		assert(readableBytes() > sizeof(int16_t));
 		int16_t x = 0;
-		::memcpy(&x, peek(), sizeof x);
+		::memcpy(&x, peek(), sizeof(x));
 		return be16toh(x);
 	}
 	int32_t peekInt32() const {
 		assert(readableBytes() > sizeof(int32_t));
 		int32_t x = 0;
-		::memcpy(&x, peek(), sizeof x);
+		::memcpy(&x, peek(), sizeof(x));
 		return be32toh(x);
 	}
 	int64_t peekInt64() const {
 		assert(readableBytes() > sizeof(int64_t));
 		int64_t x = 0;
-		::memcpy(&x, peek(), sizeof x);
+		::memcpy(&x, peek(), sizeof(x));
 		return be64toh(x);
 	}
 	std::string peekAsString() const {
@@ -194,8 +195,8 @@ private:
 			read_index_ = kCheapPrepend;
 			write_index_ = read_index_ + readable;
 			assert(readable == readableBytes());
-    }
-  }
+		}
+	}
 
 	std::vector<char> buffer_;
 	size_t read_index_;

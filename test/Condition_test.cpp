@@ -9,7 +9,7 @@
 
 
 int main() {
-	Mutex mutex;
+	leo::Mutex mutex;
 	leo::Condition cond(mutex);
 
 	std::vector<std::shared_ptr<leo::Thread>> v;

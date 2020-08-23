@@ -311,7 +311,7 @@ public:
 private:
 	void connectionHandler(TcpConnection::Ptr conn) {
 		LOG_INFO << "new connection from " << conn->peerAddr().toString();
-		Buffer::Ptr buffer = std::make_shared<Buffer>();
+		Buffer::ptr buffer = std::make_shared<Buffer>();
 		ssize_t n;
 		while (( n = conn->read(buffer)) > 0) {
 			size_t len = buffer->readableBytes();

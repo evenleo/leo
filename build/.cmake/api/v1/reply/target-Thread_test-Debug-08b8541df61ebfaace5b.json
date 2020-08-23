@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "bin/LogFile_test"
+			"path" : "Thread_test"
 		}
 	],
 	"backtrace" : 1,
@@ -26,25 +26,19 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 72,
+				"line" : 91,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 73,
-				"parent" : 0
-			},
-			{
-				"command" : 1,
-				"file" : 0,
-				"line" : 45,
+				"line" : 92,
 				"parent" : 0
 			},
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 20,
+				"line" : 16,
 				"parent" : 0
 			}
 		]
@@ -55,13 +49,13 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-O2 -g -pg -Wall -Wextra -Werror -std=c++11 -pthread  "
+					"fragment" : " -rdynamic -O3 -fPIC -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations -g  "
 				}
 			],
 			"includes" : 
 			[
 				{
-					"backtrace" : 4,
+					"backtrace" : 3,
 					"path" : "/home/even/workspace/leo/src"
 				}
 			],
@@ -79,18 +73,27 @@
 			"id" : "leo::@6890427a1f51a3e7e1df"
 		}
 	],
-	"id" : "LogFile_test::@6890427a1f51a3e7e1df",
+	"id" : "Thread_test::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "-O2 -g -pg -Wall -Wextra -Werror -std=c++11 -pthread",
+				"fragment" : "-rdynamic -O3 -fPIC -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations -g",
 				"role" : "flags"
 			},
 			{
 				"fragment" : "-rdynamic",
 				"role" : "flags"
+			},
+			{
+				"fragment" : "-Wl,-rpath,/home/even/workspace/leo/build",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "libleo.so",
+				"role" : "libraries"
 			},
 			{
 				"backtrace" : 2,
@@ -99,23 +102,14 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "lib/libleo.a",
-				"role" : "libraries"
-			},
-			{
-				"backtrace" : 3,
 				"fragment" : "-ldl",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "-lz",
 				"role" : "libraries"
 			}
 		],
 		"language" : "CXX"
 	},
-	"name" : "LogFile_test",
-	"nameOnDisk" : "LogFile_test",
+	"name" : "Thread_test",
+	"nameOnDisk" : "Thread_test",
 	"paths" : 
 	{
 		"build" : ".",
@@ -136,7 +130,7 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "test/LogFile_test.cpp",
+			"path" : "test/Thread_test.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

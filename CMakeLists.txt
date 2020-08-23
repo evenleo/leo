@@ -2,74 +2,91 @@ cmake_minimum_required(VERSION 2.8)
 
 project(leo CXX C)
 
-set(CXX_FLAGS
- -O2
- -g
- -pg
- -Wall
- -Wextra
- -Werror
- -std=c++11
- -pthread
+
+cmake_minimum_required(VERSION 3.0)
+project(leo)
+
+#set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_CXX_FLAGS "$ENV{CXXFLAGS} -rdynamic -O3 -fPIC -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations")
+
+set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_CXX_FLAGS "$ENV{CXXFLAGS} -rdynamic -O3 -fPIC -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations")
+set(CMAKE_C_FLAGS "$ENV{CXXFLAGS} -rdynamic -O3 -fPIC -ggdb -std=c11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations")
+
+include_directories(src)
+
+set(LIB_SRC
+    src/Address.cpp
+    src/Buffer.cpp
+    src/Condition.cpp
+    src/Coroutine.cpp
+    src/CountDownLatch.cpp
+    src/Hook.cpp
+    src/Log.cpp
+    src/LogFile.cpp
+    src/Mutex.cpp
+    src/Poller.cpp
+    src/Processer.cpp
+    src/ProcesserThread.cpp
+    src/Scheduler.cpp
+    src/Socket.cpp
+    src/TcpClient.cpp
+    src/TcpConnection.cpp
+    src/TcpServer.cpp
+    src/Thread.cpp
+    src/TimerManager.cpp
+    src/Timestamp.cpp
 )
 
-# ---[ Flags
-string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
+add_library(leo SHARED ${LIB_SRC})
 
-# ---[ Includes
-include_directories(${PROJECT_SOURCE_DIR}/src)
-include_directories(${GMOCK_INCLUDE_DIR})
-
-# ---[ Dependencies
-find_package(Threads REQUIRED)
-find_package(Protobuf REQUIRED)
-if(PROTOBUF_FOUND)
-   message(STATUS "protobuf library found")
-else()
-    message(FATAL_ERROR "protobuf library is needed but cant be found")
-endif()
-find_package(ZLIB REQUIRED)
-if (ZLIB_FOUND)
-    include_directories(${ZLIB_INCLUDE_DIRS})
-endif()
-
-# --[ Output directory
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-file(GLOB_RECURSE srcs ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.c)
-file(GLOB_RECURSE headers ${PROJECT_SOURCE_DIR}/src/*.h)
-
-add_library(leo STATIC ${srcs})
-target_link_libraries(leo ${CMAKE_DL_LIBS}) 	#dlsym
-#target_link_libraries(leo ${PROTOBUF_LIBRARIES}) #protobuf
-target_link_libraries(leo ${ZLIB_LIBRARIES})	#zlib
-
-
-install(TARGETS leo
-        ARCHIVE DESTINATION /usr/lib
-        LIBRARY DESTINATION /usr/lib)
-install(FILES ${headers}
-        DESTINATION /usr/local/include/leo)
-
+set(LIBS
+    leo
+    pthread
+    dl
+)
 
 add_executable(AsyncFileAppender_test test/AsyncFileAppender_test.cpp)
-target_link_libraries(AsyncFileAppender_test pthread leo)
+target_link_libraries(AsyncFileAppender_test ${LIBS})
 
 add_executable(Coroutine_test test/Coroutine_test.cpp)
-target_link_libraries(Coroutine_test pthread leo)
+target_link_libraries(Coroutine_test ${LIBS})
 
 add_executable(Log_test test/Log_test.cpp)
-target_link_libraries(Log_test pthread leo)
+target_link_libraries(Log_test ${LIBS})
 
 add_executable(Timer_test test/Timer_test.cpp)
-target_link_libraries(Timer_test pthread leo)
+target_link_libraries(Timer_test ${LIBS})
 
 add_executable(Scheduler_test test/Scheduler_test.cpp)
-target_link_libraries(Scheduler_test pthread leo)
+target_link_libraries(Scheduler_test ${LIBS})
 
 add_executable(LogFile_test test/LogFile_test.cpp)
-target_link_libraries(LogFile_test pthread leo)
-
+target_link_libraries(LogFile_test ${LIBS})
  
+add_executable(Condition_test test/Condition_test.cpp)
+target_link_libraries(Condition_test ${LIBS}) 
+
+add_executable(CoroutineCondition_test test/CoroutineCondition_test.cpp)
+target_link_libraries(CoroutineCondition_test ${LIBS}) 
+
+add_executable(Hook_test test/Hook_test.cpp)
+target_link_libraries(Hook_test ${LIBS}) 
+
+# add_executable(HttpParser_test test/HttpParser_test.cpp)
+# target_link_libraries(HttpParser_test ${LIBS}) 
+# 
+# add_executable(HttpRequestResponse_test test/HttpRequestResponse_test.cpp)
+# target_link_libraries(HttpRequestResponse_test ${LIBS}) 
+# 
+# add_executable(HttpServer_test test/HttpServer_test.cpp)
+# target_link_libraries(HttpServer_test ${LIBS}) 
+
+# add_executable(TcpClient_test test/HttpServer_test.cpp)
+# target_link_libraries(TcpClient_test ${LIBS}) 
+
+add_executable(TcpServer_test test/TcpServer_test.cpp)
+target_link_libraries(TcpServer_test ${LIBS}) 
+
+add_executable(Thread_test test/Thread_test.cpp)
+target_link_libraries(Thread_test ${LIBS}) 

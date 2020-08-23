@@ -126,7 +126,7 @@ void Session::handleConnection() {
 	conn->setTcpNoDelay(true);
 	owner_->onConnect();
 
-	Buffer::Ptr buffer = std::make_shared<Buffer>();
+	Buffer::ptr buffer = std::make_shared<Buffer>();
 	conn->write(owner_->message());
 	while (!owner_->isQuit() && conn->read(buffer) > 0) {
 		++message_read_;

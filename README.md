@@ -21,7 +21,7 @@ make  all
 ``` c++
 void handleClient(TcpConnection::Ptr conn){
 	conn->setTcpNoDelay(true);
-	Buffer::Ptr buffer = std::make_shared<Buffer>();
+	Buffer::ptr buffer = std::make_shared<Buffer>();
 	while (conn->read(buffer) > 0) {
 		conn->write(buffer);
 	}

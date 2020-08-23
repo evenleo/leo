@@ -23,7 +23,7 @@ const uint32_t kStackSize = 1024 * 512;
 
 class Coroutine : public Noncopyable, public std::enable_shared_from_this<Coroutine> {
 public:
-	typedef std::function<void ()> Func;
+	typedef std::function<void()> Func;
 	typedef std::shared_ptr<Coroutine> ptr;
 
 	Coroutine(Func cb, std::string name = "anonymous", uint32_t stack_size = kStackSize);

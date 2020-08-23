@@ -108,7 +108,7 @@ public:
 		send(conn, pipelines_);
 		
 		ssize_t n = 0;
-		Buffer::Ptr buffer = std::make_shared<Buffer>();
+		Buffer::ptr buffer = std::make_shared<Buffer>();
 		while ((n = conn->read(buffer)) > 0) {
            size_t len = buffer->readableBytes();
            while (len > kCells + 2) {

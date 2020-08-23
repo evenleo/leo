@@ -26,7 +26,7 @@ ssize_t TcpConnection::readn(void* buf, size_t count) {
 	return count;
 }
 
-ssize_t TcpConnection::read(Buffer::Ptr buf) {
+ssize_t TcpConnection::read(Buffer::ptr buf) {
 	return buf->readSocket(conn_socket_);
 }
 
@@ -48,7 +48,7 @@ ssize_t TcpConnection::writen(const void* buf, size_t count) {
 	return count;
 }
 
-ssize_t TcpConnection::write(Buffer::Ptr buf) {
+ssize_t TcpConnection::write(Buffer::ptr buf) {
 	ssize_t n = writen(buf->peek(), buf->readableBytes());
 	if (n > 0) {
 		buf->retrieve(n);
@@ -65,7 +65,7 @@ void TcpConnection::shutdown() {
 }
 
 void TcpConnection::readUntilZero() {
-	Buffer::Ptr buffer(new Buffer);
+	Buffer::ptr buffer(new Buffer);
 	while (read(buffer) > 0) {
 		buffer->retrieveAll();
 	}

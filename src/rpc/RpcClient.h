@@ -38,7 +38,7 @@ private:
 			ProtobufCodec codec(conn);
 			codec.send(request);
 
-			Buffer::Ptr buf(new Buffer);
+			Buffer::ptr buf(new Buffer);
 			MessagePtr response;
 			ProtobufCodec::ErrorCode errorcode = codec.receive(response);
 			if (errorcode == ProtobufCodec::kNoError && response) {

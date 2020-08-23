@@ -14,7 +14,7 @@ public:
 	}
 };
 
-// IgnoreSigpipe signalObj;
+IgnoreSigpipe signalObj;
 
 namespace leo {
 

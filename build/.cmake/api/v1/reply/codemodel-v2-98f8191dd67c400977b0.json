@@ -1,0 +1,158 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "leo",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "AsyncFileAppender_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-AsyncFileAppender_test-Debug-f1cca8681b3d542dc380.json",
+					"name" : "AsyncFileAppender_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Condition_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Condition_test-Debug-06eb4f733017255534b6.json",
+					"name" : "Condition_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "CoroutineCondition_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-CoroutineCondition_test-Debug-b15b9b79e12053056e0d.json",
+					"name" : "CoroutineCondition_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Coroutine_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Coroutine_test-Debug-531140de2d4f7fd657e0.json",
+					"name" : "Coroutine_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Hook_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Hook_test-Debug-d4afde6b33b344391032.json",
+					"name" : "Hook_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "LogFile_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-LogFile_test-Debug-1ce2c5f57aabc9395783.json",
+					"name" : "LogFile_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Log_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Log_test-Debug-cd01b317ed4ce0b949cb.json",
+					"name" : "Log_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Scheduler_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Scheduler_test-Debug-85dd861339f6123a9c93.json",
+					"name" : "Scheduler_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TcpServer_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TcpServer_test-Debug-b5963cea1d904fac9fd6.json",
+					"name" : "TcpServer_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Thread_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Thread_test-Debug-08b8541df61ebfaace5b.json",
+					"name" : "Thread_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Timer_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Timer_test-Debug-b7101aa312059a6cf769.json",
+					"name" : "Timer_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "leo::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-leo-Debug-d103019249abf6e70487.json",
+					"name" : "leo",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/even/workspace/leo/build",
+		"source" : "/home/even/workspace/leo"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 0
+	}
+}

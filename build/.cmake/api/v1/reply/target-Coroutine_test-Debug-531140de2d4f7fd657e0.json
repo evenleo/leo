@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "bin/Coroutine_test"
+			"path" : "Coroutine_test"
 		}
 	],
 	"backtrace" : 1,
@@ -26,25 +26,19 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 60,
+				"line" : 52,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 61,
-				"parent" : 0
-			},
-			{
-				"command" : 1,
-				"file" : 0,
-				"line" : 45,
+				"line" : 53,
 				"parent" : 0
 			},
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 20,
+				"line" : 16,
 				"parent" : 0
 			}
 		]
@@ -55,13 +49,13 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-O2 -g -pg -Wall -Wextra -Werror -std=c++11 -pthread  "
+					"fragment" : " -rdynamic -O3 -fPIC -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations -g  "
 				}
 			],
 			"includes" : 
 			[
 				{
-					"backtrace" : 4,
+					"backtrace" : 3,
 					"path" : "/home/even/workspace/leo/src"
 				}
 			],
@@ -85,12 +79,21 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "-O2 -g -pg -Wall -Wextra -Werror -std=c++11 -pthread",
+				"fragment" : "-rdynamic -O3 -fPIC -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations -g",
 				"role" : "flags"
 			},
 			{
 				"fragment" : "-rdynamic",
 				"role" : "flags"
+			},
+			{
+				"fragment" : "-Wl,-rpath,/home/even/workspace/leo/build",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "libleo.so",
+				"role" : "libraries"
 			},
 			{
 				"backtrace" : 2,
@@ -99,16 +102,7 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "lib/libleo.a",
-				"role" : "libraries"
-			},
-			{
-				"backtrace" : 3,
 				"fragment" : "-ldl",
-				"role" : "libraries"
-			},
-			{
-				"fragment" : "-lz",
 				"role" : "libraries"
 			}
 		],

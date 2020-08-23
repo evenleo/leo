@@ -27,6 +27,5 @@ int main() {
 	scheduler.addTask(bar);
 	scheduler.addTask(foo);
 
-	getchar();
 	return 0;
 }

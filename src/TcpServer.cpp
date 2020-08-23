@@ -8,10 +8,11 @@
 namespace leo {
 
 TcpServer::TcpServer(const IpAddress& listen_addr, Scheduler* scheduler)
-	:listen_addr_(listen_addr),
-	listen_socket_(Socket::CreateTcp()),
-	scheduler_(scheduler),
-	connection_handler_(defualtHandler) {
+	: listen_addr_(listen_addr),
+	  listen_socket_(Socket::CreateTcp()),
+	  scheduler_(scheduler),
+	  connection_handler_(defualtHandler) 
+{
 
 	listen_socket_->SetNonBlockAndCloseOnExec();
 	listen_socket_->setReuseAddr(true);

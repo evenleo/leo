@@ -108,7 +108,7 @@ void Coroutine::RunInCoroutine() {
 
 Coroutine::ptr& Coroutine::GetCurrentCoroutine() {
 	//第一个协程对象调用swapIn()时初始化
-	static thread_local Coroutine::ptr t_cur_coroutine;
+	static thread_local Coroutine::ptr t_cur_coroutine = nullptr;
 	return t_cur_coroutine;
 }
 

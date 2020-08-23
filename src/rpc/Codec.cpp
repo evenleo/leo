@@ -7,7 +7,7 @@ namespace leo {
 namespace rpc {
 
 void ProtobufCodec::send(const MessagePtr& message) {
-	Buffer::Ptr buf(new Buffer);
+	Buffer::ptr buf(new Buffer);
 
 	const std::string& typeName = message->GetTypeName();
 	int32_t nameLen = static_cast<int32_t>(typeName.size()+1);
@@ -34,7 +34,7 @@ void ProtobufCodec::send(const MessagePtr& message) {
 }
 
 ProtobufCodec::ErrorCode ProtobufCodec::receive(MessagePtr& message) {
-	Buffer::Ptr buf(new Buffer);
+	Buffer::ptr buf(new Buffer);
 	while (conn_->read(buf) > 0) {
 		if (buf->readableBytes() >= kHeaderlen + kMinMessageLen) {
 			const int32_t len = buf->peekInt32();

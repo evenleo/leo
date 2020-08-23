@@ -1,9 +1,8 @@
 {
-	"archive" : {},
 	"artifacts" : 
 	[
 		{
-			"path" : "lib/libleo.a"
+			"path" : "libleo.so"
 		}
 	],
 	"backtrace" : 1,
@@ -12,7 +11,6 @@
 		"commands" : 
 		[
 			"add_library",
-			"install",
 			"include_directories"
 		],
 		"files" : 
@@ -27,19 +25,13 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 44,
+				"line" : 41,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 50,
-				"parent" : 0
-			},
-			{
-				"command" : 2,
-				"file" : 0,
-				"line" : 20,
+				"line" : 16,
 				"parent" : 0
 			}
 		]
@@ -50,13 +42,19 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-O2 -g -pg -Wall -Wextra -Werror -std=c++11 -pthread  "
+					"fragment" : " -rdynamic -O3 -fPIC -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations -g -fPIC  "
+				}
+			],
+			"defines" : 
+			[
+				{
+					"define" : "leo_EXPORTS"
 				}
 			],
 			"includes" : 
 			[
 				{
-					"backtrace" : 3,
+					"backtrace" : 2,
 					"path" : "/home/even/workspace/leo/src"
 				}
 			],
@@ -82,52 +80,24 @@
 				16,
 				17,
 				18,
-				19,
-				20,
-				21,
-				22,
-				24,
-				25
-			]
-		},
-		{
-			"compileCommandFragments" : 
-			[
-				{
-					"fragment" : " "
-				}
-			],
-			"includes" : 
-			[
-				{
-					"backtrace" : 3,
-					"path" : "/home/even/workspace/leo/src"
-				}
-			],
-			"language" : "C",
-			"sourceIndexes" : 
-			[
-				23
+				19
 			]
 		}
 	],
 	"id" : "leo::@6890427a1f51a3e7e1df",
-	"install" : 
+	"link" : 
 	{
-		"destinations" : 
+		"commandFragments" : 
 		[
 			{
-				"backtrace" : 2,
-				"path" : "/usr/lib"
+				"fragment" : "",
+				"role" : "flags"
 			}
 		],
-		"prefix" : 
-		{
-			"path" : "/usr/local"
-		}
+		"language" : "CXX"
 	},
 	"name" : "leo",
-	"nameOnDisk" : "libleo.a",
+	"nameOnDisk" : "libleo.so",
 	"paths" : 
 	{
 		"build" : ".",
@@ -158,13 +128,7 @@
 				16,
 				17,
 				18,
-				19,
-				20,
-				21,
-				22,
-				23,
-				24,
-				25
+				19
 			]
 		}
 	],
@@ -289,43 +253,7 @@
 			"compileGroupIndex" : 0,
 			"path" : "src/Timestamp.cpp",
 			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "src/http/Http.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "src/http/HttpConnection.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "src/http/HttpParser.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 1,
-			"path" : "src/http/picohttpparser.c",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "src/rpc/Codec.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "src/rpc/RpcServer.cpp",
-			"sourceGroupIndex" : 0
 		}
 	],
-	"type" : "STATIC_LIBRARY"
+	"type" : "SHARED_LIBRARY"
 }
