@@ -7,10 +7,12 @@ namespace leo {
 
 class TcpClient {
 public:
+	typedef std::shared_ptr<TcpClient> ptr;
+
 	TcpClient(const IpAddress& server_addr);
 	virtual ~TcpClient() {}
 
-	TcpConnection::Ptr connect();
+	TcpConnection::ptr connect();
 
 private:
 	static const int kMaxRetryDelayMs = 15 * 1000;

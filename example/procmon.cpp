@@ -254,11 +254,11 @@ public:
 	}
 
 private:
-	void connectionHandler(TcpConnection::Ptr conn) {
-		HttpConnection::Ptr http_conn = std::make_shared<HttpConnection>(conn);	
-		HttpRequest::Ptr request = http_conn->recvRequest();		
+	void connectionHandler(TcpConnection::ptr conn) {
+		HttpConnection::ptr http_conn = std::make_shared<HttpConnection>(conn);	
+		HttpRequest::ptr request = http_conn->recvRequest();		
 
-		HttpResponse::Ptr rsp = std::make_shared<HttpResponse>();
+		HttpResponse::ptr rsp = std::make_shared<HttpResponse>();
 		rsp->setHttpStatus(HttpStatus::OK);
 		if (request->getPath() == "/") {
 			rsp->setHeader("Content-Type", "text/html");		

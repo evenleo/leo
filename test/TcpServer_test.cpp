@@ -7,13 +7,14 @@
 
 using namespace leo;
 
-void handleClient(TcpConnection::Ptr conn){
+void handleClient(TcpConnection::ptr conn){
 	conn->setTcpNoDelay(true);
 	Buffer::ptr buffer = std::make_shared<Buffer>();
 	while (conn->read(buffer) > 0) {
+		std::string str(buffer->peek(), buffer->readableBytes());
+		std::cout << "recv: " << str << std::endl;
 		conn->write(buffer);
 	}
-
 	conn->close();
 }
 

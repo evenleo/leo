@@ -131,7 +131,7 @@ enum class HttpStatus {
 class HttpRequest {
 friend class HttpRequestParser;
 public:
-	typedef std::shared_ptr<HttpRequest> Ptr;
+	typedef std::shared_ptr<HttpRequest> ptr;
 	HttpRequest() :major_version_(1), minor_version_(1) {}
 	//get
 	HttpMethod getMethod() const { return method_; }
@@ -175,7 +175,7 @@ private:
 
 class HttpResponse {
 public:
-	typedef std::shared_ptr<HttpResponse> Ptr;
+	typedef std::shared_ptr<HttpResponse> ptr;
 	HttpResponse() :major_version_(1), minor_version_(1) {}
 	//get
 	int getMajorVersion() const { return major_version_; }

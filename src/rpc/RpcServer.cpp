@@ -6,7 +6,7 @@
 namespace leo {
 namespace rpc {
 
-void RpcServer::handleClient(TcpConnection::Ptr conn) {
+void RpcServer::handleClient(TcpConnection::ptr conn) {
 	ProtobufCodec codec(conn);
 	//todo 错误处理
 	MessagePtr message;

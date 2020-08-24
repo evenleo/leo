@@ -11,7 +11,7 @@ namespace http {
 
 class HttpParser {
 public:
-	typedef std::shared_ptr<HttpParser> Ptr;
+	typedef std::shared_ptr<HttpParser> ptr;
 	HttpParser() = default;
 
 	static int parseRequest(HttpRequest& request, const char* buf, size_t len);

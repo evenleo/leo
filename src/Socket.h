@@ -16,7 +16,7 @@ public:
 	typedef std::shared_ptr<Socket> Ptr;
 
 	explicit Socket(int fd) 
-		:fd_(fd) {}
+		: fd_(fd) {}
 
 	void bind(const IpAddress& local);
 	void listen();

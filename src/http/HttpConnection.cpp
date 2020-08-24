@@ -10,16 +10,16 @@ namespace http {
 
 static const size_t s_buffer_size = 4 * 1024;
 
-HttpConnection::HttpConnection(TcpConnection::Ptr tcp_conn)
-	:tcp_conn_(tcp_conn),
-	buffer_(new char[s_buffer_size], [](char* ptr) {
-												delete ptr;	
-											}) {
-}
+HttpConnection::HttpConnection(TcpConnection::ptr tcp_conn)
+	: tcp_conn_(tcp_conn),
+	  buffer_(new char[s_buffer_size], [](char* ptr) {
+											delete[] ptr;	
+										}) 
+{}
 
-HttpRequest::Ptr HttpConnection::recvRequest() {
-	HttpParser::Ptr parser = std::make_shared<HttpParser>();
-	HttpRequest::Ptr request = std::make_shared<HttpRequest>();
+HttpRequest::ptr HttpConnection::recvRequest() {
+	HttpParser::ptr parser = std::make_shared<HttpParser>();
+	HttpRequest::ptr request = std::make_shared<HttpRequest>();
 
 	char* data = buffer_.get();
 	int result = -1;
@@ -48,7 +48,7 @@ HttpRequest::Ptr HttpConnection::recvRequest() {
 	return request;
 }
 
-void HttpConnection::sendResponse(HttpResponse::Ptr response) {
+void HttpConnection::sendResponse(HttpResponse::ptr response) {
 	std::stringstream ss;
 	response->toStream(ss);
 	std::string rsp = ss.str();

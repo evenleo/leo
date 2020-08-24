@@ -47,12 +47,12 @@ public:
 		}
 
 		g_start = Timestamp::now();
-		for (const TcpConnection::Ptr& connection : connections) {
+		for (const TcpConnection::ptr& connection : connections) {
 			g_scheduler->addTask(std::bind(&SudokuClient::handleConnection, this, connection));
 		}
 	}
 
-	void handleConnection(TcpConnection::Ptr conn) {
+	void handleConnection(TcpConnection::ptr conn) {
 		//send request
 		LOG_INFO << "start send request, conn_num_ = " << conn_num_;
 		for (size_t i = 0; i < input_->size(); ++i) {
@@ -97,7 +97,7 @@ private:
 	InputPtr input_;
 	IpAddress server_addr_;
 	int conn_num_;
-	vector<TcpConnection::Ptr> connections;
+	vector<TcpConnection::ptr> connections;
 };
 
 

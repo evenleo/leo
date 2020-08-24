@@ -122,7 +122,7 @@ private:
 };
 
 void Session::handleConnection() {
-	TcpConnection::Ptr conn = client_.connect();
+	TcpConnection::ptr conn = client_.connect();
 	conn->setTcpNoDelay(true);
 	owner_->onConnect();
 
@@ -130,6 +130,8 @@ void Session::handleConnection() {
 	conn->write(owner_->message());
 	while (!owner_->isQuit() && conn->read(buffer) > 0) {
 		++message_read_;
+		// LOG_INFO << buffer->readAsString();
+		std::cout << "send" << std::endl;
 		bytes_read_ += buffer->readableBytes();
 		conn->write(buffer);
 	}
@@ -139,6 +141,7 @@ void Session::handleConnection() {
 	owner_->onDisconnect();
 }
 
+// ./TcpClient_test 127.0.0.1 5000 3 10 3 10
 int main(int argc, char* argv[]) {
 	if (argc != 7) {
 		printf("Usage:%s serverip port threads blockSize sessionCount timeout\n", argv[0]);

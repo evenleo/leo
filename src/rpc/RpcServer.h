@@ -58,7 +58,7 @@ public:
 	}
 
 private:
-	void handleClient(TcpConnection::Ptr conn);
+	void handleClient(TcpConnection::ptr conn);
 
 	HandlerMap handlers_;
 	Mutex mutex_;

@@ -16,6 +16,16 @@ namespace leo {
 class Buffer {
 public:
 	typedef std::shared_ptr<Buffer> ptr;
+	/// A buffer class modeled after org.jboss.netty.buffer.ChannelBuffer
+	///
+	/// @code
+	/// +-------------------+------------------+------------------+
+	/// | prependable bytes |  readable bytes  |  writable bytes  |
+	/// |                   |     (CONTENT)    |                  |
+	/// +-------------------+------------------+------------------+
+	/// |                   |                  |                  |
+	/// 0      <=      readerIndex   <=   writerIndex    <=     size
+/// @endcode
 	static const size_t kCheapPrepend = 8;
 	static const size_t kInitialSize = 1024;
 	explicit Buffer(size_t initialSize = kInitialSize)

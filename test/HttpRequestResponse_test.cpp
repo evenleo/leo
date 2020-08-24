@@ -27,6 +27,6 @@ void tesetResponse() {
 
 int main() {
 	testRequest();
-	//tesetResponse();
+	tesetResponse();
 	return 0;
 }

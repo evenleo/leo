@@ -19,7 +19,7 @@ make  all
 
 以echo服务端为例，
 ``` c++
-void handleClient(TcpConnection::Ptr conn){
+void handleClient(TcpConnection::ptr conn){
 	conn->setTcpNoDelay(true);
 	Buffer::ptr buffer = std::make_shared<Buffer>();
 	while (conn->read(buffer) > 0) {
@@ -51,7 +51,7 @@ int main(int args, char* argv[]) {
 	return 0;
 }
 ```
-只需要为TcpServer设置连接处理函数，在连接处理函数中，参数TcpConnection::Ptr conn代表此次连接，可以像阻塞IO一样进行读写，如果发生阻塞，当前协程会被切出去，直到可读或者可写事件到来时，该协程会被重新执行。
+只需要为TcpServer设置连接处理函数，在连接处理函数中，参数TcpConnection::ptr conn代表此次连接，可以像阻塞IO一样进行读写，如果发生阻塞，当前协程会被切出去，直到可读或者可写事件到来时，该协程会被重新执行。
 
 ## 性能
 硬件环境：Intel Core i7-8550U CPU 1.80GHz，8核，8G RAM

@@ -41,7 +41,7 @@ void TcpServer::setConnectionHandler(ConnectionHanlder&& handler) {
 }
 
 
-void defualtHandler(TcpConnection::Ptr connection) {
+void defualtHandler(TcpConnection::ptr connection) {
 	LOG_INFO << "new connection, peer addr:" << connection->peerAddr().toString();
 }
 

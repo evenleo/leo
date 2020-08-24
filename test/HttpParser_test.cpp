@@ -14,7 +14,7 @@ int main() {
  		"\r\n"
  		"World";
 
-	int ret = parser.parseRequest(request, part1, sizeof part1);
+	int ret = parser.parseRequest(request, part1, sizeof(part1));
 
 	LOG_DEBUG << request.getPath();
 	LOG_DEBUG << request.getQuery();

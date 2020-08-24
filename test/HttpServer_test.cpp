@@ -15,11 +15,11 @@ int main() {
 	scheduler.startAsync();
 	IpAddress addr(80);
 	TcpServer server(addr, &scheduler);
-	server.setConnectionHandler([](TcpConnection::Ptr conn) {
-					HttpConnection::Ptr http_conn = std::make_shared<HttpConnection>(conn);
-					HttpRequest::Ptr request = http_conn->recvRequest();
+	server.setConnectionHandler([](TcpConnection::ptr conn) {
+					HttpConnection::ptr http_conn = std::make_shared<HttpConnection>(conn);
+					HttpRequest::ptr request = http_conn->recvRequest();
 
-					HttpResponse::Ptr rsp = std::make_shared<HttpResponse>();
+					HttpResponse::ptr rsp = std::make_shared<HttpResponse>();
 					rsp->setHttpStatus(HttpStatus::OK);
 					rsp->setHeader("Content-Length", "5");
 					rsp->setContent("hello");

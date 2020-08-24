@@ -309,7 +309,7 @@ public:
 	}
 
 private:
-	void connectionHandler(TcpConnection::Ptr conn) {
+	void connectionHandler(TcpConnection::ptr conn) {
 		LOG_INFO << "new connection from " << conn->peerAddr().toString();
 		Buffer::ptr buffer = std::make_shared<Buffer>();
 		ssize_t n;

@@ -12,13 +12,13 @@ namespace http {
 	
 class HttpConnection {
 public:
-	typedef std::shared_ptr<HttpConnection> Ptr;
-	explicit HttpConnection(TcpConnection::Ptr tcp_conn);
-	HttpRequest::Ptr recvRequest();
-	void sendResponse(HttpResponse::Ptr response);
+	typedef std::shared_ptr<HttpConnection> ptr;
+	explicit HttpConnection(TcpConnection::ptr tcp_conn);
+	HttpRequest::ptr recvRequest();
+	void sendResponse(HttpResponse::ptr response);
 
 private:
-	TcpConnection::Ptr tcp_conn_;
+	TcpConnection::ptr tcp_conn_;
 	std::unique_ptr<char, std::function<void (char*)> > buffer_;
 };
 

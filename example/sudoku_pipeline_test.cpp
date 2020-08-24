@@ -98,12 +98,12 @@ public:
 		for (int i = 0; i < conn_num_; ++i) {
 			connections_.push_back(client.connect());
 		}
-		for (const TcpConnection::Ptr& connection : connections_) {
+		for (const TcpConnection::ptr& connection : connections_) {
 			g_scheduler->addTask(std::bind(&SudokuClient::handleConnection, this, connection));
 		}
 	}
 
-	void handleConnection(TcpConnection::Ptr conn) {
+	void handleConnection(TcpConnection::ptr conn) {
 		//先发送pipeline个请求
 		send(conn, pipelines_);
 		
@@ -138,7 +138,7 @@ public:
 
 	}
 
-	void send(TcpConnection::Ptr conn, int n) {
+	void send(TcpConnection::ptr conn, int n) {
 		Timestamp now = Timestamp::now();
 		for (int i = 0; i < n; ++i) {
 			const string& req = (*input_)[count_ % input_->size()];
@@ -170,7 +170,7 @@ private:
 	int pipelines_;
 	int no_delay_;
 	int count_;
-	vector<TcpConnection::Ptr> connections_;
+	vector<TcpConnection::ptr> connections_;
 	unordered_map<int, Timestamp> send_time_;
 	vector<int> latencies_;
 };

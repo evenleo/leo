@@ -36,6 +36,11 @@ set(LIB_SRC
     src/Thread.cpp
     src/TimerManager.cpp
     src/Timestamp.cpp
+
+    src/http/picohttpparser.c
+    src/http/Http.cpp
+    src/http/HttpParser.cpp
+    src/http/HttpConnection.cpp
 )
 
 add_library(leo SHARED ${LIB_SRC})
@@ -73,20 +78,23 @@ target_link_libraries(CoroutineCondition_test ${LIBS})
 add_executable(Hook_test test/Hook_test.cpp)
 target_link_libraries(Hook_test ${LIBS}) 
 
-# add_executable(HttpParser_test test/HttpParser_test.cpp)
-# target_link_libraries(HttpParser_test ${LIBS}) 
-# 
-# add_executable(HttpRequestResponse_test test/HttpRequestResponse_test.cpp)
-# target_link_libraries(HttpRequestResponse_test ${LIBS}) 
-# 
-# add_executable(HttpServer_test test/HttpServer_test.cpp)
-# target_link_libraries(HttpServer_test ${LIBS}) 
+add_executable(HttpParser_test test/HttpParser_test.cpp)
+target_link_libraries(HttpParser_test ${LIBS}) 
 
-# add_executable(TcpClient_test test/HttpServer_test.cpp)
-# target_link_libraries(TcpClient_test ${LIBS}) 
+add_executable(HttpRequestResponse_test test/HttpRequestResponse_test.cpp)
+target_link_libraries(HttpRequestResponse_test ${LIBS}) 
+
+add_executable(HttpServer_test test/HttpServer_test.cpp)
+target_link_libraries(HttpServer_test ${LIBS}) 
+
+add_executable(TcpClient_test test/TcpClient_test.cpp)
+target_link_libraries(TcpClient_test ${LIBS}) 
 
 add_executable(TcpServer_test test/TcpServer_test.cpp)
 target_link_libraries(TcpServer_test ${LIBS}) 
 
 add_executable(Thread_test test/Thread_test.cpp)
 target_link_libraries(Thread_test ${LIBS}) 
+
+add_executable(EchoClient test/EchoClient.cpp)
+target_link_libraries(EchoClient ${LIBS}) 

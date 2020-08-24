@@ -72,7 +72,7 @@ bool parseCmd(int argc, char* argv[], Cmd& cmd) {
 	return true;
 }
 
-void transmit(TcpConnection::Ptr conn, Cmd cmd) {
+void transmit(TcpConnection::ptr conn, Cmd cmd) {
 	Timestamp start = Timestamp::now();
 	//send header message
 	struct Message message = {0, 0};
@@ -111,7 +111,7 @@ void transmit(TcpConnection::Ptr conn, Cmd cmd) {
 	printf("%ld seconds, %.3f Mb, %.3f MiB/s\n", elapsed, total_mb, total_mb / elapsed);
 };
 
-void receive(TcpConnection::Ptr conn) {
+void receive(TcpConnection::ptr conn) {
 	//receive header message
 	struct Message message = {0, 0};
 	if (conn->readn(&message, sizeof(message)) != sizeof(message)) {
@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
 		IpAddress server_addr(cmd.ip, cmd.port);
 		TcpClient client(server_addr);
 		scheduler.addTask([&client, &cmd]() {
-							TcpConnection::Ptr conn = client.connect();
+							TcpConnection::ptr conn = client.connect();
 							transmit(conn, cmd);
 						});
 		getchar();

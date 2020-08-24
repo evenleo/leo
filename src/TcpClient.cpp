@@ -12,10 +12,10 @@ namespace leo {
 const int TcpClient::kMaxRetryDelayMs;
 
 TcpClient::TcpClient(const IpAddress& server_addr)
-	:server_addr_(server_addr) {
+	: server_addr_(server_addr) {
 }
 
-TcpConnection::Ptr TcpClient::connect() {
+TcpConnection::ptr TcpClient::connect() {
 retry:
 	{
 		Socket::Ptr sock = Socket::CreateTcp();

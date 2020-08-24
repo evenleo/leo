@@ -32,9 +32,7 @@ IpAddress::IpAddress(in_port_t port) {
 }
 
 IpAddress::IpAddress(const struct sockaddr_in& addr)
-	:addr_(addr) {
-
-}
+	: addr_(addr) {}
 
 std::string IpAddress::toString() const {
 	std::stringstream ss;
@@ -50,13 +48,11 @@ std::string IpAddress::toString() const {
 }
 
 const struct sockaddr* IpAddress::getSockAddr() const {
-	const void* void_ptr = static_cast<const void*>(&addr_);
-	return static_cast<const struct sockaddr*>(void_ptr);
+	return reinterpret_cast<const struct sockaddr*>(&addr_);
 }
 
 struct sockaddr* IpAddress::getSockAddr() {
-	void* void_ptr = static_cast<void*>(&addr_);
-	return static_cast<struct sockaddr*>(void_ptr);
+	return reinterpret_cast<struct sockaddr*>(&addr_);
 }
 
 }

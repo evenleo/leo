@@ -32,7 +32,7 @@ public:
 private:
 	template <typename T>
 	void handleConnection(MessagePtr request, typename TypeTraits<T>::ResponseHandler handler) {
-		TcpConnection::Ptr conn = client_.connect();
+		TcpConnection::ptr conn = client_.connect();
 		if (conn) {
 			LOG_DEBUG << "RpcClient: connect to " << conn->peerAddr().toString() << " success";
 			ProtobufCodec codec(conn);
