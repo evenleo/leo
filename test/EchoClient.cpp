@@ -4,6 +4,7 @@
 #include <atomic>
 #include <unistd.h>
 #include <unordered_map>
+#include "rpc/serializer.h"
 
 using namespace leo;
 
@@ -43,12 +44,15 @@ void EchoClient::handleConnection() {
 	conn->setTcpNoDelay(true);
 
 	Buffer::ptr buffer = std::make_shared<Buffer>();
-	std::string message = "hello server";
+	std::string message = "evenleo";
+	Serializer sr;
+	sr << message;
 
-	conn->write(message);
+	conn->write(sr.toString());
 
 	while (!isQuit() && conn->read(buffer) > 0) {
 		std::string str(buffer->peek(), buffer->readableBytes());
+		Serializer s(buffer);
 		std::cout << "send: " << str << std::endl;
 
 		conn->write(buffer);

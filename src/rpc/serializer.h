@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <initializer_list>
 #include "Buffer.h"
 
 namespace leo {
@@ -18,6 +19,10 @@ static bool isLittleEndian()
 class Serializer {
 public:
     Serializer() { buffer_ = std::make_shared<Buffer>(); }
+    Serializer(const char* s, size_t len) { 
+        buffer_ = std::make_shared<Buffer>(); 
+        input(s, len);
+    }
     Serializer(Buffer::ptr buffer)
         : buffer_(buffer) {}
     
@@ -27,31 +32,21 @@ public:
     template <typename T>
     void output_type(T& t);
 
-    // template<typename Tuple, std::size_t Id>
-	// void getv(Serializer& ds, Tuple& t) {
-	// 	ds >> std::get<Id>(t);
-	// }
+    void reset() { buffer_->retrieveAll(); }
+    void clear() { reset(); }
+    void input(const char* data, int len) { buffer_->append(data, len); }
 
-    // void reset(){
-	// 	streamBuffer_.reset();
-	// }
+    template<typename Tuple, std::size_t Id>
+	void getv(Serializer& ds, Tuple& t) {
+		ds >> std::get<Id>(t);
+	}
 
-    // void clear() 
-    // { 
-    //     streamBuffer_.clear();
-    //     reset();
-    // }
-    // void input(const char* data, int len)
-    // {
-    //     streamBuffer_.input(data, len);
-    // }
-
-    // template<typename Tuple, std::size_t... I>
-	// Tuple get_tuple(std::index_sequence<I...>) {
-	// 	Tuple t;
-	// 	((getv<Tuple, I>(*this, t)), ...);
-	// 	return t;
-	// }
+    template<typename Tuple, std::size_t... I>
+	Tuple get_tuple(std::index_sequence<I...>) {
+		Tuple t;
+        std::initializer_list<int>{(getv<Tuple, I>(*this, t), 0)...};
+		return t;
+	}
 
     template<typename T>
 	Serializer& operator >> (T& i)
@@ -69,6 +64,11 @@ public:
     
     const char* data() { return buffer_->peek(); }
     size_t size() const { return buffer_->readableBytes(); }
+    std::string toString() 
+    {
+        return std::string(data(), size());
+    }
+
 
 private:
     static void byteOrder(char* s, int len)
@@ -88,7 +88,7 @@ inline void Serializer::input_type(T v)
     size_t len = sizeof(v);
     char* p = reinterpret_cast<char*>(&v);
     byteOrder(p, len);
-    buffer_->append(p, len);
+    input(p, len);
 }
 
 // 偏特化
@@ -100,7 +100,7 @@ inline void Serializer::input_type(std::string v)
     input_type(len);
     byteOrder(const_cast<char*>(v.c_str()), len);
     // 再存入字符串
-    buffer_->append(const_cast<char*>(v.c_str()), len); 
+    input(v.c_str(), len); 
 }
 
 template<>

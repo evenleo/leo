@@ -7,6 +7,8 @@
 #include <functional>
 #include <tuple>
 #include <memory>
+#include <atomic>
+
 #include "serializer.h"
 #include "TcpServer.h"
 #include "TcpClient.h"
@@ -24,7 +26,10 @@ struct type_xx<void> { typedef int8_t type; };
 template<typename Tuple, std::size_t... Index>
 void package_Args_impl(Serializer& sr, const Tuple& t, std::index_sequence<Index...>)
 {
-	((sr << std::get<Index>(t)), ...);
+	// ((sr << std::get<Index>(t)), ...);
+	std::initializer_list<int>{(sr << std::get<Index>(t), 0)...};
+	// std::initializer_list<int>((Serializer::getv<Tuple, Index>(sr, t), 0)...);
+
 }
 
 template<typename... Args>
@@ -63,13 +68,15 @@ enum ErrCode {
 template <typename T>
 class response_t {
 public:
+	typedef std::function<void(response_t)> ResponseHandler;
+	
 	response_t() : code_(RPC_ERR_SUCCESS) { msg_.clear(); }
-	int error_code() const { return code_; }
+	int error_code() const { return (int)code_; }
 	std::string error_msg() const { return msg_; }
 	T val() const { return val_; }
 
 	void set_val(const T& val) { val_ = val; }
-	void set_code(int code) { code_ = code; }
+	void set_code(ErrCode code) { code_ = code; }
 	void set_msg(const std::string& msg) { msg_ = msg; }
 
 	friend Serializer& operator >> (Serializer& in, response_t<T>& d)
@@ -90,15 +97,14 @@ private:
 	T val_;
 };
 
-
-class RpcServer {
+class RpcServer : public Noncopyable{
 public:
 	RpcServer(int port, int threads) {
 		IpAddress addr(port);
 		scheduler = std::make_shared<Scheduler>(threads);
 		scheduler->startAsync();
-		server = std::make_shared<TcpServer>(addr, scheduler);
-		server->setConnectionHandler(std::bind(handleClient, this, std::placeholders::_1));
+		server = std::make_shared<TcpServer>(addr, scheduler.get());
+		server->setConnectionHandler(std::bind(&RpcServer::handleClient, this, std::placeholders::_1));
 	}
 	~RpcServer()
 	{
@@ -109,10 +115,17 @@ public:
 		conn->setTcpNoDelay(true);
 		Buffer::ptr buffer = std::make_shared<Buffer>();
 		while (conn->read(buffer) > 0) {
-			std::string str(buffer->peek(), buffer->readableBytes());
-			std::cout << "recv: " << str << std::endl;
-			conn->write(buffer);
+			Serializer sr(buffer);
+			std::string funcname;
+			sr >> funcname;
+			std::cout << "recv name= " << funcname << ", " << sr.toString() << std::endl;
+
+			std::shared_ptr<Serializer> rt = call_(funcname, sr.data(), sr.size());
+			conn->write(rt->toString());
+			break;
 		}
+		conn->shutdown();
+		conn->readUntilZero();
 		conn->close();
 	}
 
@@ -137,27 +150,16 @@ public:
 		return sp;
 	}
 
-	template <typename R, typename... Args>
-	response_t<R> call(const std::string& name, Args... args)
-	{
-		using args_type = std::tuple<typename std::decay<Args>::type...>;
-		args_type as = std::make_tuple(args...);
-		Serializer sr;
-		sr << name;
-		package_Args(sr, as);
-		return net_call<R>(sr);
-	}
-
     template <typename F>
     void regist(const std::string& name, F func)
     {
-        mapFunctions_[name] = std::bind(&rpc::callproxy<F>, this, func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+        mapFunctions_[name] = std::bind(&RpcServer::callproxy<F>, this, func, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
     }
 
 	template<typename F, typename S>
     void regist(const std::string& name, F func, S* s)
     {
-        mapFunctions_[name] = std::bind(&rpc::callproxy<F, S>, this, func, s, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+        mapFunctions_[name] = std::bind(&RpcServer::callproxy<F, S>, this, func, s, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
     }
 
     template<typename F>
@@ -182,7 +184,7 @@ public:
 
 		using args_type = std::tuple<typename std::decay<Args>::type...>;
 
-		Serializer sr(StreamBuffer(data, len));
+		Serializer sr(data, len);
 		args_type as = sr.get_tuple<args_type>(std::index_sequence_for<Args...>{});
 
 		auto ff = [=](Args... args)->R {
@@ -202,7 +204,7 @@ public:
 	{
 		using args_type = std::tuple<typename std::decay<Args>::type...>;
 
-		Serializer sr(StreamBuffer(data, len));
+		Serializer sr(data, len);
 		args_type as = sr.get_tuple<args_type> (std::index_sequence_for<Args...>{});
 
 		typename type_xx<R>::type r = call_helper<R>(func, as);
@@ -213,33 +215,105 @@ public:
 		(*pr) << response;
 	}
 
-	template<typename R>
-	response_t<R> net_call(Serializer& sr)
-	{
-		zmq::message_t request(sr.size() + 1);
-		memcpy(request.data(), sr.data(), sr.size());
-		send(request);
-		zmq::message_t reply;
-		recv(reply);
-		response_t<R> val;
-		if (reply.size() == 0) 
-		{
-			val.set_code(RPC_ERR_RECV_TIMEOUT);
-			val.set_msg("recv timeout");
-			return val;
-		}
-		sr.clear();
-		sr.input((char *)reply.data(), reply.size());
-		sr >> val;
-		return val;
-	}
-
+	
 private:
 	
     std::map<std::string, std::function<void(Serializer*, const char*, int)>> mapFunctions_;
 	Scheduler::ptr scheduler;
 	TcpServer::ptr server;
 };
+
+class RpcClient : public Noncopyable {
+public:
+	RpcClient(const std::string& ip, int port)
+	{
+		std::atomic_init(&quit_, false);
+		scheduler_ = std::make_shared<Scheduler>();
+		scheduler_->startAsync();
+		IpAddress addr(ip, port);
+		tcpClient_ = std::make_shared<TcpClient>(addr);
+		
+		// scheduler_->runAfter(20 * Timestamp::kMicrosecondsPerSecond, 
+		// 					std::make_shared<Coroutine>([&]() {
+		// 								quit_.store(true);
+		// 								std::cout << "timeout" << std::endl;
+   		// 				}));
+	}
+
+	~RpcClient()
+	{
+		stop();
+	}
+
+	void stop()
+	{
+		connecton_->shutdown();
+		connecton_->readUntilZero();
+		connecton_->close();
+		scheduler_->stop();
+	}
+
+	template <typename R, typename... Args>
+	response_t<R> call(const std::string& name, Args... args)
+	{
+		using args_type = std::tuple<typename std::decay<Args>::type...>;
+		args_type as = std::make_tuple(args...);
+		Serializer sr;
+		sr << name;
+		package_Args(sr, as);
+		return net_call<R>(sr);
+	}
+
+private:
+	void handleConnection(std::string s) {
+		connecton_ = tcpClient_->connect();
+		if (connecton_)
+		{
+			connecton_->write(s);
+			Buffer::ptr buffer = std::make_shared<Buffer>();
+			if (connecton_->read(buffer) > 0)
+			{
+				Serializer s(buffer);
+				std::cout << "respose: " << s.toString() << std::endl;
+			} 
+			else
+			{
+				std::cout << "timeout" << std::endl;
+			}
+		}
+	}
+
+	bool isQuit() {
+		return quit_.load();
+	}
+	
+	template<typename R>
+	response_t<R> net_call(Serializer& sr)
+	{
+		scheduler_->addTask(std::bind(&RpcClient::handleConnection, this, sr.toString()));
+		// connecton_->write(sr.toString());
+		// Buffer::ptr buffer = std::make_shared<Buffer>();
+		response_t<R> rt;
+		// if (connecton_->read(buffer) > 0)
+		// {
+		// 	Serializer s(buffer);
+		// 	std::cout << "respose: " << s.toString() << std::endl;
+		// 	s >> rt;
+		// } 
+		// else
+		// {
+		// 	rt.set_code(RPC_ERR_RECV_TIMEOUT);
+		// 	rt.set_msg("recv timeout");
+		// }
+		return rt;
+	}
+private:
+	Scheduler::ptr scheduler_;
+	TcpClient::ptr tcpClient_;
+	std::atomic<bool> quit_;
+	TcpConnection::ptr connecton_;
+};
+
 
 }
 
