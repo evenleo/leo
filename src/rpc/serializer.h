@@ -3,6 +3,10 @@
 
 #include <vector>
 #include <algorithm>
+#include "Buffer.h"
+#include "Endian.h"
+
+namespace leo {
 
 // 存储数据流的容器
 class StreamBuffer : public std::vector<char> {
@@ -26,16 +30,9 @@ private:
 
 class Serializer {
 public:
-    enum ByteOrder 
-    { 
-        BigEndian,    // 大端
-        LittleEndian  // 小端
-    };
-
-public:
-    Serializer() : byteOrder_(LittleEndian) {}
-    Serializer(StreamBuffer s, int byteOrder = LittleEndian)
-        : streamBuffer_(s), byteOrder_(byteOrder) {}
+    Serializer() : {}
+    Serializer(Buffer::ptr buffer)
+        : buffer_(buffer) {}
     
     template <typename T>
     void input_type(T t);
@@ -43,7 +40,7 @@ public:
     template <typename T>
     void output_type(T& t);
 
-    	template<typename Tuple, std::size_t Id>
+    template<typename Tuple, std::size_t Id>
 	void getv(Serializer& ds, Tuple& t) {
 		ds >> std::get<Id>(t);
 	}
@@ -83,32 +80,20 @@ public:
 		return *this;
 	}
     
-    const char* data() { return streamBuffer_.curdata(); }
-    size_t size() const { return streamBuffer_.cursize(); }
+    const char* data() { return buffer_->peek(); }
+    size_t size() const { return buffer_->readableBytes(); }
 
-private:
-    
-    void byte_order(char* s, int len)
-    {
-        if (byteOrder_ == BigEndian)
-            std::reverse(s, s + len);
-    }
 
 private:
     int byteOrder_;
-    StreamBuffer streamBuffer_;
+    Buffer::ptr buffer_;
 };
 
 template <typename T>
 inline void Serializer::input_type(T t)
 {
-    int len = sizeof(T);
-    char* d = new char[len];
-    const char* p = reinterpret_cast<const char*>(&t);
-    memcpy(d, p, len);
-    byte_order(d, len);
-    streamBuffer_.input(d, len);
-    delete[] d;
+    T v = byteswap(t);
+    buffer_->append(&v, sizeof(v));
 }
 
 // 偏特化
@@ -117,17 +102,9 @@ inline void Serializer::input_type(std::string t)
 {
     // 先存入字符串长度
     uint16_t len = t.size();
-    char* p = reinterpret_cast<char*>(&len);
-    byte_order(p, sizeof(uint16_t));
-    streamBuffer_.input(p, sizeof(uint16_t));
-
+    buffer_->appendInt16(len);
     // 存入字符串
-    if (len == 0) return;
-    char* d = new char[len];
-    memcpy(d, t.data(), len);
-    byte_order(d, len);
-    streamBuffer_.input(d, len);
-    delete[] d;
+    buffer_->append(t.c_str(), len);
 }
 
 template<>
@@ -139,6 +116,7 @@ inline void Serializer::input_type(const char* in)
 template <typename T>
 inline void Serializer::output_type(T& t)
 {
+    assert(buffer_->readableBytes() > sizeof(t));
     int len = sizeof(T);
     char* d = new char[len];
     if (!streamBuffer_.eof())
@@ -168,6 +146,8 @@ inline void Serializer::output_type(std::string& t)
     if (len == 0) return;
     t.insert(t.begin(), streamBuffer_.curdata(), streamBuffer_.curdata() + len);
     streamBuffer_.offset(len);
+}
+
 }
 
 #endif

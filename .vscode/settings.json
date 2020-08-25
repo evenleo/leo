@@ -57,6 +57,11 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "thread": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "strstream": "cpp",
+        "complex": "cpp",
+        "iomanip": "cpp",
+        "cfenv": "cpp",
+        "typeindex": "cpp"
     }
 }

@@ -98,3 +98,6 @@ target_link_libraries(Thread_test ${LIBS})
 
 add_executable(EchoClient test/EchoClient.cpp)
 target_link_libraries(EchoClient ${LIBS}) 
+
+add_executable(rpc_server_test src/rpc/test/rpc_server_test.cpp)
+target_link_libraries(rpc_server_test ${LIBS}) 

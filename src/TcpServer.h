@@ -15,6 +15,7 @@ class Scheduler;
 
 class TcpServer : public Noncopyable {
 public:
+	typedef std::shared_ptr<TcpServer> ptr;
 	typedef std::function<void (TcpConnection::ptr)> ConnectionHanlder;
 
 	TcpServer(const IpAddress& listen_addr, Scheduler* scheduler);
