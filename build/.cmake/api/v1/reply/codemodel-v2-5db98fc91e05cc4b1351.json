@@ -35,7 +35,7 @@
 					]
 				}
 			],
-			"name" : "",
+			"name" : "Debug",
 			"projects" : 
 			[
 				{
@@ -72,127 +72,127 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "AsyncFileAppender_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-AsyncFileAppender_test-1750a2f8453589f92bcc.json",
+					"jsonFile" : "target-AsyncFileAppender_test-Debug-4e79dec239ef129d3d73.json",
 					"name" : "AsyncFileAppender_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "Condition_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Condition_test-8cee7f999703f25b1033.json",
+					"jsonFile" : "target-Condition_test-Debug-0937cee0da4355557c78.json",
 					"name" : "Condition_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "CoroutineCondition_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-CoroutineCondition_test-644edbaee977b6a78d90.json",
+					"jsonFile" : "target-CoroutineCondition_test-Debug-f1ea4955ce0a218c169b.json",
 					"name" : "CoroutineCondition_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "Coroutine_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Coroutine_test-536c5e90eea3f7633334.json",
+					"jsonFile" : "target-Coroutine_test-Debug-4c648c759a28d33dcbd7.json",
 					"name" : "Coroutine_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "EchoClient::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-EchoClient-e889ec75248b0188d4c1.json",
+					"jsonFile" : "target-EchoClient-Debug-e70ec29664f86d437c0b.json",
 					"name" : "EchoClient",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "Hook_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Hook_test-6edaddb9a0aa286b1557.json",
+					"jsonFile" : "target-Hook_test-Debug-c8bb3bbae22d83783038.json",
 					"name" : "Hook_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "HttpParser_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-HttpParser_test-41985f0eda78efe29098.json",
+					"jsonFile" : "target-HttpParser_test-Debug-f39720cc16af61429ad6.json",
 					"name" : "HttpParser_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "HttpRequestResponse_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-HttpRequestResponse_test-6338b81bd882a5eb4b9a.json",
+					"jsonFile" : "target-HttpRequestResponse_test-Debug-89d5c2cb80fc3efce111.json",
 					"name" : "HttpRequestResponse_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "HttpServer_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-HttpServer_test-220582d29676b30977a6.json",
+					"jsonFile" : "target-HttpServer_test-Debug-a31eacbb9f7957902f90.json",
 					"name" : "HttpServer_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "LogFile_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-LogFile_test-7d57378ef6833853a7f2.json",
+					"jsonFile" : "target-LogFile_test-Debug-5bf22e13b4c6b1280f26.json",
 					"name" : "LogFile_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "Log_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Log_test-105ecb7db782ffceb0b7.json",
+					"jsonFile" : "target-Log_test-Debug-78adab9620e80e05cf20.json",
 					"name" : "Log_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "Scheduler_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Scheduler_test-db3e1375a6570d4b18ba.json",
+					"jsonFile" : "target-Scheduler_test-Debug-214c8ea2f29e82190b12.json",
 					"name" : "Scheduler_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "TcpClient_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-TcpClient_test-df7647484f874e74e9bd.json",
+					"jsonFile" : "target-TcpClient_test-Debug-20120ea91fb7de1e4ee1.json",
 					"name" : "TcpClient_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "TcpServer_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-TcpServer_test-179bccf2ea1c241f7692.json",
+					"jsonFile" : "target-TcpServer_test-Debug-1cd7dfdb72493f970d48.json",
 					"name" : "TcpServer_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "Thread_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Thread_test-073a9e71a78c71f42041.json",
+					"jsonFile" : "target-Thread_test-Debug-55d89da752a5cb84b2e9.json",
 					"name" : "Thread_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "Timer_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Timer_test-fae39dfdf543a4e885cc.json",
+					"jsonFile" : "target-Timer_test-Debug-ca35ef7cefba471a0025.json",
 					"name" : "Timer_test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "leo::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-leo-767f5ac30bc6b0b5f58e.json",
+					"jsonFile" : "target-leo-Debug-9c536caaa6c27eacdcb0.json",
 					"name" : "leo",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
-					"id" : "rpc_server_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-rpc_server_test-3da7ae3b29c41ca7406e.json",
-					"name" : "rpc_server_test",
+					"id" : "serializer_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-serializer_test-Debug-c1a60adfbc548752821d.json",
+					"name" : "serializer_test",
 					"projectIndex" : 0
 				}
 			]
@@ -201,8 +201,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "/home/evenleo/workspace/leo/build",
-		"source" : "/home/evenleo/workspace/leo"
+		"build" : "/home/even/workspace/leo/build",
+		"source" : "/home/even/workspace/leo"
 	},
 	"version" : 
 	{

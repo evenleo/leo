@@ -42,7 +42,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : " -rdynamic -O3 -fPIC -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations -fPIC  "
+					"fragment" : " -rdynamic -O3 -fPIC -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations -g -fPIC  "
 				}
 			],
 			"defines" : 
@@ -55,7 +55,7 @@
 			[
 				{
 					"backtrace" : 2,
-					"path" : "/home/evenleo/workspace/leo/src"
+					"path" : "/home/even/workspace/leo/src"
 				}
 			],
 			"language" : "CXX",
@@ -90,7 +90,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : " -rdynamic -O3 -fPIC -ggdb -std=c11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations -fPIC  "
+					"fragment" : " -rdynamic -O3 -fPIC -ggdb -std=c11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations -g -fPIC  "
 				}
 			],
 			"defines" : 
@@ -103,7 +103,7 @@
 			[
 				{
 					"backtrace" : 2,
-					"path" : "/home/evenleo/workspace/leo/src"
+					"path" : "/home/even/workspace/leo/src"
 				}
 			],
 			"language" : "C",
