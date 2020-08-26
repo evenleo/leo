@@ -192,7 +192,6 @@ public:
 		(*pr) << response;
 	}
 
-    // functional
 	template<typename R, typename... Args>
 	void callproxy_(std::function<R(Args... args)> func, Serializer* pr, const char* data, int len) 
 	{
@@ -210,9 +209,7 @@ public:
 		(*pr) << response;
 	}
 
-	
 private:
-	
     std::map<std::string, std::function<void(Serializer*, const char*, int)>> mapFunctions_;
 	Scheduler::ptr scheduler;
 	TcpServer::ptr server;
@@ -223,22 +220,13 @@ public:
 	typedef std::function<void(std::string)> ResponseHandler;
 	RpcClient(const std::string& ip, int port)
 	{
-		std::atomic_init(&quit_, false);
 		scheduler_ = std::make_shared<Scheduler>();
 		scheduler_->startAsync();
 		IpAddress addr(ip, port);
 		tcpClient_ = std::make_shared<TcpClient>(addr);
 	}
-
-	~RpcClient()
-	{
-		stop();
-	}
-
-	void stop()
-	{
-		scheduler_->stop();
-	}
+	~RpcClient() { stop(); }
+	void stop() { scheduler_->stop(); }
 
 	template <typename R, typename... Args>
 	void call(const std::string& name, const ResponseHandler& handler, Args... args)
@@ -271,10 +259,6 @@ private:
 		conn->readUntilZero();
 		conn->close();
 	}
-
-	bool isQuit() {
-		return quit_.load();
-	}
 	
 	template<typename R>
 	response_t<R> net_call(Serializer& sr, ResponseHandler handler)
@@ -286,9 +270,7 @@ private:
 private:
 	Scheduler::ptr scheduler_;
 	TcpClient::ptr tcpClient_;
-	std::atomic<bool> quit_;
 };
-
 
 }
 
