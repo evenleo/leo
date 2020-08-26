@@ -71,12 +71,12 @@ public:
 	typedef std::function<void(response_t)> ResponseHandler;
 	
 	response_t() : code_(RPC_ERR_SUCCESS) { msg_.clear(); }
-	int error_code() const { return (int)code_; }
+	int error_code() const { return code_; }
 	std::string error_msg() const { return msg_; }
 	T val() const { return val_; }
 
 	void set_val(const T& val) { val_ = val; }
-	void set_code(ErrCode code) { code_ = code; }
+	void set_code(ErrCode code) { code_ = (int)code; }
 	void set_msg(const std::string& msg) { msg_ = msg; }
 
 	friend Serializer& operator >> (Serializer& in, response_t<T>& d)
@@ -92,7 +92,7 @@ public:
 		return out;
 	}
 private:
-	ErrCode code_;
+	int code_;
 	std::string msg_;
 	T val_;
 };
@@ -146,7 +146,7 @@ public:
 		}
 		auto func = mapFunctions_[name];
 		func(sp.get(), data, len);
-		sp.get()->reset();
+		// sp.get()->reset();
 		return sp;
 	}
 
@@ -208,9 +208,11 @@ public:
 		args_type as = sr.get_tuple<args_type> (std::index_sequence_for<Args...>{});
 
 		typename type_xx<R>::type r = call_helper<R>(func, as);
+		std::cout << "calc: " << r << std::endl;
 
 		response_t<R> response;
 		response.set_code(RPC_ERR_SUCCESS);
+		response.set_msg("calc success");
 		response.set_val(r);
 		(*pr) << response;
 	}
@@ -225,6 +227,7 @@ private:
 
 class RpcClient : public Noncopyable {
 public:
+	typedef std::function<void(std::string)> ResponseHandler;
 	RpcClient(const std::string& ip, int port)
 	{
 		std::atomic_init(&quit_, false);
@@ -232,12 +235,6 @@ public:
 		scheduler_->startAsync();
 		IpAddress addr(ip, port);
 		tcpClient_ = std::make_shared<TcpClient>(addr);
-		
-		// scheduler_->runAfter(20 * Timestamp::kMicrosecondsPerSecond, 
-		// 					std::make_shared<Coroutine>([&]() {
-		// 								quit_.store(true);
-		// 								std::cout << "timeout" << std::endl;
-   		// 				}));
 	}
 
 	~RpcClient()
@@ -247,40 +244,40 @@ public:
 
 	void stop()
 	{
-		connecton_->shutdown();
-		connecton_->readUntilZero();
-		connecton_->close();
 		scheduler_->stop();
 	}
 
 	template <typename R, typename... Args>
-	response_t<R> call(const std::string& name, Args... args)
+	void call(const std::string& name, const ResponseHandler& handler, Args... args)
 	{
 		using args_type = std::tuple<typename std::decay<Args>::type...>;
 		args_type as = std::make_tuple(args...);
 		Serializer sr;
 		sr << name;
 		package_Args(sr, as);
-		return net_call<R>(sr);
+		net_call<R>(sr, handler);
 	}
 
 private:
-	void handleConnection(std::string s) {
-		connecton_ = tcpClient_->connect();
-		if (connecton_)
+	void handleConnection(std::string s, ResponseHandler handler) {
+		TcpConnection::ptr conn = tcpClient_->connect();
+		if (conn)
 		{
-			connecton_->write(s);
+			conn->write(s);
 			Buffer::ptr buffer = std::make_shared<Buffer>();
-			if (connecton_->read(buffer) > 0)
+			while (conn->read(buffer) > 0)
 			{
-				Serializer s(buffer);
-				std::cout << "respose: " << s.toString() << std::endl;
+				if(buffer->readableBytes() >= 4)
+				{
+					Serializer s(buffer);
+					std::cout << "respose: " << s.toString() << std::endl;
+					handler("hello");
+					break;
+				}
 			} 
-			else
-			{
-				std::cout << "timeout" << std::endl;
-			}
 		}
+		conn->readUntilZero();
+		conn->close();
 	}
 
 	bool isQuit() {
@@ -288,30 +285,16 @@ private:
 	}
 	
 	template<typename R>
-	response_t<R> net_call(Serializer& sr)
+	response_t<R> net_call(Serializer& sr, ResponseHandler handler)
 	{
-		scheduler_->addTask(std::bind(&RpcClient::handleConnection, this, sr.toString()));
-		// connecton_->write(sr.toString());
-		// Buffer::ptr buffer = std::make_shared<Buffer>();
+		scheduler_->addTask(std::bind(&RpcClient::handleConnection, this, sr.toString(), handler));
 		response_t<R> rt;
-		// if (connecton_->read(buffer) > 0)
-		// {
-		// 	Serializer s(buffer);
-		// 	std::cout << "respose: " << s.toString() << std::endl;
-		// 	s >> rt;
-		// } 
-		// else
-		// {
-		// 	rt.set_code(RPC_ERR_RECV_TIMEOUT);
-		// 	rt.set_msg("recv timeout");
-		// }
 		return rt;
 	}
 private:
 	Scheduler::ptr scheduler_;
 	TcpClient::ptr tcpClient_;
 	std::atomic<bool> quit_;
-	TcpConnection::ptr connecton_;
 };
 
 
