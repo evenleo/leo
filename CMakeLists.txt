@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.8)
 
 project(leo CXX C)
 
-
 cmake_minimum_required(VERSION 3.0)
 project(leo)
 

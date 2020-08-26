@@ -65,33 +65,31 @@ enum ErrCode {
 template <typename T>
 class response_t {
 public:
-	typedef std::function<void(response_t)> ResponseHandler;
-	
-	response_t() : code_(RPC_ERR_SUCCESS) { msg_.clear(); }
+	response_t() : code_(RPC_ERR_SUCCESS) { message_.clear(); }
 	int error_code() const { return code_; }
-	std::string error_msg() const { return msg_; }
-	T val() const { return val_; }
+	std::string error_msg() const { return message_; }
+	T val() const { return value_; }
 
-	void set_val(const T& val) { val_ = val; }
+	void set_val(const T& val) { value_ = val; }
 	void set_code(ErrCode code) { code_ = (int)code; }
-	void set_msg(const std::string& msg) { msg_ = msg; }
+	void set_msg(const std::string& msg) { message_ = msg; }
 
 	friend Serializer& operator >> (Serializer& in, response_t<T>& d)
 	{
-		in >> d.code_ >> d.msg_;
+		in >> d.code_ >> d.message_;
 		if (d.code_ == 0)
-			in >> d.val_;
+			in >> d.value_;
 		return in;
 	}
 	friend Serializer& operator << (Serializer& out, response_t<T>& d)
 	{
-		out << d.code_ << d.msg_ << d.val_;
+		out << d.code_ << d.message_ << d.value_;
 		return out;
 	}
 private:
 	int code_;
-	std::string msg_;
-	T val_;
+	std::string message_;
+	T value_;
 };
 
 class RpcServer : public Noncopyable{
