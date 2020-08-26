@@ -25,8 +25,6 @@ int main(int argc, char** argv)
     client.call<std::string>("Strcat", StrcatResult, "even", 24);
     client.call<int>("add", addResult, 10, 21);
 
-    while (1) {
-        sleep(1);
-    }
+    getchar();
     return 0;
 }
