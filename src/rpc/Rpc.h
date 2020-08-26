@@ -26,10 +26,7 @@ struct type_xx<void> { typedef int8_t type; };
 template<typename Tuple, std::size_t... Index>
 void package_Args_impl(Serializer& sr, const Tuple& t, std::index_sequence<Index...>)
 {
-	// ((sr << std::get<Index>(t)), ...);
 	std::initializer_list<int>{(sr << std::get<Index>(t), 0)...};
-	// std::initializer_list<int>((Serializer::getv<Tuple, Index>(sr, t), 0)...);
-
 }
 
 template<typename... Args>
@@ -118,7 +115,7 @@ public:
 			Serializer sr(buffer);
 			std::string funcname;
 			sr >> funcname;
-			std::cout << "recv name= " << funcname << ", " << sr.toString() << std::endl;
+			std::cout << "recv name= " << funcname << std::endl;
 
 			std::shared_ptr<Serializer> rt = call_(funcname, sr.data(), sr.size());
 			conn->write(rt->toString());
@@ -146,7 +143,6 @@ public:
 		}
 		auto func = mapFunctions_[name];
 		func(sp.get(), data, len);
-		// sp.get()->reset();
 		return sp;
 	}
 
@@ -208,11 +204,10 @@ public:
 		args_type as = sr.get_tuple<args_type> (std::index_sequence_for<Args...>{});
 
 		typename type_xx<R>::type r = call_helper<R>(func, as);
-		std::cout << "calc: " << r << std::endl;
 
 		response_t<R> response;
 		response.set_code(RPC_ERR_SUCCESS);
-		response.set_msg("calc success");
+		response.set_msg("success");
 		response.set_val(r);
 		(*pr) << response;
 	}
@@ -270,8 +265,7 @@ private:
 				if(buffer->readableBytes() >= 4)
 				{
 					Serializer s(buffer);
-					std::cout << "respose: " << s.toString() << std::endl;
-					handler("hello");
+					handler(s.toString());
 					break;
 				}
 			} 
