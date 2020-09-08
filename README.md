@@ -7,25 +7,26 @@
 1. 每个请求创建一个线程，使用阻塞式IO操作（或者叫thread per connection）。这种模型的优点是可以使用阻塞操作，缺点是伸缩性不强，每台机器能创建的线程是有限的，32位的机器应该不超过400个。
 2. 非阻塞IO+IO多路复用（或者叫one loop per thread或者Reactor）+ 线程池。
 
-melon是基于Reactor模式的Linux C++网络服务框架，集合了上述两种方式，实现了协程的概念，对一些函数进行了hook，所以可以像操作阻塞IO一样进行编程。
+leo是基于Reactor模式的Linux C++网络服务框架，集合了上述两种方式，实现了协程的概念，对一些函数进行了hook，所以可以像操作阻塞IO一样进行编程。
 
 ## 使用
 在工程主目录下新建build目录，进入build目录，
 ```
 cmake ..
-make  all
+make
 ```
-编译完成后，example和test中的可执行程序分别位于build目录下的example和test中。
+编译完成后，test中的可执行程序分别位于build目录下。
 
-以echo服务端为例，
+以TCP服务端为例，
 ``` c++
 void handleClient(TcpConnection::ptr conn){
 	conn->setTcpNoDelay(true);
 	Buffer::ptr buffer = std::make_shared<Buffer>();
 	while (conn->read(buffer) > 0) {
+		std::string str(buffer->peek(), buffer->readableBytes());
+		std::cout << "recv: " << str << std::endl;
 		conn->write(buffer);
 	}
-
 	conn->close();
 }
 
@@ -35,7 +36,6 @@ int main(int args, char* argv[]) {
 		printf("Usage: %s threads\n", argv[0]);
 		return 0;
 	}
-	Logger::setLogLevel(LogLevel::INFO);
 	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 
 	IpAddress listen_addr(5000);

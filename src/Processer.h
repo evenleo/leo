@@ -4,6 +4,7 @@
 #include "Coroutine.h"
 #include "Noncopyable.h"
 #include "Poller.h"
+#include "EventPoller.h"
 
 #include <list>
 #include "Mutex.h"
@@ -38,7 +39,8 @@ private:
 	size_t load_ = 0;
 	Mutex mutex_;
 	Scheduler* scheduler_;
-	PollPoller poller_;
+	// PollPoller poller_;
+	EventPoller poller_;
 	int event_fd_;
 	std::list<Coroutine::ptr> coroutines_;
 };
