@@ -1,6 +1,6 @@
 #include "EventPoller.h"
-#include "Processer.h"
 #include "Log.h"
+#include "Processer.h"
 
 #include <error.h>
 #include <assert.h>
@@ -20,21 +20,18 @@ EventPoller::EventPoller(Processer* processer)
 
 void EventPoller::updateEvent(int fd, int events, Coroutine::ptr coroutine) {
 	assert(coroutine != nullptr);
-	auto it = fd_to_index_.find(fd);
-	if (it == fd_to_index_.end()) {
-		epoll_event e;
+	auto it = fd_to_events_.find(fd);
+	if (it == fd_to_events_.end()) {
+		struct epoll_event e;
 		e.data.fd = fd;
 		e.events = events;
-		epevents_.push_back(e);
-		fd_to_index_[fd] = epevents_.size() - 1;
+		fd_to_events_[fd] = e;
 		fd_to_coroutine_[fd] = coroutine;
 		if (epoll_ctl(epfd_, EPOLL_CTL_ADD, fd, &e) < 0) {
 			LOG_ERROR << "Failed to insert handler to epoll";
 		}
 	} else {
-		size_t index = it->second;
-		assert(index < epevents_.size());
-		struct epoll_event& e = epevents_[index];
+		struct epoll_event& e = fd_to_events_[fd];
 		e.events = events;
 		fd_to_coroutine_[fd] = coroutine;
 		epoll_ctl(epfd_, EPOLL_CTL_MOD, fd, &e);
@@ -42,23 +39,13 @@ void EventPoller::updateEvent(int fd, int events, Coroutine::ptr coroutine) {
 }
 	
 void EventPoller::removeEvent(int fd) {
-	auto it = fd_to_index_.find(fd);
-	if (it == fd_to_index_.end()) {
-		return;
-	}
-	size_t index = it->second;
-
-	fd_to_index_.erase(fd);
-	fd_to_coroutine_.erase(fd);
-	assert(index < epevents_.size());
-	if  (index == epevents_.size() - 1) {
-		epevents_.pop_back();
-	} else {
-		int fd_at_end = epevents_.back().data.fd;
-		std::iter_swap(epevents_.begin() + index, epevents_.end() - 1);
-		fd_to_index_[fd_at_end] = index;
-		epevents_.pop_back();
-	}
+	auto it = fd_to_events_.find(fd);
+	if (it != fd_to_events_.end()) {
+		LOG_INFO << "removeEvent fd=" << fd;
+		fd_to_coroutine_.erase(fd);
+		fd_to_events_.erase(fd);
+		epoll_ctl(epfd_, EPOLL_CTL_DEL, fd, NULL);
+	} 
 }
 
 void EventPoller::poll(int timeout) {
@@ -66,8 +53,7 @@ void EventPoller::poll(int timeout) {
 	epoll_event events[MAX_EVENTS];
 	while (!processer_->stoped()) {
 		is_polling_ = true;
-
-		int nfds = epoll_wait(epfd_, events, MAX_EVENTS, timeout/*Timeout*/);
+		int nfds = epoll_wait(epfd_, events, MAX_EVENTS, timeout);
 		is_polling_ = false;
 		for (int i = 0; i < nfds; ++i) {
 			int active_fd = events[i].data.fd;

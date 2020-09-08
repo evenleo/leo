@@ -27,9 +27,8 @@ public:
 	void setPolling(bool polling) { is_polling_ = polling; }
 private:
 	bool is_polling_;
-	std::vector<struct epoll_event> epevents_;
+	std::map<int, struct epoll_event> fd_to_events_;
 	std::map<int, Coroutine::ptr> fd_to_coroutine_;
-	std::map<int, size_t> fd_to_index_;
 	Processer* processer_;
 	int epfd_;
 };
