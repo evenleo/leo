@@ -6,10 +6,11 @@
 #include <error.h>
 #include <signal.h>
 #include <string.h>
+#include <atomic>
 
 namespace leo {
 
-static thread_local uint64_t t_coroutine_id {0};
+static std::atomic<uint64_t> t_coroutine_id {0};
 
 Coroutine::Coroutine(Func cb, std::string name, uint32_t stack_size)
 	: c_id_(++t_coroutine_id), 
@@ -19,6 +20,7 @@ Coroutine::Coroutine(Func cb, std::string name, uint32_t stack_size)
 	  stack_(nullptr),
 	  state_(CoroutineState::RUNNABLE) 
 {
+	LOG_INFO << "Coroutine c_id_=" << c_id_;
 	assert(stack_size > 0);
 	
 	stack_ = malloc(stack_size_);
@@ -52,6 +54,7 @@ Coroutine::Coroutine()
 }
 
 Coroutine::~Coroutine() {
+	LOG_INFO << "~Coroutine c_id_=" << c_id_;
 	if (stack_) {
 		free(stack_);
 	}
@@ -70,8 +73,7 @@ void Coroutine::SwapOut() {
 	GetCurrentCoroutine() = GetMainCoroutine();
 
 	if (swapcontext(&(old_coroutine->context_), &(GetCurrentCoroutine()->context_))) {
-		LOG_ERROR << "swapcontext: errno=" << errno
-				<< " error string:" << strerror(errno);
+		LOG_ERROR << "swapcontext: errno=" << errno << " error string:" << strerror(errno);
 	}
 }
 
@@ -84,8 +86,7 @@ void Coroutine::swapIn() {
 	GetCurrentCoroutine() = shared_from_this();
 
 	if (swapcontext(&(old_coroutine->context_), &(GetCurrentCoroutine()->context_))) {
-		LOG_ERROR << "swapcontext: errno=" << errno
-				<< " error string:" << strerror(errno);
+		LOG_ERROR << "swapcontext: errno=" << errno << " error string:" << strerror(errno);
 	}
 }
 

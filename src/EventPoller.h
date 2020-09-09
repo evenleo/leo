@@ -18,6 +18,7 @@ class Processer;
 class EventPoller : public Poller {
 public:
 	EventPoller(Processer* scheduler);
+	~EventPoller();
 
 	void updateEvent(int fd, int events, Coroutine::ptr coroutine) override;
 	void removeEvent(int fd) override;
@@ -27,7 +28,7 @@ public:
 	void setPolling(bool polling) { is_polling_ = polling; }
 private:
 	bool is_polling_;
-	std::map<int, struct epoll_event> fd_to_events_;
+	std::map<int, epoll_event> fd_to_events_;
 	std::map<int, Coroutine::ptr> fd_to_coroutine_;
 	Processer* processer_;
 	int epfd_;

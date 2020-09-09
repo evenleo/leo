@@ -113,7 +113,7 @@ void Processer::wakeupPollCoroutine() {
 ssize_t Processer::comsumeWakeEvent() {
 	uint64_t buffer = 1;
 	ssize_t n = ::read(event_fd_, &buffer, sizeof(buffer));
-	if (n != sizeof buffer) {
+	if (n != sizeof(buffer)) {
 		LOG_ERROR << "comsumeWakeEvent() size of the data is not 8 bytes";
 	}
 	return n;

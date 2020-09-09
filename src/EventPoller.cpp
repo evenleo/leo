@@ -11,6 +11,7 @@ namespace leo {
 
 EventPoller::EventPoller(Processer* processer)
 	: is_polling_(false), processer_(processer) {
+	LOG_INFO << "EventPoller";
 	epfd_ = epoll_create1(0);  //flag=0 等价于epll_craete
 	if (epfd_ < 0) {
 		LOG_ERROR << "Failed to create epoll";
@@ -18,11 +19,17 @@ EventPoller::EventPoller(Processer* processer)
 	}
 }	
 
+EventPoller::~EventPoller()
+{
+	LOG_INFO << "~EventPoller";
+}
+
 void EventPoller::updateEvent(int fd, int events, Coroutine::ptr coroutine) {
+	LOG_INFO << "updateEvent events=" << events;
 	assert(coroutine != nullptr);
 	auto it = fd_to_events_.find(fd);
 	if (it == fd_to_events_.end()) {
-		struct epoll_event e;
+		epoll_event e;
 		e.data.fd = fd;
 		e.events = events;
 		fd_to_events_[fd] = e;
@@ -31,7 +38,7 @@ void EventPoller::updateEvent(int fd, int events, Coroutine::ptr coroutine) {
 			LOG_ERROR << "Failed to insert handler to epoll";
 		}
 	} else {
-		struct epoll_event& e = fd_to_events_[fd];
+		epoll_event& e = fd_to_events_[fd];
 		e.events = events;
 		fd_to_coroutine_[fd] = coroutine;
 		epoll_ctl(epfd_, EPOLL_CTL_MOD, fd, &e);
@@ -56,6 +63,7 @@ void EventPoller::poll(int timeout) {
 		int nfds = epoll_wait(epfd_, events, MAX_EVENTS, timeout);
 		is_polling_ = false;
 		for (int i = 0; i < nfds; ++i) {
+			LOG_INFO << "events=" << events[i].events;
 			int active_fd = events[i].data.fd;
 			auto coroutine = fd_to_coroutine_[active_fd];
 			assert(coroutine != nullptr);

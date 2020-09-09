@@ -1,4 +1,5 @@
 #include "rpc/Rpc.h"
+#include "Log.h"
 
 using namespace leo;
 
@@ -15,6 +16,7 @@ struct Foo {
 
 int main(int argc, char** argv)
 {
+    Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
     RpcServer server(5000, 3);
     server.regist("Strcat", Strcat);
     Foo s;
