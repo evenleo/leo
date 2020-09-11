@@ -3,8 +3,6 @@
 
 namespace leo {
 
-const char Buffer::kCRLF[] = "\r\n";
-
 ssize_t Buffer::readSocket(Socket::Ptr socket) {
 	char extrabuf[10240]; //10k
 	struct iovec vec[2];

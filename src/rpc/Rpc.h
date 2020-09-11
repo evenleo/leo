@@ -60,9 +60,8 @@ call_helper(F f, ArgsTuple args)
 }
 
 enum ErrCode {
-    RPC_ERR_SUCCESS = 0,
-    RPC_ERR_FUNCTION_NOT_REGUIST,
-    RPC_ERR_RECV_TIMEOUT
+    RPC_ERR_SUCCESS = 0,            // 成功
+    RPC_ERR_FUNCTION_NOT_REGUIST,   // 函数未注册
 };
 
 template <typename T>
@@ -250,7 +249,7 @@ public:
         Serializer sr;
         sr << name;
         package_Args(sr, as);
-        net_call<R>(sr, handler);
+        net_call(sr, handler);
     }
 
 private:
@@ -272,12 +271,9 @@ private:
         conn->close();
     }
 
-    template <typename R>
-    response_t<R> net_call(Serializer& sr, ResponseHandler handler)
+    void net_call(Serializer& sr, ResponseHandler handler)
     {
         scheduler_->addTask(std::bind(&RpcClient::handleConnection, this, sr.toString(), handler));
-        response_t<R> rt;
-        return rt;
     }
 
 private:

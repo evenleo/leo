@@ -1,5 +1,5 @@
-#ifndef _MELON_POLLER_H_
-#define _MELON_POLLER_H_
+#ifndef _LEO_POLLER_H_
+#define _LEO_POLLER_H_
 
 #include "Noncopyable.h"
 #include "Coroutine.h"
@@ -7,7 +7,7 @@
 #include <map>
 #include <memory>
 #include <vector>
-#include <poll.h>
+#include <sys/epoll.h>
 
 namespace leo {
 
@@ -31,9 +31,10 @@ protected:
 	std::string eventToString(int event);
 };
 
-class PollPoller : public Poller {
+class EventPoller : public Poller {
 public:
-	PollPoller(Processer* scheduler);
+	EventPoller(Processer* scheduler);
+	~EventPoller();
 
 	void updateEvent(int fd, int events, Coroutine::ptr coroutine) override;
 	void removeEvent(int fd) override;
@@ -43,10 +44,10 @@ public:
 	void setPolling(bool polling) { is_polling_ = polling; }
 private:
 	bool is_polling_;
-	std::vector<struct pollfd> pollfds_;
+	std::map<int, epoll_event> fd_to_events_;
 	std::map<int, Coroutine::ptr> fd_to_coroutine_;
-	std::map<int, size_t> fd_to_index_;
 	Processer* processer_;
+	int epfd_;
 };
 
 }

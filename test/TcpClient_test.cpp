@@ -130,7 +130,6 @@ void Session::handleConnection() {
 	conn->write(owner_->message());
 	while (!owner_->isQuit() && conn->read(buffer) > 0) {
 		++message_read_;
-		// LOG_INFO << buffer->readAsString();
 		std::cout << "send" << std::endl;
 		bytes_read_ += buffer->readableBytes();
 		conn->write(buffer);

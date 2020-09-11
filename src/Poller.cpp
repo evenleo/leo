@@ -10,107 +10,92 @@
 namespace leo {
 
 const int Poller::kNoneEvent = 0;
-const int Poller::kReadEvent = POLLIN | POLLPRI;
-const int Poller::kWriteEvent = POLLOUT;
+const int Poller::kReadEvent = EPOLLIN | EPOLLPRI;
+const int Poller::kWriteEvent = EPOLLOUT;
 	
 std::string Poller::eventToString(int event) {
   std::ostringstream oss;
-  if (event & POLLIN)
+  if (event & EPOLLIN)
     oss << "IN ";
-  if (event & POLLPRI)
+  if (event & EPOLLPRI)
     oss << "PRI ";
-  if (event & POLLOUT)
+  if (event & EPOLLOUT)
     oss << "OUT ";
-  if (event & POLLHUP)
+  if (event & EPOLLHUP)
     oss << "HUP ";
-  if (event & POLLRDHUP)
+  if (event & EPOLLRDHUP)
     oss << "RDHUP ";
-  if (event & POLLERR)
+  if (event & EPOLLERR)
     oss << "ERR ";
-  if (event & POLLNVAL)
-    oss << "NVAL ";
 
   return oss.str();
 }
 
-PollPoller::PollPoller(Processer* processer)
-	: is_polling_(false),
-	  processer_(processer) {
+EventPoller::EventPoller(Processer* processer)
+	: is_polling_(false), processer_(processer) {
+	LOG_INFO << "EventPoller";
+	epfd_ = epoll_create1(0);  //flag=0 等价于epll_craete
+	if (epfd_ < 0) {
+		LOG_ERROR << "Failed to create epoll";
+		exit(1);
+	}
 }	
 
-void PollPoller::updateEvent(int fd, int events, Coroutine::ptr coroutine) {
-	assert(coroutine != nullptr);
-	auto it = fd_to_index_.find(fd);
-	if (it == fd_to_index_.end()) {
-		struct pollfd pfd;
-		pfd.fd = fd;
-		pfd.events = events;
-		pfd.revents = kNoneEvent;
-		pollfds_.push_back(pfd);
-		fd_to_index_[fd] = pollfds_.size() - 1;
-		fd_to_coroutine_[fd] = coroutine;
-	} else {
-		size_t index = it->second;
-		assert(index < pollfds_.size());
-		struct pollfd& pfd = pollfds_[index];
+EventPoller::~EventPoller()
+{
+	LOG_INFO << "~EventPoller";
+}
 
-		pfd.events = events;
-		pfd.revents = kNoneEvent;
+void EventPoller::updateEvent(int fd, int events, Coroutine::ptr coroutine) {
+	LOG_INFO << "updateEvent events=" << events;
+	assert(coroutine != nullptr);
+	auto it = fd_to_events_.find(fd);
+	if (it == fd_to_events_.end()) {
+		epoll_event e;
+		e.data.fd = fd;
+		e.events = events;
+		fd_to_events_[fd] = e;
 		fd_to_coroutine_[fd] = coroutine;
+		if (epoll_ctl(epfd_, EPOLL_CTL_ADD, fd, &e) < 0) {
+			LOG_ERROR << "Failed to insert handler to epoll";
+		}
+	} else {
+		epoll_event& e = fd_to_events_[fd];
+		e.events = events;
+		fd_to_coroutine_[fd] = coroutine;
+		epoll_ctl(epfd_, EPOLL_CTL_MOD, fd, &e);
 	}
 }
 	
-void PollPoller::removeEvent(int fd) {
-	auto it = fd_to_index_.find(fd);
-	if (it == fd_to_index_.end()) {
-		return;
-	}
-	size_t index = it->second;
-
-	fd_to_index_.erase(fd);
-	fd_to_coroutine_.erase(fd);
-	assert(index < pollfds_.size());
-	if  (index == pollfds_.size() - 1) {
-		pollfds_.pop_back();
-	} else {
-		int fd_at_end = pollfds_.back().fd;
-		std::iter_swap(pollfds_.begin() + index, pollfds_.end() - 1);
-		fd_to_index_[fd_at_end] = index;
-		pollfds_.pop_back();
-	}
+void EventPoller::removeEvent(int fd) {
+	auto it = fd_to_events_.find(fd);
+	if (it != fd_to_events_.end()) {
+		LOG_INFO << "removeEvent fd=" << fd;
+		fd_to_coroutine_.erase(fd);
+		fd_to_events_.erase(fd);
+		epoll_ctl(epfd_, EPOLL_CTL_DEL, fd, NULL);
+	} 
 }
 
-void PollPoller::poll(int timeout) {
+void EventPoller::poll(int timeout) {
+	const uint64_t MAX_EVENTS = 1024;
+	epoll_event events[MAX_EVENTS];
 	while (!processer_->stoped()) {
 		is_polling_ = true;
-		int num = ::poll(&*pollfds_.begin(), pollfds_.size(), timeout);
+		int nfds = epoll_wait(epfd_, events, MAX_EVENTS, timeout);
 		is_polling_ = false;
-		if (num == 0) {
-		} else if (num < 0) {
-			if (errno != EINTR) {
-				LOG_ERROR << "poll error, errno: " << errno << ", error str:" << strerror(errno);
-			}
-		} else {
-			std::vector<int> active_fds;
-			for (const auto& pollfd : pollfds_) {
-				if (pollfd.revents > 0) {
-					--num;
-					active_fds.push_back(pollfd.fd);
-					if (num == 0) {
-						break;
-					}
-				}
-			}
-			for (const auto& active_fd : active_fds) {
-				auto coroutine = fd_to_coroutine_[active_fd];
-				assert(coroutine != nullptr);
+		for (int i = 0; i < nfds; ++i) {
+			LOG_INFO << "events=" << events[i].events;
+			int active_fd = events[i].data.fd;
+			auto coroutine = fd_to_coroutine_[active_fd];
+			assert(coroutine != nullptr);
 
-				removeEvent(active_fd);
+			removeEvent(active_fd);
 
-				//todo:有四类事件：1.可读，2.可写，3.关闭，4.错误 需要处理
-				coroutine->setState(CoroutineState::RUNNABLE);
-				processer_->addTask(coroutine);
-			}	
+			//todo:有四类事件：1.可读，2.可写，3.关闭，4.错误 需要处理
+			coroutine->setState(CoroutineState::RUNNABLE);
+			processer_->addTask(coroutine);
+			
 		}
 		Coroutine::SwapOut();
 	}

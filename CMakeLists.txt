@@ -25,7 +25,6 @@ set(LIB_SRC
     src/LogFile.cpp
     src/Mutex.cpp
     src/Poller.cpp
-    src/EventPoller.cpp
     src/Processer.cpp
     src/ProcesserThread.cpp
     src/Scheduler.cpp
