@@ -109,7 +109,6 @@ void TimerManager::dealWithExpiredTimer() {
 
 		assert(old_timer->getProcesser() != nullptr);
 		old_timer->getProcesser()->addTask(old_timer->getCoroutine());
-		std::cout << "----------------" << old_timer->getInterval() << std::endl;
 		if (old_timer->getInterval() > 0) {
 			Timestamp new_timestamp = Timestamp::now() + old_timer->getInterval();
 			old_timer->setTimestamp(new_timestamp);
