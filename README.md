@@ -374,4 +374,4 @@ code=0, message=success, value=31
 1. 需要开启SO_REUSEADDR选项。
 2. 需要屏蔽SIG_PIPE信号。
 
-本项目基于开源项目 ![gatsbyd/melon](https://github.com/gatsbyd/melon) 的基础上开发，将poll替换成epoll，理论上更高效，但目前也没有进行压测对比。这里非常感谢gatsbyd。
+本项目基于开源项目 [gatsbyd/melon](https://github.com/gatsbyd/melon) 的基础上开发，将poll替换成epoll，理论上更高效，但目前也没有进行压测对比。这里非常感谢gatsbyd。
