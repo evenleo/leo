@@ -11,24 +11,16 @@ void handleClient(TcpConnection::ptr conn){
 	conn->setTcpNoDelay(true);
 	Buffer::ptr buffer = std::make_shared<Buffer>();
 	while (conn->read(buffer) > 0) {
-		std::string str(buffer->peek(), buffer->readableBytes());
-		std::cout << "recv: " << str << std::endl;
+		LOG_INFO << "recv: " << buffer->peekAsString();
 		conn->write(buffer);
 	}
 	conn->close();
 }
 
-
 int main(int args, char* argv[]) {
-	if (args != 2) {
-		printf("Usage: %s threads\n", argv[0]);
-		return 0;
-	}
 	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
-
 	IpAddress listen_addr(5000);
-	int threads_num = std::atoi(argv[1]);
-
+	int threads_num = 3;
 	Scheduler scheduler(threads_num);
 	scheduler.startAsync();
 	TcpServer server(listen_addr, &scheduler);

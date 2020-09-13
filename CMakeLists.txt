@@ -51,62 +51,62 @@ set(LIBS
     dl
 )
 
-# add_executable(AsyncFileAppender_test test/AsyncFileAppender_test.cpp)
-# target_link_libraries(AsyncFileAppender_test ${LIBS})
-# 
-# add_executable(Coroutine_test test/Coroutine_test.cpp)
-# target_link_libraries(Coroutine_test ${LIBS})
-# 
-# add_executable(Log_test test/Log_test.cpp)
-# target_link_libraries(Log_test ${LIBS})
-# 
-# add_executable(Timer_test test/Timer_test.cpp)
-# target_link_libraries(Timer_test ${LIBS})
-# 
-# add_executable(Scheduler_test test/Scheduler_test.cpp)
-# target_link_libraries(Scheduler_test ${LIBS})
-# 
-# add_executable(LogFile_test test/LogFile_test.cpp)
-# target_link_libraries(LogFile_test ${LIBS})
-#  
-# add_executable(Condition_test test/Condition_test.cpp)
-# target_link_libraries(Condition_test ${LIBS}) 
-# 
-# add_executable(CoroutineCondition_test test/CoroutineCondition_test.cpp)
-# target_link_libraries(CoroutineCondition_test ${LIBS}) 
-# 
-# add_executable(Hook_test test/Hook_test.cpp)
-# target_link_libraries(Hook_test ${LIBS}) 
-# 
-# add_executable(HttpParser_test test/HttpParser_test.cpp)
-# target_link_libraries(HttpParser_test ${LIBS}) 
-# 
-# add_executable(HttpRequestResponse_test test/HttpRequestResponse_test.cpp)
-# target_link_libraries(HttpRequestResponse_test ${LIBS}) 
-# 
-# add_executable(HttpServer_test test/HttpServer_test.cpp)
-# target_link_libraries(HttpServer_test ${LIBS}) 
-# 
-# add_executable(TcpClient_test test/TcpClient_test.cpp)
-# target_link_libraries(TcpClient_test ${LIBS}) 
-# 
-# add_executable(TcpServer_test test/TcpServer_test.cpp)
-# target_link_libraries(TcpServer_test ${LIBS}) 
-# 
-# add_executable(Thread_test test/Thread_test.cpp)
-# target_link_libraries(Thread_test ${LIBS}) 
-# 
-# add_executable(EchoClient test/EchoClient.cpp)
-# target_link_libraries(EchoClient ${LIBS}) 
-# 
-# add_executable(serializer_test src/rpc/test/serializer_test.cpp)
-# target_link_libraries(serializer_test ${LIBS}) 
-# 
-# add_executable(rpc_server_test src/rpc/test/rpc_server_test.cpp)
-# target_link_libraries(rpc_server_test ${LIBS}) 
-# 
-# add_executable(rpc_client_test src/rpc/test/rpc_client_test.cpp)
-# target_link_libraries(rpc_client_test ${LIBS}) 
+add_executable(AsyncFileAppender_test test/AsyncFileAppender_test.cpp)
+target_link_libraries(AsyncFileAppender_test ${LIBS})
+
+add_executable(Coroutine_test test/Coroutine_test.cpp)
+target_link_libraries(Coroutine_test ${LIBS})
+
+add_executable(Log_test test/Log_test.cpp)
+target_link_libraries(Log_test ${LIBS})
+
+add_executable(Timer_test test/Timer_test.cpp)
+target_link_libraries(Timer_test ${LIBS})
+
+add_executable(Scheduler_test test/Scheduler_test.cpp)
+target_link_libraries(Scheduler_test ${LIBS})
+
+add_executable(LogFile_test test/LogFile_test.cpp)
+target_link_libraries(LogFile_test ${LIBS})
+ 
+add_executable(Condition_test test/Condition_test.cpp)
+target_link_libraries(Condition_test ${LIBS}) 
+
+add_executable(CoroutineCondition_test test/CoroutineCondition_test.cpp)
+target_link_libraries(CoroutineCondition_test ${LIBS}) 
+
+add_executable(Hook_test test/Hook_test.cpp)
+target_link_libraries(Hook_test ${LIBS}) 
+
+add_executable(HttpParser_test test/HttpParser_test.cpp)
+target_link_libraries(HttpParser_test ${LIBS}) 
+
+add_executable(HttpRequestResponse_test test/HttpRequestResponse_test.cpp)
+target_link_libraries(HttpRequestResponse_test ${LIBS}) 
+
+add_executable(HttpServer_test test/HttpServer_test.cpp)
+target_link_libraries(HttpServer_test ${LIBS}) 
+
+add_executable(TcpClient_test test/TcpClient_test.cpp)
+target_link_libraries(TcpClient_test ${LIBS}) 
+
+add_executable(TcpServer_test test/TcpServer_test.cpp)
+target_link_libraries(TcpServer_test ${LIBS}) 
+
+add_executable(Thread_test test/Thread_test.cpp)
+target_link_libraries(Thread_test ${LIBS}) 
+
+add_executable(EchoClient test/EchoClient.cpp)
+target_link_libraries(EchoClient ${LIBS}) 
+
+add_executable(serializer_test src/rpc/test/serializer_test.cpp)
+target_link_libraries(serializer_test ${LIBS}) 
+
+add_executable(rpc_server_test src/rpc/test/rpc_server_test.cpp)
+target_link_libraries(rpc_server_test ${LIBS}) 
+
+add_executable(rpc_client_test src/rpc/test/rpc_client_test.cpp)
+target_link_libraries(rpc_client_test ${LIBS}) 
 
 add_executable(Config_test test/Config_test.cpp)
 target_link_libraries(Config_test ${LIBS}) 

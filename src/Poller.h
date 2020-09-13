@@ -44,8 +44,8 @@ public:
 	void setPolling(bool polling) { is_polling_ = polling; }
 private:
 	bool is_polling_;
-	std::map<int, epoll_event> fd_to_events_;
-	std::map<int, Coroutine::ptr> fd_to_coroutine_;
+	std::map<int, epoll_event> events_;
+	std::map<int, Coroutine::ptr> coroutines_;
 	Processer* processer_;
 	int epfd_;
 };

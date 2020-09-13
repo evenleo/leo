@@ -1,9 +1,6 @@
 ## 介绍
-开发服务端程序的一个基本任务是处理并发连接，现在服务端网络编程处理并发连接主要有两种方式：
-1. 当“线程”很廉价时，一台机器上可以创建远高于CPU数目的“线程”。这时一个线程只处理一个TCP连接，通常使用阻塞IO。例如Go goroutine。这里的“线程”由语言的runtime自行调度。
-2. 当线程很宝贵时，一台机器上只能创建与CPU数目相当的线程。这时一个线程要处理多个TCP连接上的IO，通常使用非阻塞IO和IO multiplexing。C++编程主要采用这种方式。
 
-在线程很宝贵的情况下，常见的服务器编程模型有如下几种：
+常见的服务器编程模型有如下两种：
 1. 每个请求创建一个线程，使用阻塞式IO操作（或者叫thread per connection）。这种模型的优点是可以使用阻塞操作，缺点是伸缩性不强，每台机器能创建的线程是有限的，32位的机器应该不超过400个。
 2. 非阻塞IO+IO多路复用（或者叫one loop per thread或者Reactor）+ 线程池。
 
@@ -23,24 +20,16 @@ void handleClient(TcpConnection::ptr conn){
 	conn->setTcpNoDelay(true);
 	Buffer::ptr buffer = std::make_shared<Buffer>();
 	while (conn->read(buffer) > 0) {
-		std::string str(buffer->peek(), buffer->readableBytes());
-		std::cout << "recv: " << str << std::endl;
+		LOG_INFO << "recv: " << buffer->peekAsString();
 		conn->write(buffer);
 	}
 	conn->close();
 }
 
-
 int main(int args, char* argv[]) {
-	if (args != 2) {
-		printf("Usage: %s threads\n", argv[0]);
-		return 0;
-	}
 	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
-
 	IpAddress listen_addr(5000);
-	int threads_num = std::atoi(argv[1]);
-
+	int threads_num = 3;
 	Scheduler scheduler(threads_num);
 	scheduler.startAsync();
 	TcpServer server(listen_addr, &scheduler);
@@ -53,33 +42,6 @@ int main(int args, char* argv[]) {
 ```
 只需要为TcpServer设置连接处理函数，在连接处理函数中，参数TcpConnection::ptr conn代表此次连接，可以像阻塞IO一样进行读写，如果发生阻塞，当前协程会被切出去，直到可读或者可写事件到来时，该协程会被重新执行。
 
-## 性能
-硬件环境：Intel Core i7-8550U CPU 1.80GHz，8核，8G RAM
-软件环境：操作系统为Ubuntu 16.04.2 LTS，g++版本5.4.0
-测试对象：asio 1.14.0, leo 0.1.0
-
-测试方法：
-根据asio的测试方法，用echo协议来测试。客户端和服务端建立连接，客户端向服务端发送一些数据，服务端收到后将数据原封不动地发回给客户端，客户端收到后再将数据发给服务端，直到一方断开连接位置。
-melon的测试代码在test/TcpClient_test.cpp和test/TcpServer_test.cpp。
-asio的测试代码在/src/tests/performance目录下的client.cpp和server.cpp。
-
-测试1：客户端和服务器运行在同一台机器上，均为单线程，测试并发数为1/10/100/1000/10000的吞吐量。
-
-| 吞吐量（MiB/s） | 1 | 10 | 100 | 1000 |
-| --- | --- | --- | --- | --- |
-| leo | 202 | 388 | 376 | 327 |
-| asio | 251 | 541 | 489 | 436 |
-
-测试2：客户端和服务器运行在同一台机器上，均为开启两个线程，测试并发连接数100的吞吐量。
-
-| 吞吐量（MiB/s） | 2个线程 |
-| --- | --- |
-| leo | 499 |
-| asio | 587 |
-
-从数据看目前melon的性能还不及asio，但是考虑到melon存在协程切换的成本和0.1.0版本没有上epoll，协程切换也是用的ucontext，总体来说可以接受。
-
-
 ## 实现
 ### 日志库
 #### 需求
@@ -90,7 +52,7 @@ asio的测试代码在/src/tests/performance目录下的client.cpp和server.cpp�
 5. 线程安全。
 6. 写日志过程不能是同步的，否则会阻塞IO线程。
 
-这是个典型的生产者-消费者问题。产生日志的线程将日志先存到缓冲区，日志消费线程将缓冲区中的日志写到磁盘。要保证两个线程的临界区尽可能小。
+这是个典型的生产者-消费者问题。产生日志的线程将日志先存到缓冲区，日志消费线程将缓冲区中的日志写到磁盘。
 
 #### 总体结构如下
 ![日志结构](https://blog-1253119293.cos.ap-beijing.myqcloud.com/other/melon_github_readme/%E6%97%A5%E5%BF%97_%E7%BB%93%E6%9E%84%E5%9B%BE.png)
@@ -211,38 +173,26 @@ void Processer::run() {
 
 Poll协程对应的代码逻辑如下：
 ``` c++
-void PollPoller::poll(int timeout) {
+void EventPoller::poll(int timeout) {
+	const uint64_t MAX_EVENTS = 1024;
+	epoll_event events[MAX_EVENTS];
 	while (!processer_->stoped()) {
 		is_polling_ = true;
-		int num = ::poll(&*pollfds_.begin(), pollfds_.size(), timeout);
+		int nfds = epoll_wait(epfd_, events, MAX_EVENTS, timeout);
 		is_polling_ = false;
-		if (num == 0) {
-		} else if (num < 0) {
-			if (errno != EINTR) {
-				LOG_ERROR << "poll error, errno: " << errno << ", error str:" << strerror(errno);
-			}
-		} else {
-			std::vector<int> active_fds;
-			for (const auto& pollfd : pollfds_) {
-				if (pollfd.revents > 0) {
-					--num;
-					active_fds.push_back(pollfd.fd);
-					if (num == 0) {
-						break;
-					}
-				}
-			}
-			for (const auto& active_fd : active_fds) {
-				auto coroutine = fd_to_coroutine_[active_fd];
-				assert(coroutine != nullptr);
+		for (int i = 0; i < nfds; ++i) {
+			int active_fd = events[i].data.fd;
+			auto coroutine = fd_to_coroutine_[active_fd];
+			assert(coroutine != nullptr);
 
-				removeEvent(active_fd);
-				processer_->addTask(coroutine);
-			}	
+			removeEvent(active_fd);
+
+			//todo:有四类事件：1.可读，2.可写，3.关闭，4.错误 需要处理
+			coroutine->setState(CoroutineState::RUNNABLE);
+			processer_->addTask(coroutine);
 		}
 		Coroutine::SwapOut();
 	}
-}
 }
 ```
 

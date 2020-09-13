@@ -3,7 +3,6 @@
 
 using namespace leo;
 
-
 int main(int argc, char** argv)
 {
     Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));

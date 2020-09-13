@@ -47,32 +47,30 @@ EventPoller::~EventPoller()
 }
 
 void EventPoller::updateEvent(int fd, int events, Coroutine::ptr coroutine) {
-	LOG_INFO << "updateEvent events=" << events;
 	assert(coroutine != nullptr);
-	auto it = fd_to_events_.find(fd);
-	if (it == fd_to_events_.end()) {
+	auto it = events_.find(fd);
+	if (it == events_.end()) {
 		epoll_event e;
 		e.data.fd = fd;
 		e.events = events;
-		fd_to_events_[fd] = e;
-		fd_to_coroutine_[fd] = coroutine;
+		events_[fd] = e;
+		coroutines_[fd] = coroutine;
 		if (epoll_ctl(epfd_, EPOLL_CTL_ADD, fd, &e) < 0) {
 			LOG_ERROR << "Failed to insert handler to epoll";
 		}
 	} else {
-		epoll_event& e = fd_to_events_[fd];
+		epoll_event& e = events_[fd];
 		e.events = events;
-		fd_to_coroutine_[fd] = coroutine;
+		coroutines_[fd] = coroutine;
 		epoll_ctl(epfd_, EPOLL_CTL_MOD, fd, &e);
 	}
 }
 	
 void EventPoller::removeEvent(int fd) {
-	auto it = fd_to_events_.find(fd);
-	if (it != fd_to_events_.end()) {
-		LOG_INFO << "removeEvent fd=" << fd;
-		fd_to_coroutine_.erase(fd);
-		fd_to_events_.erase(fd);
+	auto it = events_.find(fd);
+	if (it != events_.end()) {
+		coroutines_.erase(fd);
+		events_.erase(fd);
 		epoll_ctl(epfd_, EPOLL_CTL_DEL, fd, NULL);
 	} 
 }
@@ -85,9 +83,8 @@ void EventPoller::poll(int timeout) {
 		int nfds = epoll_wait(epfd_, events, MAX_EVENTS, timeout);
 		is_polling_ = false;
 		for (int i = 0; i < nfds; ++i) {
-			LOG_INFO << "events=" << events[i].events;
 			int active_fd = events[i].data.fd;
-			auto coroutine = fd_to_coroutine_[active_fd];
+			auto coroutine = coroutines_[active_fd];
 			assert(coroutine != nullptr);
 
 			removeEvent(active_fd);
@@ -95,7 +92,6 @@ void EventPoller::poll(int timeout) {
 			//todo:有四类事件：1.可读，2.可写，3.关闭，4.错误 需要处理
 			coroutine->setState(CoroutineState::RUNNABLE);
 			processer_->addTask(coroutine);
-			
 		}
 		Coroutine::SwapOut();
 	}

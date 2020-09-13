@@ -105,7 +105,7 @@ void Processer::stop() {
 void Processer::wakeupPollCoroutine() {
 	uint64_t buffer = 1;
 	ssize_t n = ::write(event_fd_, &buffer, sizeof(buffer));
-	if (n != sizeof buffer) {
+	if (n != sizeof(buffer)) {
 		LOG_ERROR << "wakeupPollCoroutine() size of the supplied buffer is not 8 bytes";
 	}
 }

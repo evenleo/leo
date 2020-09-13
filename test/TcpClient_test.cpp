@@ -140,20 +140,13 @@ void Session::handleConnection() {
 	owner_->onDisconnect();
 }
 
-// ./TcpClient_test 127.0.0.1 5000 3 10 3 10
 int main(int argc, char* argv[]) {
-	if (argc != 7) {
-		printf("Usage:%s serverip port threads blockSize sessionCount timeout\n", argv[0]);
-		return 0;
-	}
-	Logger::setLogLevel(LogLevel::INFO);
 	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
-
-	IpAddress server_addr(argv[1], atoi(argv[2]));
-	int threads_num = std::atoi(argv[3]);
-	int block_size = std::atoi(argv[4]);
-	int session_count = std::atoi(argv[5]);
-	int timeout = std::atoi(argv[6]);
+	IpAddress server_addr("127.0.0.1", 5000);
+	int threads_num = 3;
+	int block_size = 40;
+	int session_count = 3;
+	int timeout = 10;
 
 	Scheduler scheduler(threads_num);
 	scheduler.startAsync();

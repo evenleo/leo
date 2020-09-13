@@ -8,7 +8,6 @@ using namespace std;
 using namespace leo;
 
 int main(int , char* argv[]) {
-	//leo::Logger::setLogLevel(leo::LogLevel::INFO);
 	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 	std::shared_ptr<AsyncFileAppender> file_appender = std::make_shared<AsyncFileAppender>(argv[0]);	
 	file_appender->start();

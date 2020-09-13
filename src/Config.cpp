@@ -64,7 +64,7 @@ bool Config::Load(const std::string& path)
             auto it = configs_.find(section);
             if (it == configs_.end()) {
                 m = new std::map<std::string, std::string>();
-                configs_.insert(STR_MAP::value_type(section, m));
+                configs_.insert(ConfigMap::value_type(section, m));
             }
             else {
                 m = it->second;
