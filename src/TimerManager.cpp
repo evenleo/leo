@@ -12,11 +12,9 @@ std::atomic<int64_t> Timer::s_sequence_creator_;
 
 int createTimerFd() {
 	int timerfd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
-
 	if (timerfd < 0) {
 		LOG_FATAL << "timerfd_create:" << strerror(errno);
 	}
-
 	return timerfd;
 }
 
@@ -111,7 +109,7 @@ void TimerManager::dealWithExpiredTimer() {
 
 		assert(old_timer->getProcesser() != nullptr);
 		old_timer->getProcesser()->addTask(old_timer->getCoroutine());
-
+		std::cout << "----------------" << old_timer->getInterval() << std::endl;
 		if (old_timer->getInterval() > 0) {
 			Timestamp new_timestamp = Timestamp::now() + old_timer->getInterval();
 			old_timer->setTimestamp(new_timestamp);

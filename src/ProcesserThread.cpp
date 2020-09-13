@@ -7,13 +7,11 @@
 namespace leo {
 
 ProcessThread::ProcessThread(Scheduler* scheduler) 
-	:thread_(std::bind(&ProcessThread::threadFunc, this)),
-	scheduler_(scheduler),
-	processer_(nullptr),
-	mutex_(),
-	cond_(mutex_) {
-
-}
+	: thread_(std::bind(&ProcessThread::threadFunc, this)),
+	  scheduler_(scheduler),
+	  processer_(nullptr),
+	  mutex_(),
+	  cond_(mutex_) {}
 
 Processer* ProcessThread::startProcess() {
 	thread_.start();

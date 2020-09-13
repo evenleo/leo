@@ -215,7 +215,27 @@ int timerfd_settime(int fd, int flags,
 2. TimerManager维护一个定时器队列。每一项包含定时器触发时间和对应的回调。
 3. TimerManager.addTimer()将新的<timer, 回调>加入到队列中。如果这个定时器是最先到期的那么调用timerfd_settime()重新设置timer fd的到期时间。timer fd到期后，将从Poll协程中返回，然后执行定时器协程，该协程中读取timer fd，然后根据现在的时间，将定时器队列中超时的项删除，并将超时的项的回调作为新的协程执行。
 4. 这个队列可以由multimap来实现，multimap由红黑树实现，内部是有序的。红黑树本质就是一颗二叉树，只不过为了防止多次的操作变得不平衡，增加了一些维持平衡的操作。
-5. 如何删除定时器，每个定时器分配一个id，TimerManager内部维护一个id到定时器时间戳的映射sequence_2_timestamp_。cancel()时，根据id去sequence_2_timestamp_中找有没有对应的定时器，如果有，将这个时间戳从时间戳队列中删除，必要时重新调用timerfd_settime()。
+5. 如何删除定时器，每个定时器分配一个id，TimerManager内部维护一个id到定时器时间戳的映射sequence_2_timestamp_.cancel()时，根据id去sequence_2_timestamp_中找有没有对应的定时器，如果有，将这个时间戳从时间戳队列中删除，必要时重新调用timerfd_settime()。
+
+```c++
+int main() {
+	Scheduler scheduler;
+	scheduler.startAsync();
+
+	/**
+	 *  当timer_fd没有cancel之前，会每隔2s执行以下timeout回调，休眠10scancel，测试执行4次回调
+	 *  当第一个参数为0时，只调用一次回调
+	 */ 
+	int64_t timer_id = scheduler.runEvery(2 * Timestamp::kMicrosecondsPerSecond, std::make_shared<Coroutine>([](){
+									printf("timeout\n");
+								}));
+	sleep(10);  
+	scheduler.cancel(timer_id);
+	printf("cancel\n");
+
+	return 0;
+}
+```
 
 ### Hook
 要想实现在协程中遇到耗时操作不阻塞当前IO线程，需要对一些系统函数进行hook。
@@ -240,49 +260,118 @@ unsigned int sleep(unsigned int seconds) {
 ### RPC实现
 #### 参数序列化及反序列化
 rpc说简单点就是将参数传给服务端，服务端根据参数找到对应的函数执行，得出一个响应，再将响应传回给客户端。客户端的参数对象如何通过网络传到服务端呢？这就涉及到序列化和反序列化。
-melon选择Protobuf，Protobuf具有很强的反射能力，在仅知道typename的情况下就能创建typename对应的对象。
+leo不想使用第三方库的依赖，所以不选择用比较成熟的protobuf，二采用自定义序列化和反序列化的类Serializer，可序列化反序列化基本类型，具体运用如下：
 ``` c++
-google::protobuf::Message* ProtobufCodec::createMessage(const std::string& typeName) {
-	google::protobuf::Message* message = nullptr;
-	const google::protobuf::Descriptor* descriptor =
-			google::protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(typeName);
-	if (descriptor) {
-		const google::protobuf::Message* prototype =
-			google::protobuf::MessageFactory::generated_factory()->GetPrototype(descriptor);
-		if (prototype) {
-			message = prototype->New();
-		}
-	}
-	return message;
+struct Student {
+    int age;
+    std::string name;
+    Student() {}
+    Student(int a, const std::string& n) 
+        : age(a), name(n) {}
+    
+    friend Serializer& operator>>(Serializer& in, Student& s)
+    {
+        in >> s.age >> s.name;
+        return in;
+    }
+    friend Serializer& operator<<(Serializer& out, Student& s)
+    {
+        out << s.age << s.name;
+        return out;
+    }
+};
+
+int main(int argc, char** argv)
+{
+    Serializer sr;
+    /* 基本类型 */
+    int n = 24;
+    int v;
+    sr << n;  // 序列化
+    sr >> v;  // 反序列化
+    cout << v << endl;
+
+    /* 自定义类型类型 */
+    Student src(23, "evenleo");
+    Student dest;
+    sr << src;
+    sr >> dest;
+    cout << dest.name << ", " << dest.age << endl;
+
+    return 0;
 }
 ```
-上述函数根据参数typename就能创建一个Protobuf对象，这个新建的对象结合序列化后的Protobuf数据就能在服务端生成一个和客户端一样的Protobuf对象。
+上述测试成功实现基本类型的序列化反序列化的功能，
 
+RPC服务端
+```c++
+std::string Strcat(std::string s, int n)
+{
+    return s + std::to_string(n);
+}
 
-#### 数据格式
+struct Foo {
+    int add(int a, int b) {
+        return a + b;
+    }
+};
+
+int main(int argc, char** argv)
+{
+    Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+    RpcServer server(5000, 3);
+    server.regist("Strcat", Strcat);
+    Foo s;
+	server.regist("add", &Foo::add, &s);
+    server.run();
+    return 0;
+}
 ```
-|-------------------|
-|   total  byte     |        总的字节数
-|-------------------|
-|     typename      |         类型名
-|-------------------|
-|    typename len   |         类型名长度
-|-------------------|
-|   protobuf data   |          Protobuf对象序列化后的数据
-|-------------------|
-|       checksum    |        整个消息的checksum
-|-------------------|
+RPC客户端
+```c++
+void StrcatResult(string responese)
+{
+    Serializer s(responese.c_str(), responese.size());
+    response_t<string> res;
+    s >> res;
+    cout << "code=" << res.code() << ", message=" << res.message() << ", value=" << res.value() << endl;
+}
+
+void addResult(string responese)
+{
+    Serializer s(responese.c_str(), responese.size());
+    response_t<int> res;
+    s >> res;
+    cout << "code=" << res.code() << ", message=" << res.message() << ", value=" << res.value() << endl;
+}
+
+int main(int argc, char** argv)
+{
+    RpcClient client("127.0.0.1", 5000);
+    client.call<string>("Strcat", StrcatResult, "even", 24);
+    client.call<int>("add", addResult, 10, 21);
+    getchar();
+    return 0;
+}
 ```
 某次rpc的过程如下：
 ```
-客户端包装请求并发送    ---------------->     服务端接收请求
-                                            服务端解析请求，找到并执行对应的service::method
-客户端接收响并解析      <----------------     服务端将响应发回给客户端
+启动服务器                ---------------->     注册service::method
+
+客户端包装请求并发送       ---------------->     服务端解析请求，找到并执行对应的service::method
+
+客户端接收响并解析结果     <----------------     服务端将响应发回给客户端
 ```
+返回结果如下：
+```
+code=0, message=success, value=even24
+code=0, message=success, value=31
+```
+
 
 
 ### 一些细节
 1. 需要开启SO_REUSEADDR选项。
 2. 需要屏蔽SIG_PIPE信号。
 
-本项目很多地方受《Linux多线程服务端编程》- 陈硕 启发，万分感谢。
+本项目基于开源项目 ![gatsbyd/melon](https://github.com/gatsbyd/melon) 的基础上开发，将poll替换成epoll，理论上更高效，但目前也没有进行压测对比。这里非常感谢gatsbyd。
