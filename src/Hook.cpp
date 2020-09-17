@@ -97,7 +97,6 @@ HOOK_INIT(sendto)
 HOOK_INIT(sendmsg)
 
 
-
 unsigned int sleep(unsigned int seconds) {
 	leo::Processer* processer = leo::Processer::GetProcesserOfThisThread();
 	if (!leo::isHookEnabled()) {
