@@ -20,17 +20,14 @@ Coroutine::Coroutine(Func cb, std::string name, uint32_t stack_size)
 	  stack_(nullptr),
 	  state_(CoroutineState::RUNNABLE) 
 {
-	LOG_INFO << "Coroutine c_id_=" << c_id_;
 	assert(stack_size > 0);
-	
 	stack_ = malloc(stack_size_);
 	if (!stack_) {
 		LOG_ERROR << "run out of memory";
 	}
 	
 	if (getcontext(&context_)) {
-		LOG_ERROR << "getcontext: errno=" << errno
-				<< " error string:" << strerror(errno);
+		LOG_ERROR << "getcontext: errno=" << errno << " error string:" << strerror(errno);
 	}
 	context_.uc_link = nullptr;
 	context_.uc_stack.ss_size = stack_size_;
@@ -48,13 +45,11 @@ Coroutine::Coroutine()
 	  state_(CoroutineState::RUNNABLE) 
 {
 	if (getcontext(&context_)) {
-		LOG_ERROR << "getcontext: errno=" << errno
-				<< " error string:" << strerror(errno);
+		LOG_ERROR << "getcontext: errno=" << errno << " error string:" << strerror(errno);
 	}
 }
 
 Coroutine::~Coroutine() {
-	LOG_INFO << "~Coroutine c_id_=" << c_id_;
 	if (stack_) {
 		free(stack_);
 	}

@@ -8,10 +8,10 @@ using namespace leo;
 static int sum = 0;
 
 void test() {
-	LOG_DEBUG << "in Coroutine(" << Coroutine::GetCid() << ")";
+	LOG_DEBUG << "in Coroutine [" << Coroutine::GetCid() << "]";
 	Coroutine::SwapOut();
 	sum++;
-	LOG_DEBUG << "in Coroutine(" << Coroutine::GetCid() << ")";
+	LOG_DEBUG << "in Coroutine [" << Coroutine::GetCid() << "]";
 	Coroutine::SwapOut();
 }
 
@@ -26,11 +26,11 @@ int main(int argc, char** argv) {
 
 	for (int i = 0; i < sz; ++i) {
 		coroutines[i]->swapIn();
-		LOG_DEBUG << "back to main Coroutine(" << Coroutine::GetCid() << ")";
+		LOG_DEBUG << "back to main Coroutine [" << Coroutine::GetCid() << "]";
 	}
 	for (int i = 0; i < sz; ++i) {
 		coroutines[i]->swapIn();
-		LOG_DEBUG << "back to main Coroutine(" << Coroutine::GetCid() << ")";
+		LOG_DEBUG << "back to main Coroutine [" << Coroutine::GetCid() << "]";
 	}
 
 	LOG_DEBUG << "all coroutine terminated, " << "sum= " << sum;

@@ -4,9 +4,7 @@
 namespace leo {
 
 TcpConnection::TcpConnection(Socket::ptr socket, IpAddress peer) 
-		:conn_socket_(socket),
-		peer_addr_(peer) {
-}
+	: conn_socket_(socket), peer_addr_(peer) {}
 
 ssize_t TcpConnection::read(void* buf, size_t count) {
 	return conn_socket_->read(buf, count);

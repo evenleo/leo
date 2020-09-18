@@ -66,9 +66,9 @@ std::string Logger::format(LogEvent::ptr event) {
 	    << nsec << " "
 		<< event->tid_ << " "
 		<< LogLevelName[static_cast<int>(event->logLevel_)] << " "
-		<< event->content_.str() << " - "
 		<< event->file_name_ << ":"
-		<< event->line_ << std::endl;
+		<< event->line_ << " "
+		<< "- " << event->content_.str() << std::endl;
 	return ss.str();
 }
 
