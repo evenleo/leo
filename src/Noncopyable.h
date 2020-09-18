@@ -1,5 +1,5 @@
-#ifndef _MELON_NON_COPYABLE_H_
-#define _MELON_NON_COPYABLE_H_
+#ifndef _LEO_NON_COPYABLE_H_
+#define _LEO_NON_COPYABLE_H_
 
 namespace leo {
 

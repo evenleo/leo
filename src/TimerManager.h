@@ -1,5 +1,5 @@
-#ifndef _MELON_TIMER_MANAGER_H_
-#define _MELON_TIMER_MANAGER_H_
+#ifndef _LEO_TIMER_MANAGER_H_
+#define _LEO_TIMER_MANAGER_H_
 
 #include "Coroutine.h"
 #include "Timestamp.h"

@@ -1,5 +1,5 @@
-#ifndef _MELON_SINGLETON_H_
-#define _MELON_SINGLETON_H_
+#ifndef _LEO_SINGLETON_H_
+#define _LEO_SINGLETON_H_
 
 #include "Noncopyable.h"
 

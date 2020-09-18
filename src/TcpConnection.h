@@ -1,5 +1,5 @@
-#ifndef _MELON_TCP_CONNECTION_H_
-#define _MELON_TCP_CONNECTION_H_
+#ifndef _LEO_TCP_CONNECTION_H_
+#define _LEO_TCP_CONNECTION_H_
 
 #include "Address.h"
 #include "Buffer.h"

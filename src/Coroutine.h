@@ -1,8 +1,8 @@
 /**
  * 协程，可在当前协程和主协程间切换
  */ 
-#ifndef _MELON_COROUTINE_H_
-#define _MELON_COROUTINE_H_
+#ifndef _LEO_COROUTINE_H_
+#define _LEO_COROUTINE_H_
 
 #include "Noncopyable.h"
 

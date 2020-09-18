@@ -1,5 +1,5 @@
-#ifndef _MELON_MUTEX_H_
-#define _MELON_MUTEX_H_
+#ifndef _LEO_MUTEX_H_
+#define _LEO_MUTEX_H_
 
 #include <pthread.h>
 

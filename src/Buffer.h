@@ -1,5 +1,5 @@
-#ifndef _MELON_BUFFER_H_
-#define _MELON_BUFFER_H_
+#ifndef _LEO_BUFFER_H_
+#define _LEO_BUFFER_H_
 
 #include <assert.h>
 #include <algorithm>

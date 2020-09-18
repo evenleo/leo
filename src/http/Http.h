@@ -1,5 +1,5 @@
-#ifndef _MELON_HTTP__H_
-#define _MELON_HTTP__H_
+#ifndef _LEO_HTTP__H_
+#define _LEO_HTTP__H_
 
 #include <map>
 #include <memory>

@@ -1,5 +1,5 @@
-#ifndef _MELON_THREAD_H_
-#define _MELON_THREAD_H_
+#ifndef _LEO_THREAD_H_
+#define _LEO_THREAD_H_
 
 #include "Noncopyable.h"
 #include <functional>
@@ -8,14 +8,14 @@ namespace leo {
 
 class Thread : public Noncopyable {
 public:
-	typedef std::function<void (void)> Func;
+	typedef std::function<void ()> Func;
 	Thread(Func cb, std::string name = "");
 	~Thread();
 
-	bool isStarted();
+	bool isStarted() const { return started_; }
 	void start();
 	void join();
-	const std::string& getName() const;
+	const std::string& getName() const { return name_; }
 	
 	static pid_t CurrentThreadTid();
 private:

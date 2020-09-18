@@ -1,5 +1,5 @@
-#ifndef _MELON_HTTP_CONNECTION_H
-#define _MELON_HTTP_CONNECTION_H
+#ifndef _LEO_HTTP_CONNECTION_H
+#define _LEO_HTTP_CONNECTION_H
 
 #include "TcpConnection.h"
 #include "Http.h"

@@ -20,29 +20,25 @@ pid_t Thread::CurrentThreadTid() {
 }
 
 Thread::Thread(Func cb, std::string name)
-	: started_(false), joined_(false),
-	   	cb_(std::move(cb)) {
+	: started_(false), joined_(false), cb_(std::move(cb)) 
+{
 	if (name.empty()) {
 		int num = threadCount.fetch_add(1);
-		char buf[30];
-		snprintf(buf, sizeof buf, "Thread-%d", num);
-		name_ = buf;
+		name_ = "Thread-" + std::to_string(num);
 	} else {
 		name_ = name;
 	}
 }
 
-Thread::~Thread() {
+Thread::~Thread() 
+{
 	if (started_ && !joined_) {
 		pthread_detach(tid_);
 	}
 }
 
-bool Thread::isStarted() {
-	return started_;
-}
-
-void Thread::start() {
+void Thread::start() 
+{
 	assert(!started_);
 	started_ = true;
 	if (int error = pthread_create(&tid_, nullptr, Thread::threadFuncInternal, this)) {
@@ -51,7 +47,8 @@ void Thread::start() {
 	}
 }
 
-void Thread::join() {
+void Thread::join() 
+{
 	assert(started_);
 	assert(!joined_);
 	joined_ = true;
@@ -61,16 +58,11 @@ void Thread::join() {
 	}
 }
 
-const std::string& Thread::getName() const {
-	return name_;
-}
-
-void* Thread::threadFuncInternal(void* arg) {
+void* Thread::threadFuncInternal(void* arg) 
+{
 	Thread* thread = static_cast<Thread*>(arg);	
 	Func cb;
 	cb.swap(thread->cb_);
-
-	//todo: exception
 	cb();
 	return 0;
 }

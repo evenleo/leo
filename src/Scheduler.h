@@ -1,5 +1,5 @@
-#ifndef _MELON_SCHEDULER_H_
-#define _MELON_SCHEDULER_H_
+#ifndef _LEO_SCHEDULER_H_
+#define _LEO_SCHEDULER_H_
 
 #include "Coroutine.h"
 #include "Noncopyable.h"

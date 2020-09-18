@@ -1,5 +1,5 @@
-#ifndef _MELON_SCHEDULER_THREAD_H_
-#define _MELON_SCHEDULER_THREAD_H_
+#ifndef _LEO_SCHEDULER_THREAD_H_
+#define _LEO_SCHEDULER_THREAD_H_
 
 #include "Noncopyable.h"
 #include "Thread.h"

@@ -1,5 +1,5 @@
-#ifndef _MELON_ADDRESS_H_
-#define _MELON_ADDRESS_H_
+#ifndef _LEO_ADDRESS_H_
+#define _LEO_ADDRESS_H_
 
 #include <netinet/in.h>
 #include <string>

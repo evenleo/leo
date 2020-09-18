@@ -1,5 +1,5 @@
-#ifndef _MELON_CONDITION_H_
-#define _MELON_CONDITION_H_
+#ifndef _LEO_CONDITION_H_
+#define _LEO_CONDITION_H_
 
 #include "Mutex.h"
 #include "Noncopyable.h"

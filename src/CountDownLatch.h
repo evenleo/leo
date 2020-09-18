@@ -1,5 +1,5 @@
-#ifndef _MELON_COUNT_DOWN_LATCH_H_
-#define _MELON_COUNT_DOWN_LATCH_H_
+#ifndef _LEO_COUNT_DOWN_LATCH_H_
+#define _LEO_COUNT_DOWN_LATCH_H_
 
 #include "Noncopyable.h"
 #include "Condition.h"

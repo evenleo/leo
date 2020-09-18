@@ -1,5 +1,5 @@
-#ifndef _MELON_LOG_H_
-#define _MELON_LOG_H_
+#ifndef _LEO_LOG_H_
+#define _LEO_LOG_H_
 
 #include <memory>
 #include <map>

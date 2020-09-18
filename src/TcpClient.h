@@ -1,5 +1,5 @@
-#ifndef _MELON_TCP_CLIENT_T_
-#define _MELON_TCP_CLIENT_H_
+#ifndef _LEO_TCP_CLIENT_T_
+#define _LEO_TCP_CLIENT_H_
 
 #include "TcpConnection.h"
 

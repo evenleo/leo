@@ -1,5 +1,5 @@
-#ifndef _MELON_TIME_STAMP_H_
-#define _MELON_TIME_STAMP_H_
+#ifndef _LEO_TIME_STAMP_H_
+#define _LEO_TIME_STAMP_H_
 
 #include <stdint.h>
 #include <string>
