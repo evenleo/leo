@@ -86,7 +86,7 @@ public:
 		const char* d = static_cast<const char*>(data);
 		std::copy(d, d + len, begin() + read_index_);
 	}
-	ssize_t readSocket(Socket::Ptr socket);
+	ssize_t readSocket(Socket::ptr socket);
 
 	void ensureWritableBytes(size_t len) {
 		if (writableBytes() < len) {

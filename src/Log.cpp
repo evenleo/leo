@@ -60,7 +60,7 @@ std::string Logger::format(LogEvent::ptr event) {
 	suseconds_t nsec = event->timestamp_.getUsec();
 	struct tm tm;
 	localtime_r(&sec, &tm);
-	strftime(buf, sizeof buf, "%Y-%m-%d %H:%M:%S", &tm);
+	strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tm);
 
 	ss << buf << " "
 	    << nsec << " "

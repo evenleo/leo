@@ -10,7 +10,6 @@
 #include <string.h>
 #include <unistd.h>
 
-
 namespace leo {
 	
 void Socket::bind(const IpAddress& local) {
@@ -26,7 +25,7 @@ void Socket::listen() {
 }
 
 int Socket::accept(IpAddress& peer) {
-	socklen_t addrlen = static_cast<socklen_t>(sizeof (struct sockaddr));
+	socklen_t addrlen = static_cast<socklen_t>(sizeof(struct sockaddr));
 	int connfd = ::accept(fd_, peer.getSockAddr(), &addrlen);
 	if (connfd < 0) {
 		LOG_ERROR << "accept: " << strerror(errno);
@@ -35,7 +34,7 @@ int Socket::accept(IpAddress& peer) {
 }
 
 int Socket::connect(IpAddress& server_addr) {
-	socklen_t addrlen = static_cast<socklen_t>(sizeof (struct sockaddr));
+	socklen_t addrlen = static_cast<socklen_t>(sizeof(struct sockaddr));
 	return ::connect(fd_, server_addr.getSockAddr(), addrlen);
 }
 
@@ -46,7 +45,7 @@ int Socket::fd() const {
 void Socket::setTcpNoDelay(bool on) {
 	int optval = on ? 1 : 0;
 	int ret = ::setsockopt(fd_, IPPROTO_TCP, TCP_NODELAY, 
-					&optval, static_cast<socklen_t>(sizeof optval));
+					&optval, static_cast<socklen_t>(sizeof(optval)));
 	if (ret == -1) {
 		LOG_ERROR << "setsockopt: " << strerror(errno);
 	}
@@ -55,7 +54,7 @@ void Socket::setTcpNoDelay(bool on) {
 void Socket::setReuseAddr(bool on) {
 	int optval = on ? 1 : 0;
 	int ret = ::setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, 
-					&optval, static_cast<socklen_t>(sizeof optval));
+					&optval, static_cast<socklen_t>(sizeof(optval)));
 	if (ret == -1) {
 		LOG_ERROR << "setsockopt: " << strerror(errno);
 	}
@@ -64,7 +63,7 @@ void Socket::setReuseAddr(bool on) {
 void Socket::setReusePort(bool on) {
 	int optval = on ? 1 : 0;
 	int ret = ::setsockopt(fd_, SOL_SOCKET, SO_REUSEPORT, 
-					&optval, static_cast<socklen_t>(sizeof optval));
+					&optval, static_cast<socklen_t>(sizeof(optval)));
 	if (ret == -1) {
 		LOG_ERROR << "setsockopt: " << strerror(errno);
 	}
@@ -73,7 +72,7 @@ void Socket::setReusePort(bool on) {
 void Socket::setKeepAlive(bool on) {
 	int optval = on ? 1 : 0;
 	int ret = ::setsockopt(fd_, SOL_SOCKET, SO_KEEPALIVE, 
-					&optval, static_cast<socklen_t>(sizeof optval));
+					&optval, static_cast<socklen_t>(sizeof(optval)));
 	if (ret == -1) {
 		LOG_ERROR << "setsockopt: " << strerror(errno);
 	}
@@ -141,7 +140,7 @@ void Socket::SetNonBlockAndCloseOnExec() {
 	}
 }
 
-Socket::Ptr Socket::CreateTcp() {
+Socket::ptr Socket::CreateTcp() {
 	int fd = ::socket(AF_INET, SOCK_STREAM, 0);
 	if (fd < 0) {
 		LOG_FATAL << "socket: " << strerror(errno);
@@ -153,7 +152,7 @@ Socket::Ptr Socket::CreateTcp() {
 int Socket::GetSocketError(int sockfd)
 {
   int optval;
-  socklen_t optlen = static_cast<socklen_t>(sizeof optval);
+  socklen_t optlen = static_cast<socklen_t>(sizeof(optval));
 
   if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) < 0)
   {

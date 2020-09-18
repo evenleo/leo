@@ -29,7 +29,7 @@ bool TimerManager::findFirstTimestamp(const Timestamp& now, Timestamp& timestamp
 }
 
 int64_t TimerManager::addTimer(Timestamp when, Coroutine::ptr coroutine, Processer* processer, uint64_t interval) {
-	Timer::Ptr timer = std::make_shared<Timer>(when, processer, coroutine, interval);
+	Timer::ptr timer = std::make_shared<Timer>(when, processer, coroutine, interval);
 	bool earliest_timer_changed = false;
 	{
 		MutexGuard lock(mutex_);
@@ -87,7 +87,7 @@ ssize_t TimerManager::readTimerFd() {
 void TimerManager::dealWithExpiredTimer() {
 	readTimerFd();
 
-	std::vector<std::pair<Timestamp, Timer::Ptr>> expired;
+	std::vector<std::pair<Timestamp, Timer::ptr>> expired;
 	{
 		MutexGuard lock(mutex_);
 		auto it_not_less_now = timer_map_.lower_bound(Timestamp::now());
@@ -98,8 +98,8 @@ void TimerManager::dealWithExpiredTimer() {
 		}
 	}
 
-	for (const std::pair<Timestamp, Timer::Ptr>& pair : expired) {
-		Timer::Ptr old_timer = pair.second;
+	for (const std::pair<Timestamp, Timer::ptr>& pair : expired) {
+		Timer::ptr old_timer = pair.second;
 		{
 			MutexGuard lock(mutex_);
 			if (cancel_set_.find(old_timer->getSequence()) != cancel_set_.end()) {

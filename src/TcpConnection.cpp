@@ -3,7 +3,7 @@
 
 namespace leo {
 
-TcpConnection::TcpConnection(Socket::Ptr socket, IpAddress peer) 
+TcpConnection::TcpConnection(Socket::ptr socket, IpAddress peer) 
 		:conn_socket_(socket),
 		peer_addr_(peer) {
 }

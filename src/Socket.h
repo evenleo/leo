@@ -13,7 +13,7 @@ class Processer;
 
 class Socket : public Noncopyable {
 public:
-	typedef std::shared_ptr<Socket> Ptr;
+	typedef std::shared_ptr<Socket> ptr;
 
 	explicit Socket(int fd) 
 		: fd_(fd) {}
@@ -38,7 +38,7 @@ public:
 	void close();
 
 	void SetNonBlockAndCloseOnExec();
-	static Socket::Ptr CreateTcp();
+	static Socket::ptr CreateTcp();
 	static int GetSocketError(int sockfd);
 
 private:

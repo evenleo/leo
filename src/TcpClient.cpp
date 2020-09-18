@@ -18,7 +18,7 @@ TcpClient::TcpClient(const IpAddress& server_addr)
 TcpConnection::ptr TcpClient::connect() {
 retry:
 	{
-		Socket::Ptr sock = Socket::CreateTcp();
+		Socket::ptr sock = Socket::CreateTcp();
 		sock->SetNonBlockAndCloseOnExec();
 
 		int ret = sock->connect(server_addr_);

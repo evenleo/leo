@@ -30,7 +30,7 @@ void TcpServer::startAccept() {
 		IpAddress peer_addr;
 		int connfd = listen_socket_->accept(peer_addr);
 
-		Socket::Ptr socket = std::make_shared<Socket>(connfd);
+		Socket::ptr socket = std::make_shared<Socket>(connfd);
 		socket->SetNonBlockAndCloseOnExec();
 		scheduler_->addTask(std::bind(connection_handler_, std::make_shared<TcpConnection>(socket, peer_addr)), "Connect");
 	}

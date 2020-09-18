@@ -18,7 +18,7 @@ namespace leo {
 class Processer;
 class Timer {
 public:
-	typedef std::shared_ptr<Timer> Ptr;
+	typedef std::shared_ptr<Timer> ptr;
 	Timer(Timestamp timestamp, Processer* processer, Coroutine::ptr coroutine, uint64_t interval)
    		: timestamp_(timestamp),
 		  processer_(processer),
@@ -65,7 +65,7 @@ private:
 	void dealWithExpiredTimer();
 
 	int timer_fd_;
-	std::multimap<Timestamp, Timer::Ptr> timer_map_;
+	std::multimap<Timestamp, Timer::ptr> timer_map_;
 	Mutex mutex_;
 
 	// for cancel

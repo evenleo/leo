@@ -3,7 +3,7 @@
 
 namespace leo {
 
-ssize_t Buffer::readSocket(Socket::Ptr socket) {
+ssize_t Buffer::readSocket(Socket::ptr socket) {
 	char extrabuf[10240]; //10k
 	struct iovec vec[2];
 	const size_t writable = writableBytes();

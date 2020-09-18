@@ -10,7 +10,7 @@ namespace leo {
 class TcpConnection {
 public:
 	typedef std::shared_ptr<TcpConnection> ptr;
-	explicit TcpConnection(Socket::Ptr socket, IpAddress peer);
+	explicit TcpConnection(Socket::ptr socket, IpAddress peer);
 
 	ssize_t read(void* buf, size_t count);
 	ssize_t readn(void* buf, size_t count);
@@ -26,7 +26,7 @@ public:
 
 	const IpAddress& peerAddr() const { return peer_addr_; }
 private:
-	Socket::Ptr conn_socket_;
+	Socket::ptr conn_socket_;
 	IpAddress peer_addr_;
 };
 

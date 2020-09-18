@@ -15,7 +15,7 @@ class Processer;
 
 class Poller : public Noncopyable {
 public:
-	typedef std::shared_ptr<Poller> Ptr;
+	typedef std::shared_ptr<Poller> ptr;
 	static const int kNoneEvent;
 	static const int kReadEvent;
 	static const int kWriteEvent;

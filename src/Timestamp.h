@@ -50,7 +50,7 @@ inline std::ostream& operator<<(std::ostream& os, const Timestamp& timestamp)
     time_t sec = timestamp.getSec();
     struct tm tm;
     localtime_r(&sec, &tm);
-    strftime(buf, sizeof buf, "%Y-%m-%d %H:%M:%S", &tm);
+    strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tm);
     os << std::string(buf);
     return os;
 }
