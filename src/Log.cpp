@@ -23,34 +23,29 @@ LogEvent::LogEvent(Timestamp timestamp, pid_t tid, LogLevel logLevel,
 					const char* file_name,
 					int line) 
 	: timestamp_(timestamp), tid_(tid), logLevel_(logLevel), 
-		file_name_(file_name), line_(line) {
-}
+	  file_name_(file_name), line_(line) {}
 
-std::ostream& LogEvent::getStream() {
-	return content_;
-}
+std::ostream& LogEvent::getStream() { return content_; }
 
 LogWrapper::LogWrapper(LogEvent::ptr event)
-	:event_(event){
-}
+	: event_(event) {}
 
-LogWrapper::~LogWrapper() {
+LogWrapper::~LogWrapper() 
+{
 	Singleton<Logger>::getInstance()->log(event_);
 	if (event_->logLevel_ == LogLevel::FATAL) {
 		abort();
 	}
 }
 
-std::ostream& LogWrapper::getStream() {
+std::ostream& LogWrapper::getStream() 
+{
 	return event_->getStream();
 }
 
-Logger::Logger() {
-}
+Logger::Logger() {}
 
-void Logger::setLogLevel(LogLevel logLevel) {
-	g_logLevel = logLevel;
-}
+void Logger::setLogLevel(LogLevel logLevel) { g_logLevel = logLevel; }
 
 std::string Logger::format(LogEvent::ptr event) {
 	//TODO:待优化
@@ -63,17 +58,17 @@ std::string Logger::format(LogEvent::ptr event) {
 	strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tm);
 
 	ss << buf << " "
-	    << nsec << " "
-		<< event->tid_ << " "
-		<< LogLevelName[static_cast<int>(event->logLevel_)] << " "
-		<< event->file_name_ << ":"
-		<< event->line_ << " "
-		<< "- " << event->content_.str() << std::endl;
+	   << nsec << " "
+	   << event->tid_ << " "
+	   << LogLevelName[static_cast<int>(event->logLevel_)] << " "
+	   << event->file_name_ << ":"
+	   << event->line_ << " - "
+	   << event->content_.str() << std::endl;
 	return ss.str();
 }
 
-void Logger::log(LogEvent::ptr event) {
-
+void Logger::log(LogEvent::ptr event) 
+{
 	std::string log = format(event);
 	{
 		MutexGuard guard(mutex_);
@@ -83,17 +78,20 @@ void Logger::log(LogEvent::ptr event) {
 	}
 }
 
-void Logger::addAppender(const std::string name, LogAppender::ptr appender) {
+void Logger::addAppender(const std::string name, LogAppender::ptr appender) 
+{
 	MutexGuard guard(mutex_);
 	appenders_.insert(std::make_pair(name, appender));
 }
 
-void Logger::delAppender(const std::string name) {
+void Logger::delAppender(const std::string name) 
+{
 	MutexGuard guard(mutex_);
 	appenders_.erase(name);
 }
 
-void Logger::clearAppender() {
+void Logger::clearAppender() 
+{
 	MutexGuard guard(mutex_);
 	appenders_.clear();
 }
@@ -104,7 +102,8 @@ void ConsoleAppender::append(const std::string& log) {
 }
 
 LogBuffer::LogBuffer(size_t total) 
-	:total_(total), available_(total), cur_(0) {
+	: total_(total), available_(total), cur_(0) 
+{
 	data_ = new char[total];
 }
 
@@ -137,23 +136,24 @@ size_t LogBuffer::length() const {
 }
 
 AsyncFileAppender::AsyncFileAppender(std::string basename, time_t persist_period) 
-	:started_(false), 
-	running_(false),
-	persist_period_(persist_period), 
-	basename_(basename),
-	cond_(mutex_) ,
-	countdown_latch_(1),
-	persit_thread_(std::bind(&AsyncFileAppender::threadFunc, this)),
-		cur_buffer_(new LogBuffer()) {
-}
+	: started_(false), 
+	  running_(false),
+	  persist_period_(persist_period), 
+	  basename_(basename),
+	  cond_(mutex_) ,
+	  countdown_latch_(1),
+	  persit_thread_(std::bind(&AsyncFileAppender::threadFunc, this)),
+	  cur_buffer_(new LogBuffer()) {}
 
-AsyncFileAppender::~AsyncFileAppender() {
+AsyncFileAppender::~AsyncFileAppender() 
+{
 	if (started_) {
 		stop();	
 	}
 }
 
-void AsyncFileAppender::append(const std::string& log) {
+void AsyncFileAppender::append(const std::string& log) 
+{
 	MutexGuard guard(mutex_);
 
 	if (cur_buffer_->available() >= log.size()) {
@@ -167,20 +167,23 @@ void AsyncFileAppender::append(const std::string& log) {
 	}
 }
 
-void AsyncFileAppender::start() {
+void AsyncFileAppender::start() 
+{
 	started_ = true;
 	running_ = true;
 	persit_thread_.start();
 	countdown_latch_.wait();
 }
 
-void AsyncFileAppender::stop() {
+void AsyncFileAppender::stop() 
+{
 	started_ = false;
 	cond_.notify();
 	persit_thread_.join();
 }
 
-void AsyncFileAppender::threadFunc() {
+void AsyncFileAppender::threadFunc() 
+{
 	std::unique_ptr<LogBuffer> buffer(new LogBuffer());
 	std::vector<std::unique_ptr<LogBuffer>> persist_buffers;
 	LogFile log_file(basename_);
