@@ -418,4 +418,4 @@ code=0, message=success, value=31
 1. 需要开启SO_REUSEADDR选项。
 2. 需要屏蔽SIG_PIPE信号。
 
-本项目基于开源项目 [gatsbyd/melon](https://github.com/gatsbyd/melon) 的基础上开发，将poll替换成epoll，理论上更高效，但目前也没有进行压测对比。并增加了读取配置文件的Config类，可实现基本读取配置文件的功能。RPC功能实现不采用protobuf进行序列化和反序列化，而是采用自定义的基本类型的序列化反序列化的功能。这里非常感谢gatsbyd。
+本项目基于开源项目 [gatsbyd/melon](https://github.com/gatsbyd/melon) 的基础上开发，将poll替换成epoll，从上面的压测对比，效率有所提升。并增加了读取配置文件的Config类，可实现基本读取配置文件的功能。RPC功能实现不采用protobuf进行序列化和反序列化，而是采用自定义的基本类型的序列化反序列化的功能。这里非常感谢gatsbyd。
