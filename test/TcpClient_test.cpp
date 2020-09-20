@@ -141,13 +141,13 @@ void Session::handleConnection() {
 
 int main(int argc, char* argv[]) {
 	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
-	if (argc < 2) {
-		LOG_ERROR << "please input thread num!";
+	if (argc < 3) {
+		LOG_ERROR << "please input session_count!";
 	}
 	IpAddress server_addr("127.0.0.1", 5000);
 	int threads_num = atoi(argv[1]);
 	int block_size = 40;
-	int session_count = 3;
+	int session_count = atoi(argv[2]);
 	int timeout = 10;
 
 	Scheduler scheduler(threads_num);
