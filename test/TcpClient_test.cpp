@@ -130,7 +130,6 @@ void Session::handleConnection() {
 	conn->write(owner_->message());
 	while (!owner_->isQuit() && conn->read(buffer) > 0) {
 		++message_read_;
-		std::cout << "send" << std::endl;
 		bytes_read_ += buffer->readableBytes();
 		conn->write(buffer);
 	}
@@ -142,8 +141,11 @@ void Session::handleConnection() {
 
 int main(int argc, char* argv[]) {
 	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+	if (argc < 2) {
+		LOG_ERROR << "please input thread num!";
+	}
 	IpAddress server_addr("127.0.0.1", 5000);
-	int threads_num = 3;
+	int threads_num = atoi(argv[1]);
 	int block_size = 40;
 	int session_count = 3;
 	int timeout = 10;
