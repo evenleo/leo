@@ -7,6 +7,10 @@
 #include <map>
 #include <memory>
 #include <tuple>
+#include <future>
+#include <thread>
+#include <chrono>
+
 
 #include "Scheduler.h"
 #include "TcpClient.h"
@@ -185,7 +189,6 @@ public:
     template <typename R, typename C, typename S, typename... Args>
     void callproxy_(R (C::*func)(Args...), S* s, Serializer* pr, const char* data, int len)
     {
-
         using args_type = std::tuple<typename std::decay<Args>::type...>;
 
         Serializer sr(data, len);
@@ -252,6 +255,23 @@ public:
         net_call(sr, handler);
     }
 
+    template <typename R, typename... Args>
+    response_t<R> call(const std::string& name, Args... args)
+    {
+        using args_type = std::tuple<typename std::decay<Args>::type...>;
+        args_type as = std::make_tuple(args...);
+        Serializer sr;
+        sr << name;
+        package_Args(sr, as);
+
+        std::promise<response_t<R>> promiseObj;
+        std::future<response_t<R>> futureObj = promiseObj.get_future();
+        std::thread t(&RpcClient::net_call<R>, this, std::ref(sr), std::ref(promiseObj));
+        response_t<R> res = futureObj.get();
+        t.join();
+        return res;
+    }
+
 private:
     void handleConnection(std::string s, ResponseHandler handler)
     {
@@ -270,10 +290,37 @@ private:
         conn->readUntilZero();
         conn->close();
     }
+    
+    template <typename R>
+    void handleConnection2(std::string s, std::promise<response_t<R>>& promiseObj)
+    {
+        TcpConnection::ptr conn = tcpClient_->connect();
+        if (conn) {
+            conn->write(s);
+            Buffer::ptr buffer = std::make_shared<Buffer>();
+            while (conn->read(buffer) > 0) {
+                if (buffer->readableBytes() >= 4) {
+                    Serializer s(buffer);
+                    response_t<R> res;
+                    s >> res;
+                    promiseObj.set_value(res);
+                    break;
+                }
+            }
+        }
+        conn->readUntilZero();
+        conn->close();
+    }
 
     void net_call(Serializer& sr, ResponseHandler handler)
     {
         scheduler_->addTask(std::bind(&RpcClient::handleConnection, this, sr.toString(), handler));
+    }
+    
+    template <typename R>
+    void net_call(Serializer& sr, std::promise<response_t<R>>& promiseObj)
+    {
+        scheduler_->addTask(std::bind(&RpcClient::handleConnection2<R>, this, sr.toString(), std::ref(promiseObj)));
     }
 
 private:
