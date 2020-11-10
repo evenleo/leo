@@ -113,10 +113,7 @@ public:
         server = std::make_shared<TcpServer>(addr, scheduler.get());
         server->setConnectionHandler(std::bind(&RpcServer::handleClient, this, std::placeholders::_1));
     }
-    ~RpcServer()
-    {
-        scheduler->stop();
-    }
+    ~RpcServer() { scheduler->stop(); }
 
     void handleClient(TcpConnection::ptr conn)
     {
@@ -198,7 +195,7 @@ public:
             return (s->*func)(args...);
         };
         typename type_xx<R>::type rt = call_helper<R>(ff, as);
-		std::cout << "calc: " << rt << std::endl;
+		// std::cout << "calc: " << rt << std::endl;
 
         response_t<R> response;
         response.set_code(RPC_ERR_SUCCESS);
@@ -216,7 +213,7 @@ public:
         args_type as = sr.get_tuple<args_type>(std::index_sequence_for<Args...> {});
 
         typename type_xx<R>::type rt = call_helper<R>(func, as);
-		std::cout << "calc: " << rt << std::endl;
+		// std::cout << "calc: " << rt << std::endl;
 
         response_t<R> response;
         response.set_code(RPC_ERR_SUCCESS);
@@ -233,7 +230,6 @@ private:
 
 class RpcClient : public Noncopyable {
 public:
-    typedef std::function<void(std::string)> ResponseHandler;
     RpcClient(const std::string& ip, int port)
     {
         scheduler_ = std::make_shared<Scheduler>();
@@ -243,17 +239,6 @@ public:
     }
     ~RpcClient() { stop(); }
     void stop() { scheduler_->stop(); }
-
-    template <typename R, typename... Args>
-    void call(const std::string& name, const ResponseHandler& handler, Args... args)
-    {
-        using args_type = std::tuple<typename std::decay<Args>::type...>;
-        args_type as = std::make_tuple(args...);
-        Serializer sr;
-        sr << name;
-        package_Args(sr, as);
-        net_call(sr, handler);
-    }
 
     template <typename R, typename... Args>
     response_t<R> call(const std::string& name, Args... args)
@@ -273,26 +258,8 @@ public:
     }
 
 private:
-    void handleConnection(std::string s, ResponseHandler handler)
-    {
-        TcpConnection::ptr conn = tcpClient_->connect();
-        if (conn) {
-            conn->write(s);
-            Buffer::ptr buffer = std::make_shared<Buffer>();
-            while (conn->read(buffer) > 0) {
-                if (buffer->readableBytes() >= 4) {
-                    Serializer s(buffer);
-                    handler(s.toString());
-                    break;
-                }
-            }
-        }
-        conn->readUntilZero();
-        conn->close();
-    }
-    
     template <typename R>
-    void handleConnection2(std::string s, std::promise<response_t<R>>& promiseObj)
+    void handleConnection(std::string s, std::promise<response_t<R>>& promiseObj)
     {
         TcpConnection::ptr conn = tcpClient_->connect();
         if (conn) {
@@ -312,15 +279,10 @@ private:
         conn->close();
     }
 
-    void net_call(Serializer& sr, ResponseHandler handler)
-    {
-        scheduler_->addTask(std::bind(&RpcClient::handleConnection, this, sr.toString(), handler));
-    }
-    
     template <typename R>
     void net_call(Serializer& sr, std::promise<response_t<R>>& promiseObj)
     {
-        scheduler_->addTask(std::bind(&RpcClient::handleConnection2<R>, this, sr.toString(), std::ref(promiseObj)));
+        scheduler_->addTask(std::bind(&RpcClient::handleConnection<R>, this, sr.toString(), std::ref(promiseObj)));
     }
 
 private:

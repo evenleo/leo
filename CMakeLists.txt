@@ -110,3 +110,6 @@ target_link_libraries(rpc_client_test ${LIBS})
 
 add_executable(Config_test test/Config_test.cpp)
 target_link_libraries(Config_test ${LIBS}) 
+
+add_executable(raft_test src/raft/main.cpp src/raft/raft.cpp)
+target_link_libraries(raft_test ${LIBS}) 
