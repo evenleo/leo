@@ -24,7 +24,6 @@ public:
         scheduler_ = std::make_shared<Scheduler>();
         scheduler_->startAsync();
         server_ = std::make_shared<RpcServer>(port, 1);
-        server_->regist("add", &Raft::add, this);
         server_->regist("vote", &Raft::vote, this);
     }
 
@@ -39,66 +38,51 @@ public:
 public:
     void RescheduleElection();
 
-		void SendRequestVote();
 
-		void RequestVote();
+    void RequestVote();
 
-		void SendAppendEntry(bool heartbeat);
+    void SendAppendEntry(bool heartbeat);
 
-		void becomeFollower(int term);
+    void becomeFollower(int term);
 
-		void becomeCandidate()
-        {
-            ++term_;
-            state_ = Candidate;
-            vote_for_ = id_;
-            votes_ = 1;
-        }
-
-        void becomeLeader();
-
-		void ReceiveRequestVoteReply(const RequestVoteReply &reply) 
-        {
-            MutexGuard guard(mutex_);
-            if (!running_ || state_ != Candidate)
-                return;
-            
-            if (reply.term_ == term_ && reply.granted_) {
-                if (++votes_ > (peers_.size() + 1) / 2)
-                    becomeLeader();
-            }
-            else if (reply.term_ > term_)
-            {
-                becomeFollower(reply.term_);
-            }
-        }
-
-    void peer(const std::string& ip, int port) {
-        std::cout << "peer" << std::endl;
-        RpcClient client(ip, port);
-        response_t<int> res = client.call<int>("add", 10, 21);
-        std::cout << "code=" << res.code() << ", message=" << res.message() << ", value=" << res.value() << std::endl;
+    void becomeCandidate()
+    {
+        ++term_;
+        state_ = Candidate;
+        vote_for_ = id_;
+        votes_ = 1;
     }
 
-    void voteTest(const std::string& ip, int port) {
-        std::cout << "peer" << std::endl;
-        RpcClient client(ip, port);
-        RequestVoteArgs args(10, 1, 1, 1);
-        response_t<RequestVoteReply> res = client.call<RequestVoteReply>("vote", args);
-        std::cout << "code=" << res.code() << ", message=" << res.message() << ", value.term=" 
-        << res.value().term_ << ", value.granted_=" << res.value().granted_ << std::endl;
+    void becomeLeader() {
+
+    }
+
+    void ReceiveRequestVoteReply(const RequestVoteReply &reply) 
+    {
+        MutexGuard guard(mutex_);
+        if (!running_ || state_ != Candidate)
+            return;
+        
+        if (reply.term_ == term_ && reply.granted_) {
+            if (++votes_ > (peers_.size() + 1) / 2)
+                becomeLeader();
+        }
+        else if (reply.term_ > term_)
+        {
+            becomeFollower(reply.term_);
+        }
     }
 
     void addPeers(std::vector<Address> addresses) {
-        for (auto& x : addresses) {
+        MutexGuard guard(mutex_);
+        for (auto &x : addresses)
+        {
             if (x.port != id_) {
                 peers_.push_back(std::make_shared<RpcClient>(x.ip, x.port));
+                nexts_.push_back(0);
+                matchs_.push_back(0);
             }
         }
-    }
-
-    int add(int a, int b) {
-        return a + b;
     }
 
     RequestVoteReply vote(RequestVoteArgs& args) {
@@ -122,11 +106,29 @@ public:
                     << res.value().term_ << ", value.granted_=" << res.value().granted_ << std::endl;
             });
         }
+
+        // timeout_id_ = sh
+    }
+
+    void plantask() 
+    {
+        timer_id_ = scheduler_->runEvery(2 * Timestamp::kMicrosecondsPerSecond, std::make_shared<Coroutine>([this]() {
+                                                    printf("------------timeout\n");
+                                                    sendRequestVote();
+                                                }));
+    }
+
+    void close() 
+    {
+        scheduler_->cancel(timer_id_);
     }
 
 private:
     std::shared_ptr<RpcServer> server_;
     std::vector<std::shared_ptr<RpcClient>> peers_;
+    std::vector<int> nexts_;
+    std::vector<int> matchs_;
+
     Scheduler::ptr scheduler_;
     Mutex mutex_;
     bool running_;
@@ -136,6 +138,9 @@ private:
     int state_;
     int vote_for_;
     size_t votes_;
+
+    int64_t timer_id_;
+    int64_t timeout_id_;
 };
 
 #endif
