@@ -57,6 +57,7 @@ public:
         assert(state_ == Follower);
         scheduler_->cancel(election_id_);
         election_id_ = scheduler_->runAfter(getElectionTimeout(), std::make_shared<Coroutine>([this]() {
+                                                std::cout << "========sendRequestVote============" << std::endl; 
                                                 sendRequestVote();
                                             }));
     }
@@ -79,7 +80,7 @@ public:
 
     void becomeFollower(int term)
     {
-        std::cout << "become Follower" << std::endl;
+        std::cout << "======================become Follower" << std::endl;
         if (state_ == Leader)
             scheduler_->cancel(heartbeat_id_);
         else if (state_ == Candidate)
@@ -92,7 +93,7 @@ public:
 
     void becomeCandidate()
     {
-        std::cout << "become Candidate" << std::endl;
+        std::cout << "=====================become Candidate" << std::endl;
         ++term_;
         state_ = Candidate;
         vote_for_ = id_;
@@ -101,7 +102,7 @@ public:
 
     void becomeLeader()
     {
-        std::cout << "become Leader" << std::endl;
+        std::cout << "=====================become Leader" << std::endl;
         state_ = Leader;
         scheduler_->cancel(timeout_id_);
         for (auto &x : nexts_)
@@ -110,7 +111,6 @@ public:
             x = -1;
 
         heartbeat_id_ = scheduler_->runEvery(kHeartbeatInterval, std::make_shared<Coroutine>([this]() {
-                                                //  std::cout << "========SendAppendEntry" << std::endl; 
                                                  SendAppendEntry(true);
                                              }));
     }
@@ -181,6 +181,7 @@ public:
         for (auto &peer : peers_)
         {
             scheduler_->addTask([this, peer, args]() {
+                std::cout << "begin send vote==============================================" << std::endl;
                 response_t<RequestVoteReply> res = peer->call<RequestVoteReply>("vote", args);
                 std::cout << "===========revc, code="
                           << res.code() << ", message=" << res.message() << ", value.term="
