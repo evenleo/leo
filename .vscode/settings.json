@@ -63,6 +63,10 @@
         "iomanip": "cpp",
         "cfenv": "cpp",
         "typeindex": "cpp",
-        "future": "cpp"
-    }
+        "future": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
+        "variant": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
 }

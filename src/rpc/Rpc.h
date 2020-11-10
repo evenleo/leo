@@ -121,7 +121,7 @@ public:
             Serializer sr(buffer);
             std::string funcname;
             sr >> funcname;
-            std::cout << "recv name= " << funcname << std::endl;
+            // std::cout << "recv name= " << funcname << std::endl;
 
             std::shared_ptr<Serializer> rt = call_(funcname, sr.data(), sr.size());
             conn->write(rt->toString());
