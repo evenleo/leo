@@ -86,9 +86,7 @@ public:
 
     friend Serializer& operator>>(Serializer& in, response_t<T>& d)
     {
-        in >> d.code_ >> d.message_;
-        if (d.code_ == 0)
-            in >> d.value_;
+        in >> d.code_ >> d.message_ >> d.value_;
         return in;
     }
     friend Serializer& operator<<(Serializer& out, response_t<T>& d)
@@ -108,12 +106,12 @@ public:
     RpcServer(int port, int threads)
     {
         IpAddress addr(port);
-        scheduler = std::make_shared<Scheduler>(threads);
-        scheduler->startAsync();
-        server = std::make_shared<TcpServer>(addr, scheduler.get());
-        server->setConnectionHandler(std::bind(&RpcServer::handleClient, this, std::placeholders::_1));
+        scheduler_ = std::make_shared<Scheduler>(threads);
+        scheduler_->startAsync();
+        server_ = std::make_shared<TcpServer>(addr, scheduler_.get());
+        server_->setConnectionHandler(std::bind(&RpcServer::handleClient, this, std::placeholders::_1));
     }
-    ~RpcServer() { scheduler->stop(); }
+    ~RpcServer() { scheduler_->stop(); }
 
     void handleClient(TcpConnection::ptr conn)
     {
@@ -136,8 +134,8 @@ public:
 
     void run()
     {
-        server->start();
-        scheduler->wait();
+        server_->start();
+        scheduler_->wait();
     }
 
     std::shared_ptr<Serializer> call_(const std::string& name, const char* data, int len)
@@ -224,8 +222,8 @@ public:
 
 private:
     std::map<std::string, std::function<void(Serializer*, const char*, int)>> mapFunctions_;
-    Scheduler::ptr scheduler;
-    TcpServer::ptr server;
+    Scheduler::ptr scheduler_;
+    TcpServer::ptr server_;
 };
 
 class RpcClient : public Noncopyable {
