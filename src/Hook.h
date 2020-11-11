@@ -14,6 +14,10 @@ extern "C" {
 typedef unsigned int (*sleep_t)(unsigned int seconds);
 extern sleep_t sleep_f;
 
+//usleep
+typedef unsigned int (*usleep_t)(unsigned int seconds);
+extern usleep_t usleep_f;
+
 //accept
 typedef int (*accept_t)(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 extern accept_t accept_f;

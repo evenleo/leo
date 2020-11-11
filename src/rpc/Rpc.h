@@ -16,6 +16,7 @@
 #include "TcpClient.h"
 #include "TcpServer.h"
 #include "serializer.h"
+#include "Log.h"
 
 namespace leo {
 
@@ -65,6 +66,8 @@ call_helper(F f, ArgsTuple args)
 
 enum ErrCode {
     RPC_ERR_SUCCESS = 0,            // 成功
+    RPC_ERR_DISCONNECTED,           // 连接断开
+    RPC_ERR_RECV_WRONG,             // 接收数据错误
     RPC_ERR_FUNCTION_NOT_REGUIST,   // 函数未注册
 };
 
@@ -259,22 +262,24 @@ private:
     template <typename R>
     void handleConnection(std::string s, std::promise<response_t<R>>& promiseObj)
     {
-        TcpConnection::ptr conn = tcpClient_->connect();
+        TcpConnection::ptr conn = tcpClient_->connect_with_timeout(1000 * 1000);
+        LOG_DEBUG << "return=============";
+        response_t<R> res;
         if (conn) {
             conn->write(s);
             Buffer::ptr buffer = std::make_shared<Buffer>();
-            while (conn->read(buffer) > 0) {
-                if (buffer->readableBytes() >= 4) {
-                    Serializer s(buffer);
-                    response_t<R> res;
-                    s >> res;
-                    promiseObj.set_value(res);
-                    break;
-                }
+            if (conn->read(buffer) > 0 && buffer->readableBytes() >= 4) {
+                Serializer s(buffer);
+                s >> res;
+            } else {
+                res.set_code(RPC_ERR_RECV_WRONG);
             }
+            conn->readUntilZero();
+            conn->close();
+        } else {
+            res.set_code(RPC_ERR_DISCONNECTED);
         }
-        conn->readUntilZero();
-        conn->close();
+        promiseObj.set_value(res);
     }
 
     template <typename R>

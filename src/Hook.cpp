@@ -20,6 +20,7 @@ namespace leo {
 struct HookIniter {
 	HookIniter() {
 		DLSYM(sleep);
+		DLSYM(usleep);
 		DLSYM(accept);
 		DLSYM(accept4);
 		DLSYM(connect);
@@ -82,6 +83,7 @@ extern "C" {
 		name ## _t name ## _f = nullptr;
 
 HOOK_INIT(sleep)
+HOOK_INIT(usleep)
 HOOK_INIT(accept)
 HOOK_INIT(accept4)
 HOOK_INIT(connect)
@@ -106,6 +108,19 @@ unsigned int sleep(unsigned int seconds) {
 	leo::Scheduler* scheduler = processer->getScheduler();
 	assert(scheduler != nullptr);
 	scheduler->runAt(leo::Timestamp::now() + seconds * leo::Timestamp::kMicrosecondsPerSecond, leo::Coroutine::GetCurrentCoroutine());
+	leo::Coroutine::SwapOut();
+	return 0;
+}
+
+unsigned int usleep(uint64_t us) {
+	leo::Processer* processer = leo::Processer::GetProcesserOfThisThread();
+	if (!leo::isHookEnabled()) {
+		return usleep_f(us);
+	}
+
+	leo::Scheduler* scheduler = processer->getScheduler();
+	assert(scheduler != nullptr);
+	scheduler->runAt(leo::Timestamp::now() + us, leo::Coroutine::GetCurrentCoroutine());
 	leo::Coroutine::SwapOut();
 	return 0;
 }
