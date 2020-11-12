@@ -262,8 +262,7 @@ private:
     template <typename R>
     void handleConnection(std::string s, std::promise<response_t<R>>& promiseObj)
     {
-        TcpConnection::ptr conn = tcpClient_->connect_with_timeout(1000 * 1000);
-        LOG_DEBUG << "return=============";
+        TcpConnection::ptr conn = tcpClient_->connect(1000 * 1000);
         response_t<R> res;
         if (conn) {
             conn->write(s);

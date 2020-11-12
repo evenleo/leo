@@ -12,18 +12,13 @@ public:
 	TcpClient(const IpAddress& server_addr);
 	virtual ~TcpClient() {}
 
-	TcpConnection::ptr connect();
-	TcpConnection::ptr connect_with_timeout(uint64_t timeout_ms);
+	TcpConnection::ptr connect(uint64_t timeout_ms = -1);
 
 private:
-	static const int kMaxRetryDelayUs = 10 * 1000 * 1000;
-	static const int kInitRetryDelayUs = 500 * 1000;
+	static const uint64_t kMaxRetryDelayUs = 10 * 1000 * 1000;
+	static const uint64_t kInitRetryDelayUs = 500 * 1000;
 
 	IpAddress server_addr_;
-	int retry_delay_us_ = kInitRetryDelayUs;
-	uint64_t timeout_id_;
-	bool isTimeout_;
-	Mutex mutex_;
 };
 }
 
