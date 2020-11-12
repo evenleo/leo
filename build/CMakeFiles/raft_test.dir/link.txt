@@ -1,1 +1,0 @@
-/usr/bin/c++   -rdynamic -O3 -fPIC -ggdb -std=c++14 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations  -rdynamic CMakeFiles/raft_test.dir/src/raft/main.cpp.o CMakeFiles/raft_test.dir/src/raft/raft.cpp.o  -o raft_test  -Wl,-rpath,/home/evenleo/workspace/leo/build libleo.so -lpthread -ldl 

@@ -1,1 +1,0 @@
-/usr/bin/c++   -rdynamic -O3 -fPIC -ggdb -std=c++14 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations  -rdynamic CMakeFiles/rpc_server_test.dir/src/rpc/test/rpc_server_test.cpp.o  -o rpc_server_test  -Wl,-rpath,/home/evenleo/workspace/leo/build libleo.so -lpthread -ldl 
