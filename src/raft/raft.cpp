@@ -39,19 +39,20 @@ RequestVoteReply Raft::vote(RequestVoteArgs &args)
     if (args.term_ > term_)
         becomeFollower(args.term_);
     reply.term_ = args.term_;
-    reply.granted_ = 1;
+    reply.granted_ = state_ != Leader;
+    ;
     return reply;
 }
 
-AppendEntryReply Raft::AppendEntry(const AppendEntryArgs &args)
+AppendEntryReply Raft::AppendEntry(AppendEntryArgs &args)
 {
     MutexGuard guard(mutex_);
     AppendEntryReply reply;
 
-    LOG_DEBUG << "term_=" << term_ << ", args.term_=" << args.term_;
+    // LOG_DEBUG << "term_=" << term_ << ", args.term_=" << args.term_ << ", state_=" << state_;
     if ((args.term_ > term_) || (args.term_ == term_ && state_ == Candidate))
         becomeFollower(args.term_);
-    else
+    else if (state_ != Leader)
         rescheduleElection();
 
     reply.term_ = term_;
@@ -68,7 +69,7 @@ void Raft::sendRequestVote()
     becomeCandidate();
     RequestVoteArgs args(term_, id_, 1, 1);
     LOG_DEBUG << "sendRequestVote, term_=" << term_;
-    uint64_t timeout_ms = (kTimeoutBase + getElectionTimeout()) / 1000;
+    uint64_t timeout_ms = 1;
     for (auto &peer : peers_)
     {
         scheduler_->addTask([this, peer, timeout_ms, args]() {
@@ -82,12 +83,10 @@ void Raft::sendRequestVote()
             }
             else
             {
-                LOG_DEBUG << "rpc request timeout!";
+                // LOG_DEBUG << "rpc request timeout!";
             }
         });
     }
-
-    // timeout_id_ = sh
 }
 
 void Raft::ReceiveRequestVoteReply(const RequestVoteReply &reply)
@@ -112,14 +111,15 @@ void Raft::SendAppendEntry(bool heartbeat)
     MutexGuard guard(mutex_);
     if (!running_ || state_ != Leader)
         return;
-    AppendEntryArgs args = {term_, id_, 0, 1, commit_};
+    AppendEntryArgs args(term_, id_, 0, 1, 10);
     for (size_t i = 0; i < peers_.size(); ++i)
     {
         scheduler_->addTask([this, i, args]() {
+            // LOG_DEBUG << "----------------------------args.term_=" << args.term_;
             response_t<AppendEntryReply> res = peers_[i]->call<AppendEntryReply>("AppendEntry", args);
-            std::cout << "===========revc, code="
-                      << res.code() << ", message=" << res.message() << ", value.term="
-                      << res.value().idx_ << ", value.granted_=" << res.value().idx_ << std::endl;
+            // std::cout << "===========revc, code="
+            //           << res.code() << ", message=" << res.message() << ", value.term="
+            //           << res.value().idx_ << ", value.idx_=" << res.value().idx_ << std::endl;
         });
     }
 }
@@ -161,6 +161,7 @@ void Raft::becomeLeader()
     std::cout << "=====================become Leader" << std::endl;
     state_ = Leader;
     scheduler_->cancel(timeout_id_);
+    scheduler_->cancel(election_id_);
     for (auto &x : nexts_)
         x = commit_ + 1;
     for (auto &x : matchs_)

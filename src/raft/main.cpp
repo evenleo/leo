@@ -4,7 +4,21 @@
 
 int main(int argc, char** argv) 
 {
+    // std::cout << isLittleEndian() << std::endl;
     Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+
+    // Serializer sr;
+    // AppendEntryArgs args(10, 9, 8, 7, 6);
+    // sr << args;
+
+    // AppendEntryArgs b;
+    // sr >> b;
+    // std::cout << b.term_ << ", " << b.id_ << std::endl;
+
+
+    // getchar();
+    
+
     int port = atoi(argv[1]);
     Raft rt(port, port);
     rt.start();
@@ -15,9 +29,6 @@ int main(int argc, char** argv)
     addresses.push_back({"127.0.0.1", 5003});
 
     rt.addPeers(addresses);
-
-    // rt.peer("127.0.0.1", 5001);
-
 
     getchar();
 

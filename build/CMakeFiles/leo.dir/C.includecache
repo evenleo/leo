@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/evenleo/workspace/leo/src/http/picohttpparser.c
+assert.h
+-
+stddef.h
+-
+string.h
+-
+nmmintrin.h
+-
+x86intrin.h
+-
+picohttpparser.h
+/home/evenleo/workspace/leo/src/http/picohttpparser.h
+
+/home/evenleo/workspace/leo/src/http/picohttpparser.h
+sys/types.h
+-
+

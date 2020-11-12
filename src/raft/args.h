@@ -61,12 +61,12 @@ struct AppendEntryArgs
 
     friend Serializer &operator>>(Serializer &in, AppendEntryArgs &args)
     {
-        in >> args.term_ >> args.id_ >> args.prev_term_ >> args.leader_commit_;
+        in >> args.term_ >> args.id_ >> args.prev_term_ >> args.prev_index_ >> args.leader_commit_;
         return in;
     }
     friend Serializer &operator<<(Serializer &out, AppendEntryArgs &args)
     {
-        out << args.term_ << args.id_ << args.prev_term_ << args.leader_commit_;
+        out << args.term_ << args.id_ << args.prev_term_ << args.prev_index_ << args.leader_commit_;
         return out;
     }
 };

@@ -35,10 +35,10 @@ TcpConnection::ptr TcpClient::connect(uint64_t timeout_ms) {
 			retry_delay_us = std::min(retry_delay_us * 2, kMaxRetryDelayUs);
 			if (timeout_ms != (uint64_t)-1 
 			    && Timestamp::now().getMicroSecondsFromEpoch() - start.getMicroSecondsFromEpoch() > timeout_ms * 1000) {
-				LOG_DEBUG << "timeout!";
+				// LOG_DEBUG << "timeout!";
 				return nullptr;
 			}
-			LOG_DEBUG << "TcpClient::connect to " << server_addr_.toString() << " retry";
+			// LOG_DEBUG << "TcpClient::connect to " << server_addr_.toString() << " retry";
 		} else {	// failed
 			LOG_ERROR << "connect error in TcpClinet::connect, " << strerror(errno) << ", hooked=" << isHookEnabled();
 			return nullptr;

@@ -31,7 +31,7 @@ public:
     const static uint64_t kTimeoutBase = 150 * 1000;
     const static uint64_t kTimeoutTop = 300 * 1000;
     const static uint64_t kElectionTimeoutBase = 300 * 1000;
-    const static uint64_t kHeartbeatInterval = 30 * 1000;
+    const static uint64_t kHeartbeatInterval = 100 * 1000;
 
     Raft(int32_t id, int port);
 
@@ -41,7 +41,7 @@ public:
 
     RequestVoteReply vote(RequestVoteArgs &args);
 
-    AppendEntryReply AppendEntry(const AppendEntryArgs &args);
+    AppendEntryReply AppendEntry(AppendEntryArgs &args);
 
     void sendRequestVote();
 

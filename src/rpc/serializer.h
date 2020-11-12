@@ -77,8 +77,8 @@ public:
 private:
     static void byteOrder(char* s, int len)
     {
-        if (isLittleEndian())
-            std::reverse(s, s + len);
+        // if (isLittleEndian())
+        //     std::reverse(s, s + len);
     }
 
 private:
