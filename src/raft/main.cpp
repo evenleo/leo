@@ -4,6 +4,7 @@
 
 int main(int argc, char** argv) 
 {
+    Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
     int port = atoi(argv[1]);
     Raft rt(port, port);
     rt.start();

@@ -9,6 +9,7 @@ int main(int argc, char** argv)
 {
     Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
     RpcClient client("127.0.0.1", 5000);
+    client.setTimeout(1000);
     response_t<int> res = client.call<int>("add", 10, 21);
     cout << "code=" << res.code() << ", message=" << res.message() << ", value=" << res.value() << endl;
     // response_t<string> r = client.call<string>("Strcat", "even", 24);

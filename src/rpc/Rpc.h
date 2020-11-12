@@ -231,15 +231,15 @@ private:
 
 class RpcClient : public Noncopyable {
 public:
-    RpcClient(const std::string& ip, int port)
+    RpcClient(const std::string& ip, int port) : timeount_ms_(-1)
     {
         scheduler_ = std::make_shared<Scheduler>();
         scheduler_->startAsync();
         IpAddress addr(ip, port);
         tcpClient_ = std::make_shared<TcpClient>(addr);
     }
-    ~RpcClient() { stop(); }
-    void stop() { scheduler_->stop(); }
+    ~RpcClient() { scheduler_->stop(); }
+    void setTimeout(uint64_t timeount_ms) { timeount_ms_ = timeount_ms; }
 
     template <typename R, typename... Args>
     response_t<R> call(const std::string& name, Args... args)
@@ -262,7 +262,7 @@ private:
     template <typename R>
     void handleConnection(std::string s, std::promise<response_t<R>>& promiseObj)
     {
-        TcpConnection::ptr conn = tcpClient_->connect(1000 * 1000);
+        TcpConnection::ptr conn = tcpClient_->connect(timeount_ms_);
         response_t<R> res;
         if (conn) {
             conn->write(s);
@@ -290,8 +290,8 @@ private:
 private:
     Scheduler::ptr scheduler_;
     TcpClient::ptr tcpClient_;
+    uint64_t timeount_ms_;
 };
-
 }
 
 #endif

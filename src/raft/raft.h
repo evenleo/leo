@@ -139,6 +139,7 @@ public:
         {
             if (x.port != id_)
             {
+                LOG_DEBUG << "peer port=" << x.port;
                 peers_.push_back(std::make_shared<RpcClient>(x.ip, x.port));
                 nexts_.push_back(0);
                 matchs_.push_back(0);
@@ -149,6 +150,8 @@ public:
     RequestVoteReply vote(RequestVoteArgs &args)
     {
         RequestVoteReply reply;
+        if (args.term_ > term_)
+            becomeFollower(args.term_);
         reply.term_ = args.term_;
         reply.granted_ = 1;
         return reply;
@@ -159,6 +162,7 @@ public:
         MutexGuard guard(mutex_);
         AppendEntryReply reply;
 
+        LOG_DEBUG << "term_=" << term_ << ", args.term_=" << args.term_;
         if ((args.term_ > term_) || (args.term_ == term_ && state_ == Candidate))
             becomeFollower(args.term_);
         else
@@ -173,20 +177,24 @@ public:
     {
         MutexGuard guard(mutex_);
         if (!running_)
-        {
             return;
-        }
+
         becomeCandidate();
         RequestVoteArgs args(term_, id_, 1, 1);
+        LOG_DEBUG << "sendRequestVote, term_=" << term_;
+        uint64_t timeout_ms = (kTimeoutBase + getElectionTimeout()) / 1000;
         for (auto &peer : peers_)
         {
-            scheduler_->addTask([this, peer, args]() {
-                std::cout << "begin send vote==============================================" << std::endl;
+            scheduler_->addTask([this, peer, timeout_ms, args]() {
+                peer->setTimeout(timeout_ms);
                 response_t<RequestVoteReply> res = peer->call<RequestVoteReply>("vote", args);
-                std::cout << "===========revc, code="
-                          << res.code() << ", message=" << res.message() << ", value.term="
-                          << res.value().term_ << ", value.granted_=" << res.value().granted_ << std::endl;
-                ReceiveRequestVoteReply(res.value());
+                if (res.code() == RPC_ERR_SUCCESS) {
+                    LOG_DEBUG << "rpc request response, code=" << res.code() << ", message=" << res.message() 
+                    << ", value.term=" << res.value().term_ << ", value.granted_=" << res.value().granted_;
+                    ReceiveRequestVoteReply(res.value());
+                } else {
+                    LOG_DEBUG << "rpc request timeout!";
+                }
             });
         }
 
@@ -207,10 +215,10 @@ public:
     }
 
 private:
-    int64_t getElectionTimeout()
+    uint64_t getElectionTimeout()
     {
         static std::default_random_engine engine(time(0));
-        static std::uniform_int_distribution<int64_t> dist(kTimeoutBase, kTimeoutTop);
+        static std::uniform_int_distribution<uint64_t> dist(kTimeoutBase, kTimeoutTop);
         return dist(engine);
     }
 
