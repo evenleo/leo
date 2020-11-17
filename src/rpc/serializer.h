@@ -1,4 +1,4 @@
-#ifndef SERIALIZER_H
+-#ifndef SERIALIZER_H
 #define SERIALIZER_H
 
 #include "Buffer.h"
@@ -23,7 +23,7 @@ public:
     {
         buffer_ = std::make_shared<Buffer>();
         input(s, len);
-    }
+    }00-
     Serializer(Buffer::ptr buffer)
         : buffer_(buffer)
     {

@@ -40,7 +40,6 @@ RequestVoteReply Raft::vote(RequestVoteArgs &args)
         becomeFollower(args.term_);
     reply.term_ = args.term_;
     reply.granted_ = state_ != Leader;
-    ;
     return reply;
 }
 
