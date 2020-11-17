@@ -3,6 +3,8 @@
 
 namespace leo {
 
+const char Buffer::kCRLF[] = "\r\n";
+
 ssize_t Buffer::readSocket(Socket::ptr socket) {
 	char extrabuf[10240]; //10k
 	struct iovec vec[2];
@@ -10,7 +12,7 @@ ssize_t Buffer::readSocket(Socket::ptr socket) {
 	vec[0].iov_base = beginWrite();
 	vec[0].iov_len = writable;
 	vec[1].iov_base = extrabuf;
-	vec[1].iov_len = sizeof(extrabuf);
+	vec[1].iov_len = sizeof extrabuf;
 	const ssize_t n = socket->readv(vec, 2);
 	if (static_cast<size_t>(n) <= writable) {
 		hasWritten(n);

@@ -41,6 +41,9 @@ set(LIB_SRC
     src/http/Http.cpp
     src/http/HttpParser.cpp
     src/http/HttpConnection.cpp
+
+    src/rpc/Codec.cpp
+    src/rpc/RpcServer.cpp
 )
 
 add_library(leo SHARED ${LIB_SRC})
@@ -49,6 +52,7 @@ set(LIBS
     leo
     pthread
     dl
+    protobuf
 )
 # 
 # add_executable(AsyncFileAppender_test test/AsyncFileAppender_test.cpp)
@@ -102,14 +106,14 @@ set(LIBS
 # add_executable(serializer_test src/rpc/test/serializer_test.cpp)
 # target_link_libraries(serializer_test ${LIBS}) 
 
-add_executable(rpc_server_test src/rpc/test/rpc_server_test.cpp)
+add_executable(rpc_server_test src/rpc/test/rpc_server_test.cpp src/rpc/test/echo.pb.cc)
 target_link_libraries(rpc_server_test ${LIBS}) 
 
-add_executable(rpc_client_test src/rpc/test/rpc_client_test.cpp)
+add_executable(rpc_client_test src/rpc/test/rpc_client_test.cpp src/rpc/test/echo.pb.cc)
 target_link_libraries(rpc_client_test ${LIBS}) 
 
 # add_executable(Config_test test/Config_test.cpp)
 # target_link_libraries(Config_test ${LIBS}) 
 
-add_executable(raft_test src/raft/main.cpp src/raft/raft.cpp)
-target_link_libraries(raft_test ${LIBS}) 
+# add_executable(raft_test src/raft/main.cpp src/raft/raft.cpp)
+# target_link_libraries(raft_test ${LIBS}) 
