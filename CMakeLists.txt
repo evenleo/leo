@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 2.8)
 
 project(leo CXX C)
 
-cmake_minimum_required(VERSION 3.0)
-project(leo)
-
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 #set(CMAKE_CXX_FLAGS "$ENV{CXXFLAGS} -rdynamic -O3 -fPIC -ggdb -std=c++14 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations")
 
@@ -13,6 +10,15 @@ set(CMAKE_CXX_FLAGS "$ENV{CXXFLAGS} -rdynamic -O3 -fPIC -ggdb -std=c++14 -Wall -
 set(CMAKE_C_FLAGS "$ENV{CXXFLAGS} -rdynamic -O3 -fPIC -ggdb -std=c11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations")
 
 include_directories(src)
+include_directories(src/rpc)
+
+# ---[ Includes
+# include_directories(${PROJECT_SOURCE_DIR}/src)
+# include_directories(${GMOCK_INCLUDE_DIR})
+
+# ---[ Dependencies
+# find_package(Threads REQUIRED)
+# find_package(Protobuf REQUIRED)
 
 set(LIB_SRC
     src/Address.cpp
@@ -42,8 +48,8 @@ set(LIB_SRC
     src/http/HttpParser.cpp
     src/http/HttpConnection.cpp
 
-    src/rpc/Codec.cpp
-    src/rpc/RpcServer.cpp
+    # src/rpc/Codec.cpp
+    # src/rpc/RpcServer.cpp
 )
 
 add_library(leo SHARED ${LIB_SRC})
@@ -52,7 +58,7 @@ set(LIBS
     leo
     pthread
     dl
-    protobuf
+    # protobuf
 )
 # 
 # add_executable(AsyncFileAppender_test test/AsyncFileAppender_test.cpp)
@@ -106,14 +112,14 @@ set(LIBS
 # add_executable(serializer_test src/rpc/test/serializer_test.cpp)
 # target_link_libraries(serializer_test ${LIBS}) 
 
-add_executable(rpc_server_test src/rpc/test/rpc_server_test.cpp src/rpc/test/echo.pb.cc)
-target_link_libraries(rpc_server_test ${LIBS}) 
+# add_executable(rpc_server_test src/rpc/test/rpc_server_test.cpp src/rpc/test/echo.pb.cc)
+# target_link_libraries(rpc_server_test ${LIBS}) 
+# 
+# add_executable(rpc_client_test src/rpc/test/rpc_client_test.cpp src/rpc/test/echo.pb.cc)
+# target_link_libraries(rpc_client_test ${LIBS}) 
 
-add_executable(rpc_client_test src/rpc/test/rpc_client_test.cpp src/rpc/test/echo.pb.cc)
-target_link_libraries(rpc_client_test ${LIBS}) 
-
-# add_executable(Config_test test/Config_test.cpp)
-# target_link_libraries(Config_test ${LIBS}) 
+add_executable(Config_test test/Config_test.cpp)
+target_link_libraries(Config_test ${LIBS}) 
 
 # add_executable(raft_test src/raft/main.cpp src/raft/raft.cpp)
 # target_link_libraries(raft_test ${LIBS}) 
