@@ -19,5 +19,5 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(LIBS leo pthread dl protobuf)
 
 add_subdirectory(src)
-# add_subdirectory(example)
-add_subdirectory(test)
+add_subdirectory(example)
+# add_subdirectory(test)
