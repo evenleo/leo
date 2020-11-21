@@ -15,7 +15,7 @@ void test() {
 	Coroutine::SwapOut();
 }
 
-int main(int argc, char** argv) {
+int main() {
 	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 
 	const int sz = 2;

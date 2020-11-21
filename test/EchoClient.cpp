@@ -1,7 +1,6 @@
 #include "Log.h"
 #include "Scheduler.h"
 #include "TcpClient.h"
-#include "rpc/serializer.h"
 #include <atomic>
 #include <unistd.h>
 #include <unordered_map>
@@ -48,16 +47,12 @@ void EchoClient::handleConnection()
 
     Buffer::ptr buffer = std::make_shared<Buffer>();
     std::string message = "evenleo";
-    Serializer sr;
-    sr << message;
 
-    conn->write(sr.toString());
+    conn->write(message);
 
     while (!isQuit() && conn->read(buffer) > 0) {
         std::string str(buffer->peek(), buffer->readableBytes());
-        Serializer s(buffer);
         std::cout << "send: " << str << std::endl;
-
         conn->write(buffer);
     }
     conn->shutdown();
@@ -69,7 +64,8 @@ void EchoClient::handleConnection()
 int main(int argc, char** argv)
 {
     Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
-
+    if (argc < 2) 
+        exit(0);
     IpAddress server_addr(argv[1], atoi(argv[2]));
     Scheduler::ptr scheduler = std::make_shared<Scheduler>(3);
     scheduler->startAsync();
