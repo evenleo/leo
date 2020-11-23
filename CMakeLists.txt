@@ -12,11 +12,14 @@ include_directories(${GMOCK_INCLUDE_DIR})
 find_package(Threads REQUIRED)
 find_package(Protobuf REQUIRED)
 
+find_package(ZLIB REQUIRED)
+if (ZLIB_FOUND)
+    include_directories(${ZLIB_INCLUDE_DIRS})
+endif()
+
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-set(LIBS leo pthread dl protobuf)
 
 add_subdirectory(src)
 add_subdirectory(example)
