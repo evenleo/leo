@@ -2,13 +2,16 @@
 #define _RAFT_H_
 
 #include "Log.h"
-#include "rpc/Rpc.h"
-#include "args.h"
+#include "rpc/RpcServer.h"
+#include "rpc/RpcClient.h"
+#include "proto/args.pb.h"
+#include <google/protobuf/message.h>
 #include <map>
 #include <memory>
 #include <random>
 
 using namespace leo;
+using namespace leo::rpc;
 
 struct Address
 {
@@ -39,9 +42,11 @@ public:
 
     void start();
 
-    RequestVoteReply vote(RequestVoteArgs &args);
+    // MessagePtr onRequestVote(RequestVoteArgs& args);
+    MessagePtr onRequestVote(std::shared_ptr<RequestVoteArgs> vote_args);
 
-    AppendEntryReply AppendEntry(AppendEntryArgs &args);
+
+    RequestAppendReply AppendEntry(RequestAppendArgs &args);
 
     void sendRequestVote();
 
