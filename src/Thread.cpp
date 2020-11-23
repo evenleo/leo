@@ -13,14 +13,15 @@ std::atomic<int> threadCount(0);
 static __thread pid_t t_tid = 0;
 
 pid_t Thread::CurrentThreadTid() {
-	if (t_tid == 0) {
+	if (t_tid == 0) 
 		t_tid = ::syscall(SYS_gettid);
-	}
 	return t_tid;
 }
 
-Thread::Thread(Func cb, std::string name)
-	: started_(false), joined_(false), cb_(std::move(cb)) 
+Thread::Thread(Func cb, const std::string& name)
+	: started_(false), 
+	  joined_(false), 
+	  cb_(std::move(cb)) 
 {
 	if (name.empty()) {
 		int num = threadCount.fetch_add(1);

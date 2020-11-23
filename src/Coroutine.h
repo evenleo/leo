@@ -26,36 +26,41 @@ public:
 	typedef std::function<void()> Func;
 	typedef std::shared_ptr<Coroutine> ptr;
 
-	Coroutine(Func cb, std::string name = "anonymous", uint32_t stack_size = kStackSize);
+	Coroutine(Func cb, const std::string& name = "anonymous", uint32_t stack_size = kStackSize);
+
 	~Coroutine();
 
-	//切换到当前线程的主协程
-	static void SwapOut();
-	//执行当前协程
-	void swapIn();
-	Coroutine::Func getCallback();
-	std::string name();
+	static void SwapOut();  //切换到当前线程的主协程
+
+	void swapIn();          //执行当前协程
+
+	Coroutine::Func getCallback() const { return cb_; }
+
+	std::string name() const { return name_; }
+
 	void setState(CoroutineState state) { state_ = state; }
-	CoroutineState getState() { return state_; }
+
+	CoroutineState getState() const { return state_; }
 
 	static uint64_t GetCid();
+
 	static Coroutine::ptr& GetCurrentCoroutine();
+
 	static Coroutine::ptr GetMainCoroutine();
 	
 private:
 	Coroutine();
+
 	static void RunInCoroutine();
 
-	uint64_t c_id_;
-	std::string name_;
-
-	ucontext_t context_;
-	Func cb_;
-
-	uint32_t stack_size_;
-	void* stack_;
-
-	CoroutineState state_;
+private:
+	uint64_t c_id_;         // 协程id
+	std::string name_;      // 协程名称
+	Func cb_;               // 协程回调
+	void* stack_;           // 栈空间
+	uint32_t stack_size_;   // 栈大小
+	ucontext_t context_;    // 上下文
+	CoroutineState state_;  // 协程状态
 };
 
 class Processer;

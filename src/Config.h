@@ -20,22 +20,35 @@ public:
     typedef std::map<std::string, std::map<std::string, std::string> *> ConfigMap;
 
     ~Config();
+
     bool setPath(const std::string& path);
+
     std::string getString(const std::string& section, const std::string& key, const std::string& default_value = "");
+
     std::vector<std::string> getStringList(const std::string& section, const std::string& key);
+
     unsigned getNumber(const std::string& section, const std::string& key, unsigned default_value = 0);
+
     bool getBool(const std::string& section, const std::string& key, bool default_value = false);
+
     float getFloat(const std::string& section, const std::string& key, const float& default_value);
     
 private:
     Config() {} 
+    
     bool isSection(std::string line, std::string& section);
+
     unsigned parseNumber(const std::string& s);
+
     std::string trimLeft(const std::string& s);
+
     std::string trimRight(const std::string& s);
+
     std::string trim(const std::string& s);
+
     bool Load(const std::string& path);
 
+private:
     ConfigMap configs_;
 };
 

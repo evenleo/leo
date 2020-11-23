@@ -3,7 +3,7 @@
 namespace leo {
 
 CountDownLatch::CountDownLatch(int count) 
-	:count_(count),
+	: count_(count),
 	mutex_(),
 	cond_(mutex_) {
 	

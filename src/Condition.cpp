@@ -6,7 +6,7 @@
 namespace leo {
 
 Condition::Condition(Mutex& mutex)
-	:mutex_(mutex) {
+	: mutex_(mutex) {
 	pthread_cond_init(&cond_, nullptr);
 }
 
@@ -22,7 +22,7 @@ bool Condition::wait_seconds(time_t seconds) {
 	struct timespec abstime;
 	clock_gettime(CLOCK_REALTIME, &abstime);
 
-	const int64_t kNanoSecondsPerSecond = 1000000000;
+	const static int64_t kNanoSecondsPerSecond = 1000000000;
 	int64_t nanoseconds = static_cast<int64_t>(seconds * kNanoSecondsPerSecond);
 
 	abstime.tv_sec += static_cast<time_t>((abstime.tv_nsec + nanoseconds) / kNanoSecondsPerSecond);
@@ -39,3 +39,4 @@ void Condition::notifyAll() {
 }
 
 }
+

@@ -12,12 +12,12 @@ namespace leo {
 
 static std::atomic<uint64_t> t_coroutine_id {0};
 
-Coroutine::Coroutine(Func cb, std::string name, uint32_t stack_size)
+Coroutine::Coroutine(Func cb, const std::string& name, uint32_t stack_size)
 	: c_id_(++t_coroutine_id), 
 	  name_(name + "-" + std::to_string(c_id_)),
 	  cb_(cb),
-	  stack_size_(stack_size),
 	  stack_(nullptr),
+	  stack_size_(stack_size),
 	  state_(CoroutineState::RUNNABLE) 
 {
 	assert(stack_size > 0);
@@ -40,8 +40,8 @@ Coroutine::Coroutine()
 	: c_id_(++t_coroutine_id),
 	  name_("Main-" + std::to_string(c_id_)),
 	  cb_(nullptr),
-	  stack_size_(0),
 	  stack_(nullptr),
+	  stack_size_(0),
 	  state_(CoroutineState::RUNNABLE) 
 {
 	if (getcontext(&context_)) {
@@ -55,7 +55,7 @@ Coroutine::~Coroutine() {
 	}
 }
 
-//挂起当前正在执行的协程，切换到主协程执行，必须在非主协程调用
+// 挂起当前正在执行的协程，切换到主协程执行，必须在非主协程调用
 void Coroutine::SwapOut() {
 	assert(GetCurrentCoroutine() != nullptr);
 
@@ -63,7 +63,7 @@ void Coroutine::SwapOut() {
 		return;
 	}
 
-	//这里不能用智能指针，因为swapcontext切到别的协程时局部对象不会被回收，当协程执行完毕后，swapcontext之后的语句不会被执行
+	// 这里不能用智能指针，因为swapcontext切到别的协程时局部对象不会被回收，当协程执行完毕后，swapcontext之后的语句不会被执行
 	Coroutine* old_coroutine = GetCurrentCoroutine().get();
 	GetCurrentCoroutine() = GetMainCoroutine();
 
@@ -72,7 +72,7 @@ void Coroutine::SwapOut() {
 	}
 }
 
-//挂起主协程，执行当前协程，只能在主协程调用
+// 挂起主协程，执行当前协程，只能在主协程调用
 void Coroutine::swapIn() {
 	if (state_ == CoroutineState::TERMINATED) {
 		return;
@@ -85,10 +85,6 @@ void Coroutine::swapIn() {
 	}
 }
 
-Coroutine::Func Coroutine::getCallback() {
-	return cb_;
-}
-
 uint64_t Coroutine::GetCid() {
 	assert(GetCurrentCoroutine() != nullptr);
 	return GetCurrentCoroutine()->c_id_;
@@ -97,7 +93,7 @@ uint64_t Coroutine::GetCid() {
 void Coroutine::RunInCoroutine() {
 	GetCurrentCoroutine()->cb_();
 
-	//重新返回主协程
+	// 重新返回主协程
 	GetCurrentCoroutine()->setState(CoroutineState::TERMINATED);
 	Coroutine::SwapOut();
 }
@@ -113,9 +109,6 @@ Coroutine::ptr Coroutine::GetMainCoroutine() {
 	return t_main_coroutine;
 }
 
-std::string Coroutine::name() {
-	return name_;
-}
 	
 void CoroutineCondition::wait() {
 	//注意Process.cpp中我的策略是每执行一个Coroutine就将其从队列中移除

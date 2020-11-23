@@ -11,11 +11,15 @@ namespace leo {
 class Condition : public Noncopyable {
 public:
 	explicit Condition(Mutex& mutex);
+
 	~Condition();
 
 	void wait();
+
 	bool wait_seconds(time_t seconds);
+
 	void notify();
+	
 	void notifyAll();
 	
 private:
