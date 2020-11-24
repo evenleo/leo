@@ -39,6 +39,7 @@ public:
 	const IpAddress& peerAddr() const { return peer_addr_; }
 
 private:
+
 	Socket::ptr conn_socket_;
 	IpAddress peer_addr_;
 };
