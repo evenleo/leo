@@ -27,12 +27,19 @@ public:
 		  sequence_(s_sequence_creator_++) {}
 
 	void setTimestamp(Timestamp timestamp) { timestamp_ = timestamp; }
+
 	Timestamp getTimestamp() const { return timestamp_; }
+
 	Processer* getProcesser() const { return processer_; }
+
 	Coroutine::ptr getCoroutine() const { return coroutine_; }
+
 	void setCoroutine(Coroutine::ptr coroutine) { coroutine_ = coroutine; }
+
 	uint64_t getInterval() const { return interval_; };
+
 	int64_t  getSequence() const { return sequence_; };
+	
 private:
 	Timestamp timestamp_;
 	Processer* processer_;

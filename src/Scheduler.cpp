@@ -120,7 +120,7 @@ void Scheduler::joinThread() {
 	quit_cond_.notify();
 }
 
-void Scheduler::addTask(Coroutine::Func task, std::string name) {
+void Scheduler::addTask(Coroutine::Func task, const std::string& name) {
 	Processer* picked = pickOneProcesser();	//thread-save
 
 	assert(picked != nullptr);
