@@ -19,14 +19,17 @@ public:
 	typedef std::function<void (TcpConnection::ptr)> ConnectionHanlder;
 
 	TcpServer(const IpAddress& listen_addr, Scheduler* scheduler);
+
 	~TcpServer() {}
 	
 	void start();
+
 	void setConnectionHandler(ConnectionHanlder&& handler);
 
 private:
 	void startAccept();
 
+private:
 	IpAddress listen_addr_;
 	Socket::ptr listen_socket_;
 	Scheduler* scheduler_;

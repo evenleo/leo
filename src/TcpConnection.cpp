@@ -3,13 +3,6 @@
 
 namespace leo {
 
-TcpConnection::TcpConnection(Socket::ptr socket, IpAddress peer) 
-	: conn_socket_(socket), peer_addr_(peer) {}
-
-ssize_t TcpConnection::read(void* buf, size_t count) {
-	return conn_socket_->read(buf, count);
-}
-
 ssize_t TcpConnection::readn(void* buf, size_t count) {
 	size_t readn = 0;
 	size_t left = count;
@@ -22,14 +15,6 @@ ssize_t TcpConnection::readn(void* buf, size_t count) {
 		left -= n;
 	}
 	return count;
-}
-
-ssize_t TcpConnection::read(Buffer::ptr buf) {
-	return buf->readSocket(conn_socket_);
-}
-
-ssize_t TcpConnection::write(const void* buf, size_t count) {
-	return conn_socket_->write(buf, count);
 }
 
 ssize_t TcpConnection::writen(const void* buf, size_t count) {
@@ -54,28 +39,12 @@ ssize_t TcpConnection::write(Buffer::ptr buf) {
 	return n;
 }
 
-ssize_t TcpConnection::write(const std::string& message) {
-	return writen(message.data(), message.size());
-}
-
-void TcpConnection::shutdown() {
-	conn_socket_->shutdownWrite();
-}
-
 void TcpConnection::readUntilZero() {
 	Buffer::ptr buffer(new Buffer);
 	while (read(buffer) > 0) {
 		buffer->retrieveAll();
 	}
 	return;
-}
-
-void TcpConnection::close() {
-	conn_socket_->close();
-}
-
-void TcpConnection::setTcpNoDelay(bool on) {
-	conn_socket_->setTcpNoDelay(on);
 }
 
 }

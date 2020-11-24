@@ -10,6 +10,7 @@ public:
 	typedef std::shared_ptr<TcpClient> ptr;
 
 	TcpClient(const IpAddress& server_addr);
+	
 	virtual ~TcpClient() {}
 
 	TcpConnection::ptr connect(uint64_t timeout_ms = -1);

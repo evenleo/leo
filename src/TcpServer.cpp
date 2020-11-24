@@ -13,7 +13,6 @@ TcpServer::TcpServer(const IpAddress& listen_addr, Scheduler* scheduler)
 	  scheduler_(scheduler),
 	  connection_handler_(defualtHandler) 
 {
-
 	listen_socket_->SetNonBlockAndCloseOnExec();
 	listen_socket_->setReuseAddr(true);
 	listen_socket_->bind(listen_addr_);
@@ -21,7 +20,6 @@ TcpServer::TcpServer(const IpAddress& listen_addr, Scheduler* scheduler)
 
 void TcpServer::start() {
 	listen_socket_->listen();
-
 	scheduler_->addTask(std::bind(&TcpServer::startAccept, this), "Accept");
 }
 
@@ -39,7 +37,6 @@ void TcpServer::startAccept() {
 void TcpServer::setConnectionHandler(ConnectionHanlder&& handler) {
 	connection_handler_ = handler;
 }
-
 
 void defualtHandler(TcpConnection::ptr connection) {
 	LOG_INFO << "new connection, peer addr:" << connection->peerAddr().toString();

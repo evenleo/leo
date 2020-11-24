@@ -24,17 +24,18 @@ public:
 		  processer_(processer),
 		  coroutine_(coroutine),
 		  interval_(interval),
-		  sequence_(s_sequence_creator_++) {}
+		  sequence_(s_sequence_creator_++) 
+	{}
 
 	void setTimestamp(Timestamp timestamp) { timestamp_ = timestamp; }
 
 	Timestamp getTimestamp() const { return timestamp_; }
 
-	Processer* getProcesser() const { return processer_; }
+	void setCoroutine(Coroutine::ptr coroutine) { coroutine_ = coroutine; }
 
 	Coroutine::ptr getCoroutine() const { return coroutine_; }
 
-	void setCoroutine(Coroutine::ptr coroutine) { coroutine_ = coroutine; }
+	Processer* getProcesser() const { return processer_; }
 
 	uint64_t getInterval() const { return interval_; };
 
@@ -57,18 +58,22 @@ class TimerManager {
 friend class Scheduler;
 public:
 	typedef std::function<void ()> Callback;
-	TimerManager() 
-		:timer_fd_(createTimerFd()) {}
-	~TimerManager() {
-		::close(timer_fd_);
-	}
+
+	TimerManager() : timer_fd_(createTimerFd()) {}
+
+	~TimerManager() { ::close(timer_fd_); }
 	
 	int64_t addTimer(Timestamp when, Coroutine::ptr coroutine, Processer* processer, uint64_t interval = 0);
+
 	void cancel(int64_t);
+
 private:
 	bool findFirstTimestamp(const Timestamp&, Timestamp&);
+
 	ssize_t readTimerFd();
+
 	void resetTimerFd(Timestamp when);
+	
 	void dealWithExpiredTimer();
 
 	int timer_fd_;
