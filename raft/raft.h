@@ -4,7 +4,7 @@
 #include "Log.h"
 #include "rpc/RpcServer.h"
 #include "rpc/RpcClient.h"
-#include "proto/args.pb.h"
+#include "args.pb.h"
 #include <google/protobuf/message.h>
 #include <map>
 #include <memory>
@@ -40,23 +40,20 @@ public:
 
     void addPeers(std::vector<Address> addresses);
 
-    void start();
-
     // MessagePtr onRequestVote(RequestVoteArgs& args);
     MessagePtr onRequestVote(std::shared_ptr<RequestVoteArgs> vote_args);
 
-
-    RequestAppendReply AppendEntry(RequestAppendArgs &args);
+    MessagePtr onRequestAppendEntry(std::shared_ptr<RequestAppendArgs> args);
 
     void sendRequestVote();
 
-    void ReceiveRequestVoteReply(const RequestVoteReply &reply);
+    void onRequestVoteReply(std::shared_ptr<RequestVoteReply> reply);
 
-    void SendAppendEntry(bool heartbeat);
+    void heartbeat();
 
     void rescheduleElection();
 
-    void becomeFollower(int term);
+    void becomeFollower(uint32_t term);
 
     void becomeCandidate();
 

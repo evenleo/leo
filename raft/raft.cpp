@@ -1,5 +1,6 @@
 #include "raft.h"
 #include <functional>
+#include <thread>
 
 
 Raft::Raft(int32_t id, int port) : running_(false), id_(id), term_(0), state_(Follower)
@@ -9,180 +10,170 @@ Raft::Raft(int32_t id, int port) : running_(false), id_(id), term_(0), state_(Fo
     IpAddress addr(port);
     server_ = std::make_shared<RpcServer>(addr, scheduler_.get());
     server_->registerRpcHandler<RequestVoteArgs>(std::bind(&Raft::onRequestVote, this, std::placeholders::_1));
-    // server_->registerRpcHandler("AppendEntry", &Raft::AppendEntry, this);
+    server_->registerRpcHandler<RequestAppendArgs>(std::bind(&Raft::onRequestAppendEntry, this, std::placeholders::_1));
+    // server_->registerRpcHandler("onRequestAppendEntry", &Raft::onRequestAppendEntry, this);
 }
 
-// void Raft::addPeers(std::vector<Address> addresses)
-// {
-//     MutexGuard guard(mutex_);
-//     for (auto &x : addresses)
-//     {
-//         if (x.port != id_)
-//         {
-//             LOG_DEBUG << "peer port=" << x.port;
-//             peers_.push_back(std::make_shared<RpcClient>(x.ip, x.port));
-//             nexts_.push_back(0);
-//             matchs_.push_back(0);
-//         }
-//     }
-// }
+void Raft::addPeers(std::vector<Address> addresses)
+{
+    MutexGuard guard(mutex_);
+    for (auto &x : addresses)
+    {
+        if (x.port != id_)
+        {
+            IpAddress server_addr(x.ip, x.port);
+           
+            // RpcClient client(server_addr, &scheduler);
+            LOG_DEBUG << "peer port=" << x.port;
+            peers_.push_back(std::make_shared<RpcClient>(server_addr, scheduler_.get()));
+            nexts_.push_back(0);
+            matchs_.push_back(0);
+        }
+    }
+}
 
-// void Raft::start()
-// {
-//     running_ = true;
-//     std::thread t([this]() {
-//         server_->run();
-//     });
-//     t.detach();
-// }
 
 // MessagePtr Raft::onRequestVote(RequestVoteArgs& args)
 MessagePtr Raft::onRequestVote(std::shared_ptr<RequestVoteArgs> vote_args)
 {
-    RequestVoteReply reply;
-    uint32_t i = vote_args->term();
-    LOG_DEBUG << i;
-
+    LOG_DEBUG << "onRequestVote";
     std::shared_ptr<RequestVoteReply> vote_reply = std::make_shared<RequestVoteReply>();
-    // if (args.term_ > term_)
-    //     becomeFollower(args.term_);
-    // reply.term_ = args.term_;
-    // reply.granted_ = state_ != Leader;
-    // return reply;
+    if (vote_args->term() < term_) {
+        vote_reply->set_term(term_);
+        vote_reply->set_vote_granted(false);
+        LOG_DEBUG << "rejected " << vote_args->candidate_id() << " 's vote request, args.term=" << vote_args->term() << " term_=" << term_;
+    } else {
+        if (vote_args->term() > term_) {
+            becomeFollower(vote_args->term());
+        }
+    }
     return vote_reply;
 }
 
-// AppendEntryReply Raft::AppendEntry(AppendEntryArgs &args)
-// {
-//     MutexGuard guard(mutex_);
-//     AppendEntryReply reply;
+MessagePtr Raft::onRequestAppendEntry(std::shared_ptr<RequestAppendArgs> args)
+{
+    MutexGuard guard(mutex_);
+    std::shared_ptr<RequestAppendReply> reply = std::make_shared<RequestAppendReply>();
 
-//     // LOG_DEBUG << "term_=" << term_ << ", args.term_=" << args.term_ << ", state_=" << state_;
-//     if ((args.term_ > term_) || (args.term_ == term_ && state_ == Candidate))
-//         becomeFollower(args.term_);
-//     else if (state_ != Leader)
-//         rescheduleElection();
+    if (args->term() < term_) {
+        reply->set_success(false);
+        reply->set_term(term_);
+    } else {
+        becomeFollower(args->term());
+        reply->set_success(true);
+        reply->set_term(term_);
+    }
 
-//     reply.term_ = term_;
-//     reply.idx_ = 1;
-//     return reply;
-// }
+    return reply;
+}
 
-// void Raft::sendRequestVote()
-// {
-//     MutexGuard guard(mutex_);
-//     if (!running_)
-//         return;
+void Raft::sendRequestVote()
+{
+    MutexGuard guard(mutex_);
+    if (!running_)
+        return;
 
-//     becomeCandidate();
-//     RequestVoteArgs args(term_, id_, 1, 1);
-//     LOG_DEBUG << "sendRequestVote, term_=" << term_;
-//     uint64_t timeout_ms = 1;
-//     for (auto &peer : peers_)
-//     {
-//         scheduler_->addTask([this, peer, timeout_ms, args]() {
-//             peer->setTimeout(timeout_ms);
-//             response_t<RequestVoteReply> res = peer->call<RequestVoteReply>("onrequestvote", args);
-//             if (res.code() == RPC_ERR_SUCCESS)
-//             {
-//                 LOG_DEBUG << "rpc request response, code=" << res.code() << ", message=" << res.message()
-//                           << ", value.term=" << res.value().term_ << ", value.granted_=" << res.value().granted_;
-//                 ReceiveRequestVoteReply(res.value());
-//             }
-//             else
-//             {
-//                 // LOG_DEBUG << "rpc request timeout!";
-//             }
-//         });
-//     }
-// }
+    becomeCandidate();
+    std::shared_ptr<RequestVoteArgs> args = std::make_shared<RequestVoteArgs>();
+    args->set_term(term_);
+    args->set_candidate_id(id_);
+    LOG_DEBUG << "sendRequestVote, term_=" << term_;
+    uint64_t timeout_ms = 1;
+    for (auto &peer : peers_)
+    {
+        scheduler_->addTask([this, peer, timeout_ms, args]() {
+            // peer->setTimeout(timeout_ms);
+            peer->Call<RequestVoteReply>(args, std::bind(&Raft::onRequestVoteReply, this, std::placeholders::_1));
+        });
+    }
+}
 
-// void Raft::ReceiveRequestVoteReply(const RequestVoteReply &reply)
-// {
-//     MutexGuard guard(mutex_);
-//     if (!running_ || state_ != Candidate)
-//         return;
+void Raft::onRequestVoteReply(std::shared_ptr<RequestVoteReply> reply)
+{
+    MutexGuard guard(mutex_);
+    if (!running_ || state_ != Candidate)
+        return;
 
-//     if (reply.term_ == term_ && reply.granted_)
-//     {
-//         if (++votes_ > (peers_.size() + 1) / 2)
-//             becomeLeader();
-//     }
-//     else if (reply.term_ > term_)
-//     {
-//         becomeFollower(reply.term_);
-//     }
-// }
+    if (reply->term() == term_ && reply->vote_granted()) {
+        if (++votes_ > (peers_.size() + 1) / 2)
+            becomeLeader();
+    }
+    else if (reply->term() > term_)
+    {
+        becomeFollower(reply->term());
+    }
+}
 
-// void Raft::SendAppendEntry(bool heartbeat)
-// {
-//     MutexGuard guard(mutex_);
-//     if (!running_ || state_ != Leader)
-//         return;
-//     AppendEntryArgs args(term_, id_, 0, 1, 10);
-//     for (size_t i = 0; i < peers_.size(); ++i)
-//     {
-//         scheduler_->addTask([this, i, args]() {
-//             // LOG_DEBUG << "----------------------------args.term_=" << args.term_;
-//             response_t<AppendEntryReply> res = peers_[i]->call<AppendEntryReply>("AppendEntry", args);
-//             // std::cout << "===========revc, code="
-//             //           << res.code() << ", message=" << res.message() << ", value.term="
-//             //           << res.value().idx_ << ", value.idx_=" << res.value().idx_ << std::endl;
-//         });
-//     }
-// }
+void Raft::heartbeat()
+{
+    MutexGuard guard(mutex_);
+    if (!running_ || state_ != Leader)
+        return;
+    std::shared_ptr<RequestAppendArgs> args = std::make_shared<RequestAppendArgs>();
+    args->set_term(term_);
+    args->set_leader_id(id_);
+    for (auto &peer : peers_)
+    {
+        scheduler_->addTask([this, peer, args]() {
+            // peer->setTimeout(1);
+            peer->Call<RequestAppendReply>(args, [](std::shared_ptr<RequestAppendReply> reply) {
+                LOG_DEBUG << "reply->term=" << reply->term() << ", reply->success=" << reply->success();
+            });
+        });
+    }
+}
 
-// void Raft::rescheduleElection()
-// {
-//     assert(state_ == Follower);
-//     scheduler_->cancel(election_id_);
-//     election_id_ = scheduler_->runAfter(getElectionTimeout(), std::make_shared<Coroutine>([this]() {
-//                                             std::cout << "========sendRequestVote============" << std::endl;
-//                                             sendRequestVote();
-//                                         }));
-// }
+void Raft::rescheduleElection()
+{
+    assert(state_ == Follower);
+    election_id_ = scheduler_->runAfter(getElectionTimeout(), std::make_shared<Coroutine>([this]() {
+                                            std::cout << "========sendRequestVote============" << std::endl;
+                                            sendRequestVote();
+                                        }));
+}
 
-// void Raft::becomeFollower(int term)
-// {
-//     std::cout << "======================become Follower" << std::endl;
-//     if (state_ == Leader)
-//         scheduler_->cancel(heartbeat_id_);
-//     else if (state_ == Candidate)
-//         scheduler_->cancel(timeout_id_);
-//     state_ = Follower;
-//     term_ = term;
-//     vote_for_ = -1;
-//     rescheduleElection();
-// }
+void Raft::becomeFollower(uint32_t term)
+{
+    std::cout << "======================become Follower" << std::endl;
+    if (state_ == Leader)
+        scheduler_->cancel(heartbeat_id_);
+    else
+        scheduler_->cancel(election_id_);
 
-// void Raft::becomeCandidate()
-// {
-//     std::cout << "=====================become Candidate" << std::endl;
-//     ++term_;
-//     state_ = Candidate;
-//     vote_for_ = id_;
-//     votes_ = 1;
-// }
+    state_ = Follower;
+    term_ = term;
+    vote_for_ = -1;
+    rescheduleElection();
+}
 
-// void Raft::becomeLeader()
-// {
-//     std::cout << "=====================become Leader" << std::endl;
-//     state_ = Leader;
-//     scheduler_->cancel(timeout_id_);
-//     scheduler_->cancel(election_id_);
-//     for (auto &x : nexts_)
-//         x = commit_ + 1;
-//     for (auto &x : matchs_)
-//         x = -1;
+void Raft::becomeCandidate()
+{
+    std::cout << "=====================become Candidate" << std::endl;
+    ++term_;
+    state_ = Candidate;
+    vote_for_ = id_;
+    votes_ = 1;
+}
 
-//     heartbeat_id_ = scheduler_->runEvery(kHeartbeatInterval, std::make_shared<Coroutine>([this]() {
-//                                              SendAppendEntry(true);
-//                                          }));
-// }
+void Raft::becomeLeader()
+{
+    std::cout << "=====================become Leader" << std::endl;
+    state_ = Leader;
+    scheduler_->cancel(timeout_id_);
+    scheduler_->cancel(election_id_);
+    for (auto &x : nexts_)
+        x = commit_ + 1;
+    for (auto &x : matchs_)
+        x = -1;
 
-// uint64_t Raft::getElectionTimeout()
-// {
-//     static std::default_random_engine engine(time(0));
-//     static std::uniform_int_distribution<uint64_t> dist(kTimeoutBase, kTimeoutTop);
-//     return dist(engine);
-// }
+    heartbeat_id_ = scheduler_->runEvery(kHeartbeatInterval, std::make_shared<Coroutine>([this]() {
+                                             heartbeat();
+                                         }));
+}
+
+uint64_t Raft::getElectionTimeout()
+{
+    static std::default_random_engine engine(time(0));
+    static std::uniform_int_distribution<uint64_t> dist(kTimeoutBase, kTimeoutTop);
+    return dist(engine);
+}

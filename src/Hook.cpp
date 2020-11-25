@@ -158,7 +158,6 @@ int connect(int sockfd, const struct sockaddr *addr,
 	return ret;
 }
 
-
 ssize_t read(int fd, void *buf, size_t count) {
 	return ioHook(fd, read_f, leo::Poller::kReadEvent, buf, count);
 }
