@@ -71,6 +71,7 @@ private:
     std::vector<std::shared_ptr<RpcClient>> peers_;
     std::vector<int32_t> nexts_;
     std::vector<int32_t> matchs_;
+	std::vector<LogEntry> log_;
 
     Scheduler::ptr scheduler_;
     Mutex mutex_;

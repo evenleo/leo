@@ -37,7 +37,6 @@ void Raft::start() {
     becomeFollower(Follower);
 }
 
-// MessagePtr Raft::onRequestVote(RequestVoteArgs& args)
 MessagePtr Raft::onRequestVote(std::shared_ptr<RequestVoteArgs> vote_args)
 {
     LOG_DEBUG << "onRequestVote";
@@ -64,10 +63,16 @@ MessagePtr Raft::onRequestAppendEntry(std::shared_ptr<RequestAppendArgs> args)
     if (args->term() < term_) {
         reply->set_success(false);
         reply->set_term(term_);
-    } else {
+        reply->set_conflict_index(id_);
+        reply->set_conflict_term(term_);
+    }
+    else
+    {
         becomeFollower(args->term());
         reply->set_success(true);
         reply->set_term(term_);
+        reply->set_conflict_index(0);
+        reply->set_conflict_term(0);
     }
 
     return reply;
@@ -90,7 +95,6 @@ void Raft::sendRequestVote()
     for (auto &peer : peers_)
     {
         scheduler_->addTask([this, peer, timeout_ms, args]() {
-            // peer->setTimeout(timeout_ms);
             peer->Call<RequestVoteReply>(args, std::bind(&Raft::onRequestVoteReply, this, std::placeholders::_1));
         });
     }
@@ -120,12 +124,15 @@ void Raft::heartbeat()
     std::shared_ptr<RequestAppendArgs> args = std::make_shared<RequestAppendArgs>();
     args->set_term(term_);
     args->set_leader_id(id_);
+    args->set_pre_log_index(1);
+    args->set_pre_log_term(1);
+    args->set_leader_commit(1);
     for (auto &peer : peers_)
     {
         scheduler_->addTask([this, peer, args]() {
-            // peer->setTimeout(1);
             peer->Call<RequestAppendReply>(args, [](std::shared_ptr<RequestAppendReply> reply) {
-                LOG_DEBUG << "reply->term=" << reply->term() << ", reply->success=" << reply->success();
+                // LOG_DEBUG << "reply->term=" << reply->term() << ", reply->success=" << reply->success();
+                reply->set_term(0);
             });
         });
     }
@@ -134,10 +141,8 @@ void Raft::heartbeat()
 void Raft::rescheduleElection()
 {
     assert(state_ == Follower);
-    election_id_ = scheduler_->runAfter(getElectionTimeout(), std::make_shared<Coroutine>([this]() {
-                                            std::cout << "========sendRequestVote============" << std::endl;
-                                            sendRequestVote();
-                                        }));
+    election_id_ = scheduler_->runAfter(getElectionTimeout(), 
+                                        std::make_shared<Coroutine>(std::bind(&Raft::sendRequestVote, this)));
 }
 
 void Raft::becomeFollower(uint32_t term)
@@ -174,9 +179,8 @@ void Raft::becomeLeader()
     for (auto &x : matchs_)
         x = -1;
 
-    heartbeat_id_ = scheduler_->runEvery(kHeartbeatInterval, std::make_shared<Coroutine>([this]() {
-                                             heartbeat();
-                                         }));
+    heartbeat_id_ = scheduler_->runEvery(kHeartbeatInterval, 
+                                         std::make_shared<Coroutine>(std::bind(&Raft::heartbeat, this)));
 }
 
 uint64_t Raft::getElectionTimeout()

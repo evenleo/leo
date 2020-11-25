@@ -34,7 +34,7 @@ private:
 	void handleConnection(MessagePtr request, typename TypeTraits<T>::ResponseHandler handler) {
 		TcpConnection::ptr conn = client_.connect();
 		if (conn) {
-			LOG_DEBUG << "RpcClient: connect to " << conn->peerAddr().toString() << " success";
+			// LOG_DEBUG << "RpcClient: connect to " << conn->peerAddr().toString() << " success";
 			ProtobufCodec codec(conn);
 			codec.send(request);
 

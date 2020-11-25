@@ -2,16 +2,24 @@ syntax = "proto2";
 
 package leo;
 
+//protoc --cpp_out=./ ./args.proto
+
 message RequestVoteArgs {
-    required uint32 term = 1;
-    required int32 candidate_id = 2;
-    required uint32 last_log_index = 3;
-    required uint32 last_log_term = 4;
+	required uint32 term = 1;
+	required int32 candidate_id = 2;
+	required uint32 last_log_index = 3;
+	required uint32 last_log_term = 4;
 }
 
 message RequestVoteReply {
-    required uint32 term = 1;
-    required bool vote_granted = 2;
+	required uint32 term = 1;
+	required bool vote_granted = 2;
+}
+
+message LogEntry {
+	required uint32 term = 1;
+	required uint32 index = 2;
+	required bytes command = 3;
 }
 
 message RequestAppendArgs {
@@ -20,6 +28,7 @@ message RequestAppendArgs {
 	required uint32 pre_log_index = 3;
 	required uint32 pre_log_term = 4;
 	required uint32 leader_commit = 5;
+	repeated LogEntry entries = 6;
 }
 
 message RequestAppendReply {
@@ -27,4 +36,19 @@ message RequestAppendReply {
 	required bool success = 2;
 	required uint32 conflict_index = 3;
 	required uint32 conflict_term = 4;
+}
+
+message KvCommnad {
+	required string operation = 1;
+	required string key = 2;
+	optional string value = 3;  //put, append, delete command only
+	required int64 cid = 4;
+	required uint32 seq = 5;
+}
+
+message KvCommnadReply {
+	required bool leader = 1;
+	//get command only
+	optional string error = 2;
+	optional string value = 3;
 }
