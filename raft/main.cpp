@@ -20,16 +20,19 @@ int main(int argc, char** argv)
     
     int port = argc > 0 ? atoi(argv[1]) : 5001;
     Raft rt(port, port);
-    // rt.start();
 
-    // std::vector<Address> addresses;
-    // addresses.push_back({"127.0.0.1", 5001});
-    // addresses.push_back({"127.0.0.1", 5002});
-    // addresses.push_back({"127.0.0.1", 5003});
+    std::vector<Address> addresses;
+    addresses.push_back({"127.0.0.1", 5001});
+    addresses.push_back({"127.0.0.1", 5002});
+    addresses.push_back({"127.0.0.1", 5003});
 
-    // rt.addPeers(addresses);
+    rt.addPeers(addresses);
+   
 
-    // getchar();
+    getchar();
+    rt.start();
+    getchar();
+
 
     // rt.rescheduleElection();
     // // rt.voteTest("127.0.0.1", 5001);

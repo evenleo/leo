@@ -11,7 +11,7 @@ Raft::Raft(int32_t id, int port) : running_(false), id_(id), term_(0), state_(Fo
     server_ = std::make_shared<RpcServer>(addr, scheduler_.get());
     server_->registerRpcHandler<RequestVoteArgs>(std::bind(&Raft::onRequestVote, this, std::placeholders::_1));
     server_->registerRpcHandler<RequestAppendArgs>(std::bind(&Raft::onRequestAppendEntry, this, std::placeholders::_1));
-    // server_->registerRpcHandler("onRequestAppendEntry", &Raft::onRequestAppendEntry, this);
+    server_->start();
 }
 
 void Raft::addPeers(std::vector<Address> addresses)
@@ -32,6 +32,10 @@ void Raft::addPeers(std::vector<Address> addresses)
     }
 }
 
+void Raft::start() {
+    running_ = true;
+    becomeFollower(Follower);
+}
 
 // MessagePtr Raft::onRequestVote(RequestVoteArgs& args)
 MessagePtr Raft::onRequestVote(std::shared_ptr<RequestVoteArgs> vote_args)
@@ -46,6 +50,8 @@ MessagePtr Raft::onRequestVote(std::shared_ptr<RequestVoteArgs> vote_args)
         if (vote_args->term() > term_) {
             becomeFollower(vote_args->term());
         }
+        vote_reply->set_term(term_);
+        vote_reply->set_vote_granted(true);
     }
     return vote_reply;
 }
@@ -77,6 +83,8 @@ void Raft::sendRequestVote()
     std::shared_ptr<RequestVoteArgs> args = std::make_shared<RequestVoteArgs>();
     args->set_term(term_);
     args->set_candidate_id(id_);
+    args->set_last_log_index(1);
+    args->set_last_log_term(0);
     LOG_DEBUG << "sendRequestVote, term_=" << term_;
     uint64_t timeout_ms = 1;
     for (auto &peer : peers_)

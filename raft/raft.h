@@ -39,6 +39,8 @@ public:
     Raft(int32_t id, int port);
 
     void addPeers(std::vector<Address> addresses);
+    
+    void start();
 
     // MessagePtr onRequestVote(RequestVoteArgs& args);
     MessagePtr onRequestVote(std::shared_ptr<RequestVoteArgs> vote_args);
