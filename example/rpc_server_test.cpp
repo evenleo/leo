@@ -37,8 +37,8 @@ int main(int argc, char** argv) {
 	IpAddress addr(port);
 	RpcServer server(addr, &scheduler);
 
-	server.registerRpcHandler<echo::EchoRequest>(onEcho);
-	// server.registerRpcHandler<RequestAppendArgs>(onAppendEntry);
+	server.registerHandler<echo::EchoRequest>(onEcho);
+	// server.registerHandler<RequestAppendArgs>(onAppendEntry);
 
 	server.start();
 	getchar();

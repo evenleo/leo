@@ -42,7 +42,7 @@ public:
     
     void start();
 
-    // MessagePtr onRequestVote(RequestVoteArgs& args);
+private:
     MessagePtr onRequestVote(std::shared_ptr<RequestVoteArgs> vote_args);
 
     MessagePtr onRequestAppendEntry(std::shared_ptr<RequestAppendArgs> args);
@@ -53,40 +53,47 @@ public:
 
     void heartbeat();
 
-    void rescheduleElection();
-
     void becomeFollower(uint32_t term);
 
     void becomeCandidate();
 
     void becomeLeader();
 
-    void close() { scheduler_->cancel(timer_id_); }
+    void close() {}
 
-private:
+    uint32_t getLastEntryIndex() const { return log_.size() - 1; }
+
+    bool thisIsMoreUpToDate(uint32_t last_log_index, uint32_t last_log_term) const;
+
+    void resetLeaderState();
+
     uint64_t getElectionTimeout();
 
 private:
-    std::shared_ptr<RpcServer> server_;
-    std::vector<std::shared_ptr<RpcClient>> peers_;
-    std::vector<int32_t> nexts_;
-    std::vector<int32_t> matchs_;
+    int32_t id_;
+    uint8_t state_;
+    
+    //persistent state on all servers
+    uint32_t term_;
+    int32_t vote_for_;
+    size_t votes_;
 	std::vector<LogEntry> log_;
+
+    //volatile state on all servers
+    int32_t commit_index_;
+	uint32_t last_applied_;
+
+    //valotile state on leaders
+    std::vector<int32_t> next_index_;
+    std::vector<int32_t> match_index_;
 
     Scheduler::ptr scheduler_;
     Mutex mutex_;
-    bool running_;
-
-    int32_t id_;
-    uint32_t term_;
-    uint8_t state_;
-    int32_t vote_for_;
-    int32_t commit_;
-    size_t votes_;
-
-    int64_t timer_id_;
+    std::atomic_bool running_;
+    RpcServer::ptr server_;
+    std::vector<RpcClient::ptr> peers_;
+ 
     int64_t timeout_id_;
-    int64_t election_id_;
     int64_t heartbeat_id_;
 };
 

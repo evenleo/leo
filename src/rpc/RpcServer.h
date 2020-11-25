@@ -38,6 +38,7 @@ private:
 
 class RpcServer : public TcpServer {
 public:
+	typedef std::shared_ptr<RpcServer> ptr;
 	RpcServer(const IpAddress& listen_addr, Scheduler* scheduler)
 		:TcpServer(listen_addr, scheduler) {
 	setConnectionHandler(std::bind(&RpcServer::handleClient, this, std::placeholders::_1));
@@ -46,7 +47,7 @@ public:
 	typedef std::map<const ::google::protobuf::Descriptor*, std::shared_ptr<Callback>> HandlerMap;
 
 	template<typename T>
-	void registerRpcHandler(const typename CallbackT<T>::ConcreteMessageCallback& handler) {
+	void registerHandler(const typename CallbackT<T>::ConcreteMessageCallback& handler) {
 		//todo 线程安全
 		std::shared_ptr<CallbackT<T> > cp(new CallbackT<T>(handler));
 		{
