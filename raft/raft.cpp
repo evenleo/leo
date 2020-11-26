@@ -41,7 +41,8 @@ void Raft::addPeers(std::vector<Address> addresses)
 
 void Raft::start() {
     running_ = true;
-    becomeFollower(Follower);
+    if (vote_for_ == -1)
+        becomeFollower(Follower);
 }
 
 
@@ -93,13 +94,13 @@ void Raft::sendRequestVote()
     args->set_last_log_index(1);
     args->set_last_log_term(0);
     LOG_DEBUG << "sendRequestVote, term_=" << term_;
-    uint64_t timeout_ms = 1;
-    for (auto &peer : peers_)
-    {
-        scheduler_->addTask([this, peer, timeout_ms, args]() {
-            peer->Call<RequestVoteReply>(args, std::bind(&Raft::onRequestVoteReply, this, std::placeholders::_1));
-        });
+    for (auto &peer : peers_) {
+        peer->Call<RequestVoteReply>(args, std::bind(&Raft::onRequestVoteReply, this, std::placeholders::_1));
     }
+
+    timeout_id_ = scheduler_->runAfter(getElectionTimeout(), 
+                                       std::make_shared<Coroutine>(std::bind(&Raft::sendRequestVote, this)));
+    LOG_DEBUG << "timeout_id_=" << timeout_id_;
 }
 
 void Raft::onRequestVoteReply(std::shared_ptr<RequestVoteReply> reply)
@@ -120,6 +121,7 @@ void Raft::onRequestVoteReply(std::shared_ptr<RequestVoteReply> reply)
 
 MessagePtr Raft::onRequestAppendEntry(std::shared_ptr<RequestAppendArgs> args)
 {
+    LOG_DEBUG << "onRequestAppendEntry";
     MutexGuard guard(mutex_);
     std::shared_ptr<RequestAppendReply> reply = std::make_shared<RequestAppendReply>();
 
@@ -180,6 +182,7 @@ void Raft::becomeFollower(uint32_t term)
     votes_ = 0;
     timeout_id_ = scheduler_->runAfter(getElectionTimeout(), 
                                        std::make_shared<Coroutine>(std::bind(&Raft::sendRequestVote, this)));
+    LOG_DEBUG << "timeout_id_=" << timeout_id_;
 }
 
 void Raft::becomeCandidate()
