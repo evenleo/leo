@@ -98,6 +98,7 @@ void Raft::sendRequestVote()
         peer->Call<RequestVoteReply>(args, std::bind(&Raft::onRequestVoteReply, this, std::placeholders::_1));
     }
 
+    scheduler_->cancel(timeout_id_);
     timeout_id_ = scheduler_->runAfter(getElectionTimeout(), 
                                        std::make_shared<Coroutine>(std::bind(&Raft::sendRequestVote, this)));
     LOG_DEBUG << "timeout_id_=" << timeout_id_;
@@ -160,8 +161,9 @@ void Raft::heartbeat()
     for (auto &peer : peers_)
     {
         scheduler_->addTask([this, peer, args]() {
+            LOG_DEBUG << "heartbeat";
             peer->Call<RequestAppendReply>(args, [](std::shared_ptr<RequestAppendReply> reply) {
-                // LOG_DEBUG << "reply->term=" << reply->term() << ", reply->success=" << reply->success();
+                LOG_DEBUG << "reply->term=" << reply->term() << ", reply->success=" << reply->success();
                 reply->set_term(0);
             });
         });
@@ -200,7 +202,7 @@ void Raft::becomeLeader()
     state_ = Leader;
     scheduler_->cancel(timeout_id_);
     resetLeaderState();
-    heartbeat();
+    // heartbeat();
     heartbeat_id_ = scheduler_->runEvery(kHeartbeatInterval, 
                                          std::make_shared<Coroutine>(std::bind(&Raft::heartbeat, this)));
 }

@@ -31,10 +31,10 @@ public:
         Leader
     };
 
-    const static uint64_t kTimeoutBase = 150 * 1000;
-    const static uint64_t kTimeoutTop = 300 * 1000;
-    const static uint64_t kElectionTimeoutBase = 300 * 1000;
-    const static uint64_t kHeartbeatInterval = 100 * 1000;
+    const static uint64_t kTimeoutBase = 150 * 1000 * 10;
+    const static uint64_t kTimeoutTop = 300 * 1000 * 10;
+    const static uint64_t kElectionTimeoutBase = 300 * 1000 * 10;
+    const static uint64_t kHeartbeatInterval = 100 * 1000 * 10;
 
     Raft(int32_t id, int port);
 
