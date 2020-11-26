@@ -74,7 +74,7 @@ private:
     uint8_t state_;
     
     //persistent state on all servers
-    uint32_t term_;
+    uint32_t current_term_;
     int32_t vote_for_;
     size_t votes_;
 	std::vector<LogEntry> log_;

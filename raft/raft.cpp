@@ -6,7 +6,7 @@
 Raft::Raft(int32_t id, int port) 
     : id_(id),
       state_(Follower),
-      term_(0),
+      current_term_(0),
       vote_for_(-1),
       running_(false)
 {
@@ -45,21 +45,31 @@ void Raft::start() {
         becomeFollower(Follower);
 }
 
-
+/**
+ * 请求投票 RPC
+ *
+ * 接收者实现:
+ *      如果term < currentTerm返回 false （5.2 节）
+ *      如果 votedFor 为空或者就是 candidateId，并且候选人的日志至少和自己一样新，那么就投票给他（5.2 节，5.4 节）
+ */
 MessagePtr Raft::onRequestVote(std::shared_ptr<RequestVoteArgs> vote_args)
 {
     LOG_DEBUG << "onRequestVote";
+    MutexGuard guard(mutex_);
     std::shared_ptr<RequestVoteReply> vote_reply = std::make_shared<RequestVoteReply>();
-    if (vote_args->term() < term_) {
-        vote_reply->set_term(term_);
+    // 对方任期没有自己新
+    if (vote_args->term() < current_term_) {
+        vote_reply->set_term(current_term_);
         vote_reply->set_vote_granted(false);
-        LOG_DEBUG << "rejected " << vote_args->candidate_id() << " 's vote request, args.term=" << vote_args->term() << " term_=" << term_;
-    } else {
-        if (vote_args->term() > term_) {
+        LOG_DEBUG << "rejected " << vote_args->candidate_id() << " 's vote request, args.term=" << vote_args->term() << " current_term_=" << current_term_;
+    } else {   
+        if (vote_args->term() > current_term_) {  // 任期大于自己的要初始化
             becomeFollower(vote_args->term());
         }
-        vote_reply->set_term(term_);
-        if (vote_for_ == -1 && !thisIsMoreUpToDate(vote_args->last_log_index(), vote_args->last_log_term())) {
+        vote_reply->set_term(current_term_);
+        // (当前节点并没有投票 或者 已经投票过了且是对方节点) && 对方日志和自己一样新
+        if ((vote_for_ == -1 || vote_for_ == vote_args->candidate_id()) 
+            && !thisIsMoreUpToDate(vote_args->last_log_index(), vote_args->last_log_term())) {
             vote_for_ = vote_args->candidate_id();
             vote_reply->set_vote_granted(true);
             LOG_DEBUG << "vote for " << vote_args->candidate_id();
@@ -89,11 +99,11 @@ void Raft::sendRequestVote()
 
     becomeCandidate();
     std::shared_ptr<RequestVoteArgs> args = std::make_shared<RequestVoteArgs>();
-    args->set_term(term_);
+    args->set_term(current_term_);
     args->set_candidate_id(id_);
     args->set_last_log_index(1);
     args->set_last_log_term(0);
-    LOG_DEBUG << "sendRequestVote, term_=" << term_;
+    LOG_DEBUG << "sendRequestVote, current_term_=" << current_term_;
     for (auto &peer : peers_) {
         peer->Call<RequestVoteReply>(args, std::bind(&Raft::onRequestVoteReply, this, std::placeholders::_1));
     }
@@ -110,9 +120,9 @@ void Raft::onRequestVoteReply(std::shared_ptr<RequestVoteReply> reply)
     if (!running_ || state_ != Candidate)
         return;
     
-    if (reply->term() > term_){
+    if (reply->term() > current_term_){
         becomeFollower(reply->term());
-    } else if (reply->term() == term_ && reply->vote_granted()) {
+    } else if (reply->term() == current_term_ && reply->vote_granted()) {
         votes_++;
         if (votes_ > (peers_.size() + 1) / 2) {
             becomeLeader();
@@ -120,23 +130,33 @@ void Raft::onRequestVoteReply(std::shared_ptr<RequestVoteReply> reply)
     }
 }
 
+/**
+ * 附加日志(多个日志,为了提高效率) RPC
+ *
+ * 接收者实现：
+ *    如果 term < currentTerm 就返回 false （5.1 节）
+ *    如果日志在 prevLogIndex 位置处的日志条目的任期号和 prevLogTerm 不匹配，则返回 false （5.3 节）
+ *    如果已经存在的日志条目和新的产生冲突（索引值相同但是任期号不同），删除这一条和之后所有的 （5.3 节）
+ *    附加任何在已有的日志中不存在的条目
+ *    如果 leaderCommit > commitIndex，令 commitIndex 等于 leaderCommit 和 新日志条目索引值中较小的一个
+ */
 MessagePtr Raft::onRequestAppendEntry(std::shared_ptr<RequestAppendArgs> args)
 {
     LOG_DEBUG << "onRequestAppendEntry";
     MutexGuard guard(mutex_);
     std::shared_ptr<RequestAppendReply> reply = std::make_shared<RequestAppendReply>();
 
-    if (args->term() < term_) {
+    if (args->term() < current_term_) {
         reply->set_success(false);
-        reply->set_term(term_);
+        reply->set_term(current_term_);
         reply->set_conflict_index(id_);
-        reply->set_conflict_term(term_);
+        reply->set_conflict_term(current_term_);
     }
     else
     {
         becomeFollower(args->term());
         reply->set_success(true);
-        reply->set_term(term_);
+        reply->set_term(current_term_);
         reply->set_conflict_index(0);
         reply->set_conflict_term(0);
     }
@@ -153,7 +173,7 @@ void Raft::heartbeat()
     if (!running_ || state_ != Leader)
         return;
     std::shared_ptr<RequestAppendArgs> args = std::make_shared<RequestAppendArgs>();
-    args->set_term(term_);
+    args->set_term(current_term_);
     args->set_leader_id(id_);
     args->set_pre_log_index(1);
     args->set_pre_log_term(1);
@@ -179,7 +199,7 @@ void Raft::becomeFollower(uint32_t term)
         scheduler_->cancel(timeout_id_);
 
     state_ = Follower;
-    term_ = term;
+    current_term_ = term;
     vote_for_ = -1;
     votes_ = 0;
     timeout_id_ = scheduler_->runAfter(getElectionTimeout(), 
@@ -190,7 +210,7 @@ void Raft::becomeFollower(uint32_t term)
 void Raft::becomeCandidate()
 {
     std::cout << "=====================become Candidate" << std::endl;
-    ++term_;
+    ++current_term_;
     state_ = Candidate;
     vote_for_ = id_;
     votes_ = 1;
