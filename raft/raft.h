@@ -13,13 +13,7 @@
 using namespace leo;
 using namespace leo::rpc;
 
-struct Address
-{
-    Address(const std::string &_ip, int _port)
-        : ip(_ip), port(_port) {}
-    std::string ip;
-    int port;
-};
+
 
 class Raft
 {
@@ -36,9 +30,9 @@ public:
     const static uint64_t kElectionTimeoutBase = 300 * 1000 * 10;
     const static uint64_t kHeartbeatInterval = 100 * 1000 * 10;
 
-    Raft(int32_t id, int port);
+    Raft(uint32_t me, int port, Scheduler::ptr scheduler, std::vector<RpcClient::ptr>& peers);
 
-    void addPeers(std::vector<Address> addresses);
+    // void addPeers(std::vector<Address> addresses);
     
     void start();
 
@@ -51,7 +45,13 @@ private:
 
     void onRequestVoteReply(std::shared_ptr<RequestVoteReply> reply);
 
+    void onRequestAppendReply(uint32_t target_server, 
+                              std::shared_ptr<RequestAppendArgs> append_args, 
+                              std::shared_ptr<RequestAppendReply> reply);
+
     void heartbeat();
+
+    void packEntrys(size_t next_index, std::shared_ptr<RequestAppendArgs> append_args);
 
     void becomeFollower(uint32_t term);
 
@@ -63,14 +63,14 @@ private:
 
     uint32_t getLastEntryIndex() const { return log_.size() - 1; }
 
-    bool thisIsMoreUpToDate(uint32_t last_log_index, uint32_t last_log_term) const;
+    bool upToDate(uint32_t last_log_index, uint32_t last_log_term) const;
 
     void resetLeaderState();
 
     uint64_t getElectionTimeout();
 
 private:
-    int32_t id_;
+    uint32_t me_;
     uint8_t state_;
     
     //persistent state on all servers
@@ -80,16 +80,16 @@ private:
 	std::vector<LogEntry> log_;
 
     //volatile state on all servers
-    int32_t commit_index_;
+    uint32_t commit_index_;
 	uint32_t last_applied_;
 
     //valotile state on leaders
     std::vector<int32_t> next_index_;
     std::vector<int32_t> match_index_;
 
-    Scheduler::ptr scheduler_;
     Mutex mutex_;
     std::atomic_bool running_;
+    Scheduler::ptr scheduler_;
     RpcServer::ptr server_;
     std::vector<RpcClient::ptr> peers_;
  
