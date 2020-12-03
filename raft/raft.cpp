@@ -5,7 +5,7 @@
 
 Raft::Raft(uint32_t me, int port,  Scheduler::ptr scheduler, std::vector<RpcClient::ptr>& peers) 
     : me_(me),
-      state_(Follower),
+      state_(State::Follower),
       current_term_(0),
       vote_for_(-1),
       running_(false), 
@@ -29,7 +29,7 @@ Raft::Raft(uint32_t me, int port,  Scheduler::ptr scheduler, std::vector<RpcClie
 void Raft::start() {
     running_ = true;
     if (vote_for_ == -1)
-        becomeFollower(Follower);
+        becomeFollower(0);
 }
 
 /**
@@ -54,6 +54,7 @@ MessagePtr Raft::onRequestVote(std::shared_ptr<RequestVoteArgs> vote_args)
         // 那么就令 currentTerm 等于 T，并切换状态为跟随者（5.1 节）  
         if (vote_args->term() > current_term_) {  
             becomeFollower(vote_args->term());
+            vote_for_ = -1;
         }
         vote_reply->set_term(current_term_);
         // (当前节点并没有投票 或者 已经投票过了且是对方节点) && 对方日志和自己一样新
@@ -112,7 +113,7 @@ void Raft::sendRequestVote()
 void Raft::onRequestVoteReply(std::shared_ptr<RequestVoteReply> reply)
 {
     MutexGuard guard(mutex_);
-    if (!running_ || state_ != Candidate)
+    if (!running_ || state_ != State::Candidate)
         return;
     
     if (reply->term() > current_term_){
@@ -137,7 +138,8 @@ void Raft::onRequestVoteReply(std::shared_ptr<RequestVoteReply> reply)
  */
 MessagePtr Raft::onRequestAppendEntry(std::shared_ptr<RequestAppendArgs> args)
 {
-    // LOG_DEBUG << "onRequestAppendEntry";
+    LOG_DEBUG << raftState().str() << " onRequestAppendEntry";
+    
     MutexGuard guard(mutex_);
     std::shared_ptr<RequestAppendReply> reply = std::make_shared<RequestAppendReply>();
 
@@ -187,8 +189,10 @@ MessagePtr Raft::onRequestAppendEntry(std::shared_ptr<RequestAppendArgs> args)
                                  std::shared_ptr<RequestAppendArgs> append_args, 
                                  std::shared_ptr<RequestAppendReply> reply) 
 {
+    LOG_DEBUG << raftState().str() << " onRequestAppendReply, peer_id=" << peer_id <<  ", reply->term=" << reply->term();
+
     MutexGuard guard(mutex_);
-    if (!running_ || state_ != Leader || current_term_ != append_args->term()) {
+    if (!running_ || state_ != State::Leader || current_term_ != append_args->term()) {
         return;
     }
 
@@ -208,10 +212,10 @@ MessagePtr Raft::onRequestAppendEntry(std::shared_ptr<RequestAppendArgs> args)
     }
 }
 
-void Raft::heartbeat()
+void Raft::BroadcastHeartbeat()
 {
     MutexGuard guard(mutex_);
-    if (!running_ || state_ != Leader)
+    if (!running_ || state_ != State::Leader)
         return;
    
     for (uint32_t i = 0; i < peers_.size(); ++i)
@@ -241,16 +245,16 @@ void Raft::packEntrys(size_t next_index, std::shared_ptr<RequestAppendArgs> appe
 
 void Raft::becomeFollower(uint32_t term)
 {
-    if (state_ != Follower)
-        std::cout << "======================become Follower" << std::endl;
-    if (state_ == Leader)
+    if (state_ != State::Follower)
+        std::cout << "======================become State::Follower" << std::endl;
+    if (state_ == State::Leader)
         scheduler_->cancel(heartbeat_id_);
     else
         scheduler_->cancel(timeout_id_);
 
-    state_ = Follower;
+    state_ = State::Follower;
     current_term_ = term;
-    vote_for_ = -1;
+    // vote_for_ = -1;
     votes_ = 0;
     timeout_id_ = scheduler_->runAfter(getElectionTimeout(), 
                                        std::make_shared<Coroutine>(std::bind(&Raft::sendRequestVote, this)));
@@ -259,22 +263,21 @@ void Raft::becomeFollower(uint32_t term)
 
 void Raft::becomeCandidate()
 {
-    std::cout << "=====================become Candidate" << std::endl;
+    std::cout << "=====================become State::Candidate" << std::endl;
     ++current_term_;
-    state_ = Candidate;
+    state_ = State::Candidate;
     vote_for_ = me_;
     votes_ = 1;
 }
 
 void Raft::becomeLeader()
 {
-    std::cout << "=====================become Leader" << std::endl;
-    state_ = Leader;
+    std::cout << "=====================become State::Leader" << std::endl;
+    state_ = State::Leader;
     scheduler_->cancel(timeout_id_);
     resetLeaderState();
-    // heartbeat();
     heartbeat_id_ = scheduler_->runEvery(kHeartbeatInterval, 
-                                         std::make_shared<Coroutine>(std::bind(&Raft::heartbeat, this)));
+                                         std::make_shared<Coroutine>(std::bind(&Raft::BroadcastHeartbeat, this)));
 }
 
 void Raft::resetLeaderState() {
@@ -289,4 +292,11 @@ uint64_t Raft::getElectionTimeout()
     static std::default_random_engine engine(time(0));
     static std::uniform_int_distribution<uint64_t> dist(kTimeoutBase, kTimeoutTop);
     return dist(engine);
+}
+
+std::ostringstream Raft::raftState()
+{
+    std::ostringstream ss;
+    ss << "[me_=" << me_ << ",current_term_=" << current_term_ << ", vote_for_=" << vote_for_ << ", state_=" << (int)state_ << "]";
+    return ss;
 }
