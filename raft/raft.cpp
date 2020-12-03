@@ -112,6 +112,7 @@ void Raft::sendRequestVote()
 
 void Raft::onRequestVoteReply(std::shared_ptr<RequestVoteReply> reply)
 {
+    LOG_DEBUG << raftState().str() << " onRequestVoteReply, reply->term=" << reply->term() << ", granted=" << reply->vote_granted();
     MutexGuard guard(mutex_);
     if (!running_ || state_ != State::Candidate)
         return;
@@ -120,7 +121,7 @@ void Raft::onRequestVoteReply(std::shared_ptr<RequestVoteReply> reply)
         becomeFollower(reply->term());
     } else if (reply->term() == current_term_ && reply->vote_granted()) {
         votes_++;
-        if (votes_ > (peers_.size() + 1) / 2) {
+        if (votes_ > peers_.size() / 2) {
             becomeLeader();
         }
     }
@@ -297,6 +298,6 @@ uint64_t Raft::getElectionTimeout()
 std::ostringstream Raft::raftState()
 {
     std::ostringstream ss;
-    ss << "[me_=" << me_ << ",current_term_=" << current_term_ << ", vote_for_=" << vote_for_ << ", state_=" << (int)state_ << "]";
+    ss << "[me_=" << me_ << ", votes_=" << votes_ << ",current_term_=" << current_term_ << ", vote_for_=" << vote_for_ << ", state_=" << (int)state_ << "]";
     return ss;
 }
