@@ -298,6 +298,6 @@ uint64_t Raft::getElectionTimeout()
 std::ostringstream Raft::raftState()
 {
     std::ostringstream ss;
-    ss << "[me_=" << me_ << ", votes_=" << votes_ << ",current_term_=" << current_term_ << ", vote_for_=" << vote_for_ << ", state_=" << (int)state_ << "]";
+    ss << "[me_=" << me_ << ", votes_=" << votes_ << ", current_term_=" << current_term_ << ", vote_for_=" << vote_for_ << ", state_=" << (int)state_ << "]";
     return ss;
 }

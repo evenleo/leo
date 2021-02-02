@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+// protoc --cpp_out=./ ./args.proto 
+
+package args;
+
+message AddRequest {
+    required int32 a = 1;
+    required int32 b = 2;
+}
+
+message AddResponse {
+    required int32 result = 1;
+}

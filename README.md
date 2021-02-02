@@ -287,6 +287,7 @@ int main() {
 要想实现在协程中遇到耗时操作不阻塞当前IO线程，需要对一些系统函数进行hook。
 1. 可以用dlsym(3)来获取想要hook的函数的函数指针，先保存起来，如果想要用到原函数，可以通过保存的函数指针进行调用。
 2. 定义自己的同名函数，覆盖想要hook的函数。以sleep(3)为例。
+
 ``` c++
 unsigned int sleep(unsigned int seconds) {
 	leo::Processer* processer = leo::Processer::GetProcesserOfThisThread();
@@ -301,106 +302,86 @@ unsigned int sleep(unsigned int seconds) {
 	return 0;
 }
 ```
+
 我们自己定义的sleep不会阻塞线程，而是将当前协程切出去，让CPU执行其它协程，等时间到了再执行当前协程。这样就模拟了sleep的操作，同时不会阻塞当前线程。
 
 ### RPC实现
-#### 参数序列化及反序列化
+#### 参数定义
 rpc说简单点就是将参数传给服务端，服务端根据参数找到对应的函数执行，得出一个响应，再将响应传回给客户端。客户端的参数对象如何通过网络传到服务端呢？这就涉及到序列化和反序列化。
-leo不想使用第三方库的依赖，所以不选择用比较成熟的protobuf，二采用自定义序列化和反序列化的类Serializer，可序列化反序列化基本类型，具体运用如下：
-``` c++
-struct Student {
-    int age;
-    std::string name;
-    Student() {}
-    Student(int a, const std::string& n) 
-        : age(a), name(n) {}
-    
-    friend Serializer& operator>>(Serializer& in, Student& s)
-    {
-        in >> s.age >> s.name;
-        return in;
-    }
-    friend Serializer& operator<<(Serializer& out, Student& s)
-    {
-        out << s.age << s.name;
-        return out;
-    }
-};
+leo使用protobuf进行参数的序列化和反序列化，proto定义如下：
+``` 
+syntax = "proto2";
 
-int main(int argc, char** argv)
-{
-    Serializer sr;
-    /* 基本类型 */
-    int n = 24;
-    int v;
-    sr << n;  // 序列化
-    sr >> v;  // 反序列化
-    cout << v << endl;
+package args;
 
-    /* 自定义类型类型 */
-    Student src(23, "evenleo");
-    Student dest;
-    sr << src;
-    sr >> dest;
-    cout << dest.name << ", " << dest.age << endl;
+message AddRequest {
+    required int32 a = 1;
+    required int32 b = 2;
+}
 
-    return 0;
+message AddResponse {
+    required int32 result = 1;
 }
 ```
-上述测试成功实现基本类型的序列化反序列化的功能，
 
-RPC服务端
+#### RPC服务端
 ```c++
-std::string Strcat(std::string s, int n)
-{
-    return s + std::to_string(n);
+MessagePtr onAdd(std::shared_ptr<args::AddRequest> request) {
+	LOG_INFO << "server receive request, a=" << request->a() << ", b=" << request->b();
+	std::shared_ptr<args::AddResponse> response(new args::AddResponse);
+	response->set_result(request->a() + request->b());
+	return response;
 }
 
-struct Foo {
-    int add(int a, int b) {
-        return a + b;
-    }
-};
+int main(int argc, char** argv) {
+	int port = argc > 1 ? atoi(argv[1]) : 5000;
+	Logger::setLogLevel(LogLevel::INFO);
+	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+	Scheduler scheduler;
+	scheduler.startAsync();
+	IpAddress addr(port);
+	RpcServer server(addr, &scheduler);
+	server.registerHandler<args::AddRequest>(onAdd);
+	server.start();
 
-int main(int argc, char** argv)
-{
-    Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
-    RpcServer server(5000, 3);
-    server.regist("Strcat", Strcat);
-    Foo s;
-	server.regist("add", &Foo::add, &s);
-    server.run();
-    return 0;
+	getchar();
+
+	return 0;
 }
 ```
-RPC客户端
+
+#### RPC客户端
+
 ```c++
-void StrcatResult(string responese)
-{
-    Serializer s(responese.c_str(), responese.size());
-    response_t<string> res;
-    s >> res;
-    cout << "code=" << res.code() << ", message=" << res.message() << ", value=" << res.value() << endl;
-}
-
-void addResult(string responese)
-{
-    Serializer s(responese.c_str(), responese.size());
-    response_t<int> res;
-    s >> res;
-    cout << "code=" << res.code() << ", message=" << res.message() << ", value=" << res.value() << endl;
-}
-
 int main(int argc, char** argv)
 {
-    RpcClient client("127.0.0.1", 5000);
-    client.call<string>("Strcat", StrcatResult, "even", 24);
-    client.call<int>("add", addResult, 10, 21);
-    getchar();
+    if (argc < 2) {
+		printf("Usage: %s ip\n", argv[0]);
+		return 0;
+	}
+
+	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+
+	IpAddress server_addr(argv[1], 5000);
+	Scheduler scheduler;
+	scheduler.startAsync();
+	RpcClient client(server_addr, &scheduler);
+
+	std::shared_ptr<args::AddRequest> request(new args::AddRequest);
+	request->set_a(1);
+	request->set_b(2);
+	client.Call<args::AddResponse>(request, [](std::shared_ptr<args::AddResponse> response) {
+		LOG_INFO << "client receive response, result:" << response->result();
+	});
+
+	getchar();
+
     return 0;
 }
 ```
+
 某次rpc的过程如下：
+
 ```
 启动服务器                ---------------->     注册service::method
 
@@ -408,10 +389,9 @@ int main(int argc, char** argv)
 
 客户端接收响并解析结果     <----------------     服务端将响应发回给客户端
 ```
-返回结果如下：
+客户端返回结果如下：
 ```
-code=0, message=success, value=even24
-code=0, message=success, value=31
+client receive response, result:3
 ```
 
 ### 一些细节

@@ -1,32 +1,17 @@
 #include "rpc/RpcServer.h"
 #include "Log.h"
 #include "Scheduler.h"
-
-#include "echo.pb.h"
-
-
-// protoc --cpp_out=./ ./echo.proto 
+#include "args.pb.h"
 
 using namespace leo;
 using namespace leo::rpc;
 
-MessagePtr onEcho(std::shared_ptr<echo::EchoRequest> request) {
-	LOG_INFO << "server receive request, message:" << request->msg();
-	std::shared_ptr<echo::EchoResponse> response(new echo::EchoResponse);
-	response->set_msg(request->msg());
+MessagePtr onAdd(std::shared_ptr<args::AddRequest> request) {
+	LOG_INFO << "server receive request, a=" << request->a() << ", b=" << request->b();
+	std::shared_ptr<args::AddResponse> response(new args::AddResponse);
+	response->set_result(request->a() + request->b());
 	return response;
 }
-
-// int main(int argc, char** argv)
-// {
-//     Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
-//     RpcServer server(5000, 3);
-//     server.regist("Strcat", Strcat);
-//     Foo s;
-// 	server.regist("add", &Foo::add, &s);
-//     server.run();
-//     return 0;
-// }
 
 int main(int argc, char** argv) {
 	int port = argc > 1 ? atoi(argv[1]) : 5000;
@@ -36,11 +21,10 @@ int main(int argc, char** argv) {
 	scheduler.startAsync();
 	IpAddress addr(port);
 	RpcServer server(addr, &scheduler);
-
-	server.registerHandler<echo::EchoRequest>(onEcho);
-	// server.registerHandler<RequestAppendArgs>(onAppendEntry);
-
+	server.registerHandler<args::AddRequest>(onAdd);
 	server.start();
+
 	getchar();
+
 	return 0;
 }
