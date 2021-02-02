@@ -11,7 +11,7 @@ void test() {
 	LOG_DEBUG << "in Coroutine [" << Coroutine::GetCid() << "]";
 	Coroutine::SwapOut();
 	sum++;
-	LOG_DEBUG << "in Coroutine [" << Coroutine::GetCid() << "]";
+	LOG_DEBUG << "rein Coroutine [" << Coroutine::GetCid() << "]";
 	Coroutine::SwapOut();
 }
 

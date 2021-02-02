@@ -41,8 +41,8 @@ public:
 	typedef std::shared_ptr<RpcServer> ptr;
 	RpcServer(const IpAddress& listen_addr, Scheduler* scheduler)
 		:TcpServer(listen_addr, scheduler) {
-	setConnectionHandler(std::bind(&RpcServer::handleClient, this, std::placeholders::_1));
-}
+		setConnectionHandler(std::bind(&RpcServer::handleClient, this, std::placeholders::_1));
+	}
 
 	typedef std::map<const ::google::protobuf::Descriptor*, std::shared_ptr<Callback>> HandlerMap;
 
