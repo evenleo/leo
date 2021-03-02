@@ -41,8 +41,7 @@ EventPoller::EventPoller(Processer* processer)
 	}
 }	
 
-EventPoller::~EventPoller()
-{
+EventPoller::~EventPoller() {
 	LOG_INFO << "~EventPoller";
 }
 

@@ -149,19 +149,16 @@ Socket::ptr Socket::CreateTcp() {
 	return std::make_shared<Socket>(fd);
 }
 
-int Socket::GetSocketError(int sockfd)
-{
+int Socket::GetSocketError(int sockfd) {
   int optval;
   socklen_t optlen = static_cast<socklen_t>(sizeof(optval));
 
-  if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) < 0)
-  {
+  if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) < 0) {
     return errno;	//Solaris
-  }
-  else
-  {
+  } else {
 	errno = optval;
     return optval;	//Berkeley
   }
 }
+
 }

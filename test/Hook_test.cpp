@@ -14,6 +14,7 @@ int main() {
 						sleep(5);
 						LOG_DEBUG << "after sleep";
 					});
-	scheduler->start();
+	scheduler->startAsync();
+	sleep(10);
 	return 0;
 }

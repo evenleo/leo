@@ -24,7 +24,6 @@ public:
 	virtual ~Poller() {};
 	virtual void updateEvent(int fd, int events, Coroutine::ptr coroutine) = 0;
 	virtual void removeEvent(int fd) = 0;
-
 	virtual void poll(int timeout) = 0;
 
 protected:
@@ -35,13 +34,12 @@ class EventPoller : public Poller {
 public:
 	EventPoller(Processer* scheduler);
 	~EventPoller();
-
 	void updateEvent(int fd, int events, Coroutine::ptr coroutine) override;
 	void removeEvent(int fd) override;
-
 	void poll(int timeout) override;
 	bool isPolling() { return is_polling_; }
 	void setPolling(bool polling) { is_polling_ = polling; }
+
 private:
 	bool is_polling_;
 	std::map<int, epoll_event> events_;

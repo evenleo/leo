@@ -21,14 +21,16 @@ class RpcClient : public Noncopyable {
 public:
 	typedef std::shared_ptr<RpcClient> ptr;
 	RpcClient(const IpAddress& server_addr, Scheduler* scheduler)
-		:client_(server_addr),
-   		scheduler_(scheduler) {
-		}
+		: client_(server_addr),
+   		  scheduler_(scheduler) {
+	
+	}
 
 	template <typename T>
 	inline void Call(MessagePtr request, const typename TypeTraits<T>::ResponseHandler& handler) {
 		scheduler_->addTask(std::bind(&RpcClient::handleConnection<T>, this, request, handler));
 	}
+
 private:
 	template <typename T>
 	void handleConnection(MessagePtr request, typename TypeTraits<T>::ResponseHandler handler) {
@@ -55,6 +57,7 @@ private:
 		}					
 	}
 
+private:
 	TcpClient client_;
 	Scheduler* scheduler_;
 };

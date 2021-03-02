@@ -9,24 +9,18 @@ namespace leo {
 class Thread : public Noncopyable {
 public:
 	typedef std::function<void ()> Func;
-
 	Thread(Func cb, const std::string& name = "");
-
 	~Thread();
-
 	void start();
-
 	void join();
-
 	bool isStarted() const { return started_; }
-
 	const std::string& getName() const { return name_; }
-
 	static pid_t CurrentThreadTid();
 
 private:
-	static void* threadFuncInternal(void* arg);
+	static void* threadFuncInternal(void* arg);  
 
+private:
 	bool started_;       // 开始
 	bool joined_;        // join标志
 	pthread_t tid_;      // 线程id

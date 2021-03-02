@@ -48,16 +48,14 @@ int64_t TimerManager::addTimer(Timestamp when, Coroutine::ptr coroutine, Process
 }
 
 void TimerManager::cancel(int64_t timer_id) {
-	// {
-		MutexGuard lock(mutex_);
-		auto it = sequence_2_timestamp_.find(timer_id);
-		if (it != sequence_2_timestamp_.end()) {
-			timer_map_.erase(it->second);
-			sequence_2_timestamp_.erase(it);
-		} else {
-			cancel_set_.insert(timer_id);
-		}
-	// }
+	MutexGuard lock(mutex_);
+	auto it = sequence_2_timestamp_.find(timer_id);
+	if (it != sequence_2_timestamp_.end()) {
+		timer_map_.erase(it->second);
+		sequence_2_timestamp_.erase(it);
+	} else {
+		cancel_set_.insert(timer_id);
+	}
 }
 
 void TimerManager::resetTimerFd(Timestamp when) {

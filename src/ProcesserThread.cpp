@@ -11,7 +11,9 @@ ProcessThread::ProcessThread(Scheduler* scheduler)
 	  scheduler_(scheduler),
 	  processer_(nullptr),
 	  mutex_(),
-	  cond_(mutex_) {}
+	  cond_(mutex_) {
+		
+}
 
 Processer* ProcessThread::startProcess() {
 	thread_.start();

@@ -19,7 +19,6 @@ public:
 
 	ProcessThread(Scheduler* scheduler);
 	~ProcessThread() {}
-
 	Processer* startProcess();
 	void join();
 

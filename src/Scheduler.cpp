@@ -59,6 +59,7 @@ void Scheduler::start() {
 							timer_manager_->dealWithExpiredTimer();
 						}
 					}, "timer");
+					
 	{
 		MutexGuard lock(mutex_);
 		running_ = true;
@@ -71,6 +72,7 @@ void Scheduler::startAsync() {
 	if (running_) {
 		return;
 	}
+
 	thread_.start();
 	{
 		MutexGuard lock(mutex_);
