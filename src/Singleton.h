@@ -11,7 +11,7 @@ namespace leo {
 template <typename T>
 class Singleton {
 public:
-	static T* instance() {
+	static T* getInstance() {
 		static T instance_;
 		return &instance_;
 	}

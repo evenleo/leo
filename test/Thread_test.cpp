@@ -15,7 +15,7 @@ void func() {
 }
 
 int main() {
-	Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 
 	Thread t1(func, "leo_thread");
 	Thread t2(func);

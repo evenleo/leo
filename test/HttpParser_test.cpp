@@ -2,7 +2,7 @@
 #include "Log.h"
 
 int main() {
-	leo::Singleton<leo::Logger>::instance()->addAppender("console", leo::LogAppender::ptr(new leo::ConsoleAppender()));
+	leo::Singleton<leo::Logger>::getInstance()->addAppender("console", leo::LogAppender::ptr(new leo::ConsoleAppender()));
 
 	leo::http::HttpParser parser;
 	leo::http::HttpRequest request;

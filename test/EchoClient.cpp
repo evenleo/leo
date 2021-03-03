@@ -63,7 +63,7 @@ void EchoClient::handleConnection()
 
 int main(int argc, char** argv)
 {
-    Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+    Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
     if (argc < 2) 
         exit(0);
     IpAddress server_addr(argv[1], atoi(argv[2]));

@@ -16,7 +16,7 @@ MessagePtr onAdd(std::shared_ptr<args::AddRequest> request) {
 int main(int argc, char** argv) {
 	int port = argc > 1 ? atoi(argv[1]) : 5000;
 	Logger::setLogLevel(LogLevel::INFO);
-	Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 	Scheduler scheduler;
 	scheduler.startAsync();
 	IpAddress addr(port);

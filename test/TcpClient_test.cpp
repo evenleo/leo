@@ -140,7 +140,7 @@ void Session::handleConnection() {
 }
 
 int main(int argc, char* argv[]) {
-	Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 	if (argc < 3) {
 		LOG_ERROR << "please input session_count!";
 	}

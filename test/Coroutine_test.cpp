@@ -16,7 +16,7 @@ void test() {
 }
 
 int main() {
-	Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 
 	const int sz = 2;
 	std::vector<Coroutine::ptr> coroutines;

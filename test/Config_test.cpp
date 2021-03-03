@@ -5,10 +5,10 @@ using namespace leo;
 
 int main(int argc, char** argv)
 {
-    Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
-    Singleton<Config>::instance()->setPath("../conf/config.conf");
+    Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+    Singleton<Config>::getInstance()->setPath("../conf/config.conf");
     std::string ip;
-    ip = Singleton<Config>::instance()->getString("reactor", "ip", ip);
+    ip = Singleton<Config>::getInstance()->getString("reactor", "ip", ip);
     LOG_INFO << "ip=" << ip;
     return 0;
 }
