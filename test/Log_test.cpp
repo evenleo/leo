@@ -8,10 +8,10 @@ using namespace std;
 using namespace leo;
 
 int main(int , char* argv[]) {
-	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+	Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 	std::shared_ptr<AsyncFileAppender> file_appender = std::make_shared<AsyncFileAppender>(argv[0]);	
 	file_appender->start();
-	Singleton<Logger>::getInstance()->addAppender("file", file_appender);
+	Singleton<Logger>::instance()->addAppender("file", file_appender);
 
 	for (int i = 0; i < 100; i++) {
 		LOG_DEBUG << "debug";

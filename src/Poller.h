@@ -25,6 +25,8 @@ public:
 	virtual void updateEvent(int fd, int events, Coroutine::ptr coroutine) = 0;
 	virtual void removeEvent(int fd) = 0;
 	virtual void poll(int timeout) = 0;
+	virtual bool isPolling() = 0;
+	virtual void setPolling(bool polling) = 0;
 
 protected:
 	std::string eventToString(int event);
@@ -37,8 +39,8 @@ public:
 	void updateEvent(int fd, int events, Coroutine::ptr coroutine) override;
 	void removeEvent(int fd) override;
 	void poll(int timeout) override;
-	bool isPolling() { return is_polling_; }
-	void setPolling(bool polling) { is_polling_ = polling; }
+	bool isPolling() override { return is_polling_; }
+	void setPolling(bool polling) override { is_polling_ = polling; }
 
 private:
 	bool is_polling_;

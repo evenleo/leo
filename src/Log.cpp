@@ -32,7 +32,7 @@ LogWrapper::LogWrapper(LogEvent::ptr event)
 
 LogWrapper::~LogWrapper() 
 {
-	Singleton<Logger>::getInstance()->log(event_);
+	Singleton<Logger>::instance()->log(event_);
 	if (event_->logLevel_ == LogLevel::FATAL) {
 		abort();
 	}

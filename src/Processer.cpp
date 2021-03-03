@@ -20,13 +20,13 @@ static int createEventFd() {
 }
 
 Processer::Processer(Scheduler* scheduler)
-	: mutex_(), 
-	  scheduler_(scheduler),
-	  poller_(this),
-	  event_fd_(createEventFd()) {
-
-	//当有新事件到来时唤醒poll协程
-	addTask([&](){
+  : mutex_(), 
+	scheduler_(scheduler),
+	poller_(this),
+	event_fd_(createEventFd()) 
+{
+	// 当有新事件到来时唤醒poll的协程
+	addTask([&]() {
 				while (!stop_) {
 					if (comsumeWakeEvent() < 0) {
 						LOG_ERROR << "read eventfd:" << strerror(errno);
@@ -36,30 +36,30 @@ Processer::Processer(Scheduler* scheduler)
 			}, "Wake");
 }
 
-
 void Processer::run() {
 	if (GetProcesserOfThisThread() != nullptr) {
 		LOG_FATAL << "run two processer in one thread";
 	} else {
 		GetProcesserOfThisThread() = this;
 	}
-	leo::setHookEnabled(true);
+	setHookEnabled(true);
 	Coroutine::ptr cur;
 
-	//没有可以执行协程时调用poll协程
-	Coroutine::ptr poll_coroutine = std::make_shared<Coroutine>(std::bind(&Poller::poll, &poller_, kPollTimeMs), "Poll");
+	// 没有可以执行协程时调用poll协程
+	Coroutine::ptr poll_coroutine = 
+		std::make_shared<Coroutine>(std::bind(&Poller::poll, &poller_, kPollTimeMs), "Poll");
 
 	while (!stop_) {
 		{
 			MutexGuard guard(mutex_);
-			//没有协程时执行poll协程
+			// 没有协程时执行poll协程
 			if (coroutines_.empty()) {
+				LOG_INFO << "epoll coroutines ...";
 				cur = poll_coroutine;
 				poller_.setPolling(true);
 			} else {
-				for (auto it = coroutines_.begin();
-						it != coroutines_.end();
-							++it) {
+				for (auto it = coroutines_.begin(); it != coroutines_.end(); ++it) {
+					LOG_INFO << "get coroutines ***";
 					cur = *it;
 					coroutines_.erase(it);
 					break;
@@ -79,6 +79,7 @@ void Processer::addTask(Coroutine::ptr coroutine) {
 	load_++;
 
 	if (poller_.isPolling()) {
+		LOG_INFO << "wakeupPollCoroutine ...";
 		wakeupPollCoroutine();
 	}
 }

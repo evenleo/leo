@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+	Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 
 	IpAddress server_addr(argv[1], 5000);
 	Scheduler scheduler;

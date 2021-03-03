@@ -17,7 +17,7 @@ void handleClient(TcpConnection::ptr conn){
 }
 
 int main(int argc, char* argv[]) {
-	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+	Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 	if (argc < 2) {
 		LOG_ERROR << "please input thread num!";
 	}

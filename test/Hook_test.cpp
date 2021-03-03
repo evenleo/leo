@@ -6,9 +6,9 @@
 using namespace leo;
 
 int main() {
-	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+	Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 
-	auto scheduler = leo::Singleton<Scheduler>::getInstance();
+	auto scheduler = leo::Singleton<Scheduler>::instance();
 	scheduler->addTask([](){
 						LOG_DEBUG << "before sleep";
 						sleep(5);

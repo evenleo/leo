@@ -27,10 +27,10 @@ TcpConnection::ptr TcpClient::connect(uint64_t timeout_ms) {
 		if (ret == 0) {
 			return std::make_shared<TcpConnection>(sock, server_addr_);
 		} else if (errno == EAGAIN 
-					|| errno == EADDRINUSE 
-					|| errno == EADDRNOTAVAIL 
-					|| errno == ECONNREFUSED 
-					|| errno == ENETUNREACH) {
+				   || errno == EADDRINUSE 
+				   || errno == EADDRNOTAVAIL 
+				   || errno == ECONNREFUSED 
+				   || errno == ENETUNREACH) {
 			usleep(retry_delay_us);
 			retry_delay_us = std::min(retry_delay_us * 2, kMaxRetryDelayUs);
 			if (timeout_ms != (uint64_t)-1 

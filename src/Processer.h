@@ -4,9 +4,9 @@
 #include "Coroutine.h"
 #include "Noncopyable.h"
 #include "Poller.h"
+#include "Mutex.h"
 
 #include <list>
-#include "Mutex.h"
 
 namespace leo {
 

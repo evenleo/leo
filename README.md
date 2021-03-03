@@ -27,7 +27,7 @@ void handleClient(TcpConnection::ptr conn){
 }
 
 int main(int args, char* argv[]) {
-	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+	Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 	IpAddress listen_addr(5000);
 	int threads_num = 3;
 	Scheduler scheduler(threads_num);
@@ -108,10 +108,10 @@ port = 7779
 ```c++
 int main(int argc, char** argv)
 {
-    Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
-    Singleton<Config>::getInstance()->setPath("../conf/config.conf");
+    Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+    Singleton<Config>::instance()->setPath("../conf/config.conf");
     std::string ip;
-    ip = Singleton<Config>::getInstance()->getString("reactor", "ip", ip);
+    ip = Singleton<Config>::instance()->getString("reactor", "ip", ip);
     LOG_INFO << "ip=" << ip;
     return 0;
 }
@@ -336,7 +336,7 @@ MessagePtr onAdd(std::shared_ptr<args::AddRequest> request) {
 int main(int argc, char** argv) {
 	int port = argc > 1 ? atoi(argv[1]) : 5000;
 	Logger::setLogLevel(LogLevel::INFO);
-	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+	Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 	Scheduler scheduler;
 	scheduler.startAsync();
 	IpAddress addr(port);
@@ -360,7 +360,7 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+	Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 
 	IpAddress server_addr(argv[1], 5000);
 	Scheduler scheduler;

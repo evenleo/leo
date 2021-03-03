@@ -19,18 +19,17 @@ IgnoreSigpipe signalObj;
 namespace leo {
 
 Scheduler::Scheduler(size_t thread_number)
-	: thread_num_(thread_number),
-	  main_processer_(this),
-	  timer_manager_(new TimerManager()),
-	  thread_(std::bind(&Scheduler::start, this)),
-	  cond_(mutex_),
-	  quit_cond_(mutex_),
-	  join_thread_(std::bind(&Scheduler::joinThread, this)) 
+  : thread_num_(thread_number),
+	main_processer_(this),
+	timer_manager_(new TimerManager()),
+	thread_(std::bind(&Scheduler::start, this)),
+	cond_(mutex_),
+	quit_cond_(mutex_),
+	join_thread_(std::bind(&Scheduler::joinThread, this)) 
 {
 	assert(thread_number > 0);
 	assert(Processer::GetProcesserOfThisThread() == nullptr);
 
-	//main_processer
 	work_processers_.push_back(&main_processer_);
 }
 
@@ -40,19 +39,16 @@ void Scheduler::start() {
 	if (running_) {
 		return;
 	}
-	//work_thread
+	
 	for (size_t i = 0; i < thread_num_ - 1; ++i) {
 		threads_.push_back(std::make_shared<ProcessThread>(this));
 	}
 
-	//work_processer
 	for (const ProcessThread::ptr& thread : threads_) {
 		work_processers_.push_back(thread->startProcess());
 	}
 
-	//timer_thread
 	timer_thread_ = std::make_shared<ProcessThread>(this);
-	//timer_processer
 	timer_processer_ = timer_thread_->startProcess();
 	timer_processer_->addTask([&]() {
 						while (true) {
@@ -89,20 +85,15 @@ void Scheduler::wait() {
 void Scheduler::stop() {
 	if (!running_) 
 		return;
-	running_ = false;
-	
-	//main_processer
-	main_processer_.stop();
 
-	//work_processer
+	running_ = false;
+	main_processer_.stop();
 	for (auto processer : work_processers_) {
 		processer->stop();
 	}
-
-	//timer_processer
 	timer_processer_->stop();
 
-	//如果stop在scheduler线程中调用,在新建的线程中join
+	// 如果stop在scheduler线程中调用,在新建的线程中join
 	if (leo::isHookEnabled()) {
 		join_thread_.start();
 	} else {
@@ -124,7 +115,7 @@ void Scheduler::joinThread() {
 
 void Scheduler::addTask(Coroutine::Func task, const std::string& name) {
 	Processer* picked = pickOneProcesser();	//thread-save
-
+	LOG_INFO << "add task name=" << name;
 	assert(picked != nullptr);
 	picked->addTask(task, name);	//thread-save
 }
@@ -132,11 +123,9 @@ void Scheduler::addTask(Coroutine::Func task, const std::string& name) {
 Processer* Scheduler::pickOneProcesser() {
 	MutexGuard lock(mutex_);
 	static size_t index = 0;
-
 	assert(index < work_processers_.size());
 	Processer* picked = work_processers_[index++];
 	index = index % work_processers_.size();
-
 	return picked;
 }
 

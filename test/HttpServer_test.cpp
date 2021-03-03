@@ -9,7 +9,7 @@ using namespace leo;
 using namespace leo::http;
 
 int main() {
-	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+	Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 
 	Scheduler scheduler;
 	scheduler.startAsync();

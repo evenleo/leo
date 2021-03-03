@@ -38,7 +38,6 @@ private:
 	void joinThread();
 	void start();
 
-
 private:
 	bool running_ = false;
 	size_t thread_num_;
@@ -50,15 +49,12 @@ private:
 	Processer* timer_processer_;
 	ProcessThread::ptr timer_thread_;
 	std::unique_ptr<TimerManager> timer_manager_;
-
 	Thread thread_;
-
 	Mutex mutex_;
 	Condition cond_;
 	Condition quit_cond_;
 
-	//for stop
-	Thread join_thread_;
+	Thread join_thread_;  //for stop
 };
 
 }

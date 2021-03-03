@@ -85,7 +85,7 @@ void wait_seconds_test() {
 }
 
 int main() {
-	Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+	Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 	LOG_DEBUG << "test notify ..........";
 	notify_test();
 	LOG_DEBUG << "test notifyAll ..........";

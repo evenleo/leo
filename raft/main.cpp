@@ -13,7 +13,7 @@ struct Address
 int main(int argc, char** argv) 
 {
     // std::cout << isLittleEndian() << std::endl;
-    Singleton<Logger>::getInstance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
+    Singleton<Logger>::instance()->addAppender("console", LogAppender::ptr(new ConsoleAppender()));
 
     int port = argc > 0 ? atoi(argv[1]) : 5001;
     int me = port == 5001 ? 0 : (port == 5002 ? 1 : 2);

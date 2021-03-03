@@ -33,7 +33,7 @@ std::string Poller::eventToString(int event) {
 
 EventPoller::EventPoller(Processer* processer)
 	: is_polling_(false), processer_(processer) {
-	LOG_INFO << "EventPoller";
+	// LOG_INFO << "EventPoller";
 	epfd_ = epoll_create1(0);  //flag=0 等价于epll_craete
 	if (epfd_ < 0) {
 		LOG_ERROR << "Failed to create epoll";
@@ -42,7 +42,7 @@ EventPoller::EventPoller(Processer* processer)
 }	
 
 EventPoller::~EventPoller() {
-	LOG_INFO << "~EventPoller";
+	// LOG_INFO << "~EventPoller";
 }
 
 void EventPoller::updateEvent(int fd, int events, Coroutine::ptr coroutine) {
@@ -87,6 +87,8 @@ void EventPoller::poll(int timeout) {
 			assert(coroutine != nullptr);
 
 			removeEvent(active_fd);
+
+			LOG_INFO << "epoll_wait active_fd=" << active_fd;
 
 			//todo:有四类事件：1.可读，2.可写，3.关闭，4.错误 需要处理
 			coroutine->setState(CoroutineState::RUNNABLE);

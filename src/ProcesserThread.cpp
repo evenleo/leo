@@ -7,12 +7,12 @@
 namespace leo {
 
 ProcessThread::ProcessThread(Scheduler* scheduler) 
-	: thread_(std::bind(&ProcessThread::threadFunc, this)),
-	  scheduler_(scheduler),
-	  processer_(nullptr),
-	  mutex_(),
-	  cond_(mutex_) {
-		
+  : thread_(std::bind(&ProcessThread::threadFunc, this)),
+	scheduler_(scheduler),
+	processer_(nullptr),
+	mutex_(),
+	cond_(mutex_) 
+{	
 }
 
 Processer* ProcessThread::startProcess() {
@@ -32,13 +32,11 @@ void ProcessThread::join() {
 
 void ProcessThread::threadFunc() {
 	Processer processer(scheduler_);  // 局部变量不用担心生命周期
-
 	{
 		MutexGuard guard(mutex_);
 		processer_ = &processer;
 		cond_.notify();
 	}
-
 	processer.run();
 }
 
