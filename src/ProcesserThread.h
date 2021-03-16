@@ -18,12 +18,17 @@ public:
 	typedef std::shared_ptr<ProcessThread> ptr;
 
 	ProcessThread(Scheduler* scheduler);
+
 	~ProcessThread() {}
+
 	Processer* startProcess();
+
 	void join();
 
 private:
 	void threadFunc();
+
+private:
 	Thread thread_;	
 	Scheduler* scheduler_;
 	Processer* processer_;

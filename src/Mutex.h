@@ -15,6 +15,7 @@ public:
 
 	void lock() { pthread_mutex_lock(&mutex_); }
 	void unlock() { pthread_mutex_unlock(&mutex_); }
+	
 private:
 	pthread_mutex_t* getMutex() { return &mutex_; }
 	pthread_mutex_t mutex_;
@@ -24,6 +25,7 @@ class MutexGuard {
 public:
 	MutexGuard(Mutex& mutex) : mutex_(mutex) { mutex_.lock(); }
 	~MutexGuard() { mutex_.unlock(); }
+
 private:
 	Mutex& mutex_;
 };

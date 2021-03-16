@@ -21,14 +21,23 @@ public:
 	typedef std::shared_ptr<Scheduler> ptr;
 
 	Scheduler(size_t thread_number = 1);
+
 	~Scheduler();
+
 	void startAsync();
+
 	void wait();
+
 	void stop();
+
 	void addTask(Coroutine::Func task, const std::string& name = "");
+
 	int64_t runAt(Timestamp when, Coroutine::ptr coroutine);
+
 	int64_t runAfter(uint64_t micro_delay, Coroutine::ptr coroutine);
+
 	int64_t runEvery(uint64_t micro_interval, Coroutine::ptr coroutine);
+	
 	void cancel(int64_t timer_id);
 
 protected:

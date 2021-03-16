@@ -194,7 +194,7 @@ private:
 			read_index_ = kCheapPrepend;
 			write_index_ = read_index_ + readable;
 			assert(readable == readableBytes());
-    }
+		}
   }
 
 	std::vector<char> buffer_;

@@ -19,13 +19,21 @@ public:
 	virtual ~Processer() {}
 
 	virtual void run();
+
 	void stop();
+
 	bool stoped() { return stop_; }
+
 	size_t getLoad() { return load_; }
+
 	Scheduler* getScheduler() { return scheduler_; }
+
 	void addTask(Coroutine::ptr coroutine);
+
 	void addTask(Coroutine::Func func, std::string name = "");
+
 	void updateEvent(int fd, int events, Coroutine::ptr coroutine = nullptr);
+	
 	void removeEvent(int fd);
 
 	static Processer*& GetProcesserOfThisThread();  // 指针的引用，是左值，可以赋值
