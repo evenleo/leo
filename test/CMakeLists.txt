@@ -19,9 +19,6 @@ target_link_libraries(LogFile_test leo)
 add_executable(Condition_test Condition_test.cpp)
 target_link_libraries(Condition_test leo) 
 
-add_executable(CoroutineCondition_test CoroutineCondition_test.cpp)
-target_link_libraries(CoroutineCondition_test leo) 
-
 add_executable(Hook_test Hook_test.cpp)
 target_link_libraries(Hook_test leo) 
 

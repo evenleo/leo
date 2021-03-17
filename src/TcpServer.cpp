@@ -20,6 +20,7 @@ TcpServer::TcpServer(const IpAddress& listen_addr, Scheduler* scheduler)
 
 void TcpServer::start() {
 	listen_socket_->listen();
+	LOG_ERROR << "start ....................";
 	scheduler_->addTask(std::bind(&TcpServer::startAccept, this), "Accept");
 }
 
@@ -27,6 +28,7 @@ void TcpServer::startAccept() {
 	while (true) {
 		IpAddress peer_addr;
 		int connfd = listen_socket_->accept(peer_addr);
+		LOG_ERROR << "**********************startAccept*********************** name = " << Coroutine::GetCurrentCoroutine()->name();
 
 		Socket::ptr socket = std::make_shared<Socket>(connfd);
 		socket->SetNonBlockAndCloseOnExec();

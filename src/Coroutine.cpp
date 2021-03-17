@@ -12,6 +12,7 @@ namespace leo {
 
 static std::atomic<uint64_t> t_coroutine_id {0};
 
+// 创建子协程
 Coroutine::Coroutine(Func cb, const std::string& name, uint32_t stack_size)
 	: c_id_(++t_coroutine_id), 
 	  name_(name + "-" + std::to_string(c_id_)),
@@ -36,6 +37,7 @@ Coroutine::Coroutine(Func cb, const std::string& name, uint32_t stack_size)
 	makecontext(&context_, &Coroutine::RunInCoroutine, 0);
 }
 
+// 主协程
 Coroutine::Coroutine()
 	: c_id_(++t_coroutine_id),
 	  name_("Main-" + std::to_string(c_id_)),
@@ -58,7 +60,6 @@ Coroutine::~Coroutine() {
 // 挂起当前正在执行的协程，切换到主协程执行，必须在非主协程调用
 void Coroutine::SwapOut() {
 	assert(GetCurrentCoroutine() != nullptr);
-
 	if (GetCurrentCoroutine() == GetMainCoroutine()) {
 		return;
 	}
@@ -74,7 +75,7 @@ void Coroutine::SwapOut() {
 
 // 挂起主协程，执行当前协程，只能在主协程调用
 void Coroutine::swapIn() {
-	if (state_ == CoroutineState::TERMINATED) {
+	if (state_ == CoroutineState::TERM) {
 		return;
 	}
 	Coroutine::ptr old_coroutine = GetMainCoroutine();
@@ -94,7 +95,7 @@ void Coroutine::RunInCoroutine() {
 	GetCurrentCoroutine()->cb_();
 
 	// 重新返回主协程
-	GetCurrentCoroutine()->setState(CoroutineState::TERMINATED);
+	GetCurrentCoroutine()->setState(CoroutineState::TERM);
 	Coroutine::SwapOut();
 }
 
@@ -107,20 +108,6 @@ Coroutine::ptr& Coroutine::GetCurrentCoroutine() {
 Coroutine::ptr Coroutine::GetMainCoroutine() {
 	static thread_local Coroutine::ptr t_main_coroutine = Coroutine::ptr(new Coroutine());
 	return t_main_coroutine;
-}
-
-	
-void CoroutineCondition::wait() {
-	//注意Process.cpp中我的策略是每执行一个Coroutine就将其从队列中移除
-	//Coroutine队列中没有队列时才执行Poll协程
-	assert(Coroutine::GetCurrentCoroutine());
-	processer_ = Processer::GetProcesserOfThisThread();
-	coroutine_ = Coroutine::GetCurrentCoroutine();
-	Coroutine::SwapOut();			
-}
-
-void CoroutineCondition::notify() {
-	processer_->addTask(coroutine_);
 }
 
 }

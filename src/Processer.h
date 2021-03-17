@@ -39,7 +39,9 @@ public:
 	static Processer*& GetProcesserOfThisThread();  // 指针的引用，是左值，可以赋值
 
 private:
+	// 唤醒poll协程
 	void wakeupPollCoroutine();
+	// 消费唤醒事件
 	ssize_t comsumeWakeEvent();
 
 	bool stop_ = false;

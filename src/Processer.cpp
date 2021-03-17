@@ -9,7 +9,7 @@
 
 namespace leo {
 
-const int kPollTimeMs = 1000;
+const int kPollTimeMs = 100000;
 
 static int createEventFd() {
 	int event_fd = ::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
@@ -54,20 +54,21 @@ void Processer::run() {
 			MutexGuard guard(mutex_);
 			// 没有协程时执行poll协程
 			if (coroutines_.empty()) {
-				LOG_INFO << "epoll coroutines ...";
+				// LOG_INFO << "epoll coroutines ...";
 				cur = poll_coroutine;
 				poller_.setPolling(true);
 			} else {
 				for (auto it = coroutines_.begin(); it != coroutines_.end(); ++it) {
-					LOG_INFO << "get coroutines ***";
 					cur = *it;
+					LOG_ERROR << "get coroutines ***" << cur->name();
+
 					coroutines_.erase(it);
 					break;
 				}
 			}
 		}
 		cur->swapIn();
-		if (cur->getState() == CoroutineState::TERMINATED) {
+		if (cur->getState() == CoroutineState::TERM) {
 			load_--;
 		}
 	}
@@ -75,6 +76,7 @@ void Processer::run() {
 
 void Processer::addTask(Coroutine::ptr coroutine) {
 	MutexGuard guard(mutex_);
+	LOG_ERROR << "addTask name=" << coroutine->name();
 	coroutines_.push_back(coroutine);
 	load_++;
 
@@ -105,7 +107,7 @@ void Processer::stop() {
 
 void Processer::wakeupPollCoroutine() {
 	uint64_t buffer = 1;
-	ssize_t n = ::write(event_fd_, &buffer, sizeof(buffer));
+	ssize_t n = write(event_fd_, &buffer, sizeof(buffer));
 	if (n != sizeof(buffer)) {
 		LOG_ERROR << "wakeupPollCoroutine() size of the supplied buffer is not 8 bytes";
 	}
@@ -113,7 +115,7 @@ void Processer::wakeupPollCoroutine() {
 
 ssize_t Processer::comsumeWakeEvent() {
 	uint64_t buffer = 1;
-	ssize_t n = ::read(event_fd_, &buffer, sizeof(buffer));
+	ssize_t n = read(event_fd_, &buffer, sizeof(buffer));
 	if (n != sizeof(buffer)) {
 		LOG_ERROR << "comsumeWakeEvent() size of the data is not 8 bytes";
 	}

@@ -54,6 +54,7 @@ void EchoClient::handleConnection()
         std::string str(buffer->peek(), buffer->readableBytes());
         std::cout << "send: " << str << std::endl;
         conn->write(buffer);
+        break;
     }
     conn->shutdown();
     conn->readUntilZero();

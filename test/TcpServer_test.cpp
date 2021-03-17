@@ -11,6 +11,7 @@ void handleClient(TcpConnection::ptr conn){
 	conn->setTcpNoDelay(true);
 	Buffer::ptr buffer = std::make_shared<Buffer>();
 	while (conn->read(buffer) > 0) {
+		LOG_ERROR << "recv=" << buffer;
 		conn->write(buffer);
 	}
 	conn->close();
@@ -21,6 +22,7 @@ int main(int argc, char* argv[]) {
 	if (argc < 2) {
 		LOG_ERROR << "please input thread num!";
 	}
+	Singleton<Logger>::getInstance()->setLogLevel(LogLevel::ERROR);
 	IpAddress listen_addr(5000);
 	int threads_num = atoi(argv[1]);
 	Scheduler scheduler(threads_num);

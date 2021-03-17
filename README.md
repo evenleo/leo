@@ -210,7 +210,7 @@ void Processer::run() {
 			}
 		}
 		cur->swapIn();
-		if (cur->getState() == CoroutineState::TERMINATED) {
+		if (cur->getState() == CoroutineState::TERM) {
 			load_--;
 		}
 	}

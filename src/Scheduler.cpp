@@ -115,7 +115,6 @@ void Scheduler::joinThread() {
 
 void Scheduler::addTask(Coroutine::Func task, const std::string& name) {
 	Processer* picked = pickOneProcesser();	//thread-save
-	LOG_INFO << "add task name=" << name;
 	assert(picked != nullptr);
 	picked->addTask(task, name);	//thread-save
 }

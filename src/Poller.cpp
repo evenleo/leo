@@ -92,6 +92,7 @@ void EventPoller::poll(int timeout) {
 
 			//todo:有四类事件：1.可读，2.可写，3.关闭，4.错误 需要处理
 			coroutine->setState(CoroutineState::RUNNABLE);
+			LOG_ERROR << "epoll name=" << coroutine->name();
 			processer_->addTask(coroutine);
 		}
 		Coroutine::SwapOut();
