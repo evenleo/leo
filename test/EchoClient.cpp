@@ -18,7 +18,7 @@ public:
     void start()
     {
         scheduler_->addTask(std::bind(&EchoClient::handleConnection, this));
-        scheduler_->runAfter(3 * Timestamp::kMicrosecondsPerSecond,
+        scheduler_->runAfter(3 * kMicrosecondsPerSecond,
             std::make_shared<Coroutine>([&]() {
                 quit_.store(true);
                 LOG_INFO << "timeout";

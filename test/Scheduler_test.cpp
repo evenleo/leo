@@ -11,7 +11,7 @@ void foo() {
 	leo::Processer* processer = leo::Processer::GetProcesserOfThisThread();
 	leo::Scheduler* scheduler = processer->getScheduler();
 	assert(scheduler != nullptr);
-	scheduler->runAt(leo::Timestamp::now() + 1 * leo::Timestamp::kMicrosecondsPerSecond, leo::Coroutine::GetCurrentCoroutine());
+	scheduler->runAt(leo::Timer::getCurrentMs() + 1 * leo::kMicrosecondsPerSecond, leo::Coroutine::GetCurrentCoroutine());
 	leo::Coroutine::SwapOut();
 	std::cout << "leave foo 00000000000000000000000000000" << std::endl;
 }

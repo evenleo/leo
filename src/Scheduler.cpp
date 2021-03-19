@@ -52,7 +52,7 @@ void Scheduler::start() {
 	timer_processer_ = timer_thread_->startProcess();
 	timer_processer_->addTask([&]() {
 						while (true) {
-							timer_manager_->dealWithExpiredTimer();
+							timer_manager_->dealExpiredTimer();
 						}
 					}, "timer");
 					
@@ -128,7 +128,7 @@ Processer* Scheduler::pickOneProcesser() {
 	return picked;
 }
 
-int64_t Scheduler::runAt(Timestamp when, Coroutine::ptr coroutine) {
+int64_t Scheduler::runAt(uint64_t when, Coroutine::ptr coroutine) {
 	Processer* processer = Processer::GetProcesserOfThisThread();
 	if (processer == nullptr) {
 		processer = pickOneProcesser();
@@ -137,7 +137,7 @@ int64_t Scheduler::runAt(Timestamp when, Coroutine::ptr coroutine) {
 }
 
 int64_t Scheduler::runAfter(uint64_t micro_delay, Coroutine::ptr coroutine) {
-	Timestamp when = Timestamp::now() + micro_delay;
+	uint64_t when = Timer::getCurrentMs() + micro_delay;
 	return runAt(when, coroutine);
 }
 
@@ -146,7 +146,7 @@ int64_t Scheduler::runEvery(uint64_t micro_interval, Coroutine::ptr coroutine) {
 	if (processer == nullptr) {
 		processer = pickOneProcesser();
 	}
-	Timestamp when = Timestamp::now() + micro_interval;
+	uint64_t when = Timer::getCurrentMs() + micro_interval;
 	return timer_manager_->addTimer(when, coroutine, processer, micro_interval);
 }
 

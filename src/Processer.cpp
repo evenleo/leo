@@ -9,7 +9,7 @@
 
 namespace leo {
 
-const int kPollTimeMs = 100000;
+const int kPollTimeMs = 1000;
 
 static int createEventFd() {
 	int event_fd = ::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
@@ -123,7 +123,7 @@ ssize_t Processer::comsumeWakeEvent() {
 }
 
 Processer*& Processer::GetProcesserOfThisThread() {
-	static __thread Processer* t_processer = nullptr;
+	static thread_local Processer* t_processer = nullptr;
 	return t_processer;
 }
 

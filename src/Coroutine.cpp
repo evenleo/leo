@@ -52,6 +52,7 @@ Coroutine::Coroutine()
 }
 
 Coroutine::~Coroutine() {
+	LOG_ERROR << "~Coroutine name=" << name_;
 	if (stack_) {
 		free(stack_);
 	}

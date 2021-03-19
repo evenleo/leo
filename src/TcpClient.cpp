@@ -16,7 +16,7 @@ TcpClient::TcpClient(const IpAddress& server_addr)
 }
 
 TcpConnection::ptr TcpClient::connect(uint64_t timeout_ms) {
-	Timestamp start = Timestamp::now();
+	uint64_t start = Timer::getCurrentMs();
 	uint64_t retry_delay_us = 10 * 1000;   // 休眠10ms开始
 	while (1)
 	{
@@ -34,7 +34,7 @@ TcpConnection::ptr TcpClient::connect(uint64_t timeout_ms) {
 			usleep(retry_delay_us);
 			retry_delay_us = std::min(retry_delay_us * 2, kMaxRetryDelayUs);
 			if (timeout_ms != (uint64_t)-1 
-			    && Timestamp::now().getMicroSecondsFromEpoch() - start.getMicroSecondsFromEpoch() > timeout_ms * 1000) {
+			    && Timer::getCurrentMs()- start > timeout_ms * 1000) {
 				// LOG_DEBUG << "timeout!";
 				return nullptr;
 			}

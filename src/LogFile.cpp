@@ -39,8 +39,8 @@ void LogFile::flush() {
 
 std::string LogFile::getFileName() {
 	char time[30];
-	Timestamp now = Timestamp::now();
-	time_t sec = now.getSec();
+	uint64_t now = Timer::getCurrentMs();
+	time_t sec = now / kMicrosecondsPerSecond;
 	struct tm tm;
 	localtime_r(&sec, &tm);
 	strftime(time, sizeof time, "%Y%m%d-%H%M%S", &tm);

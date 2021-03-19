@@ -14,7 +14,7 @@
 #include "CountDownLatch.h"
 #include "Singleton.h"
 #include "Thread.h"
-#include "Timestamp.h"
+#include "Timer.h"
 
 namespace leo {
 
@@ -26,13 +26,13 @@ friend class LogWrapper;
 
 public:
 	typedef std::shared_ptr<LogEvent> ptr;
-	LogEvent(Timestamp timestamp, pid_t tid, LogLevel logLevel, 
-					const char* file_name,
-					int line);
+	LogEvent(uint64_t time, pid_t tid, LogLevel logLevel, 
+			 const char* file_name, int line);
+
 	std::ostream& getStream();
 
 private:
-	Timestamp timestamp_;
+	uint64_t time_;
 	pid_t tid_;
 	LogLevel logLevel_;
 	std::ostringstream content_;
@@ -148,20 +148,20 @@ typedef Singleton<Logger> LoggerSingletion;
 }
 
 #define LOG_DEBUG if (leo::Logger::getLogLevel() <= leo::LogLevel::DEBUG) \
-													  leo::LogWrapper(leo::LogEvent::ptr(new leo::LogEvent(leo::Timestamp::now(), leo::Thread::CurrentThreadTid(), leo::LogLevel::DEBUG, \
+													  leo::LogWrapper(leo::LogEvent::ptr(new leo::LogEvent(leo::Timer::getCurrentMs(), leo::Thread::CurrentThreadTid(), leo::LogLevel::DEBUG, \
 									__FILE__, __LINE__))).getStream()
 
 #define LOG_INFO if (leo::Logger::getLogLevel() <= leo::LogLevel::INFO) \
-													  leo::LogWrapper(leo::LogEvent::ptr(new leo::LogEvent(leo::Timestamp::now(), leo::Thread::CurrentThreadTid(), leo::LogLevel::INFO, \
+													  leo::LogWrapper(leo::LogEvent::ptr(new leo::LogEvent(leo::Timer::getCurrentMs(), leo::Thread::CurrentThreadTid(), leo::LogLevel::INFO, \
 									__FILE__, __LINE__))).getStream()
 
-#define LOG_WARN leo::LogWrapper(leo::LogEvent::ptr(new leo::LogEvent(leo::Timestamp::now(), leo::Thread::CurrentThreadTid(), leo::LogLevel::WARN, \
+#define LOG_WARN leo::LogWrapper(leo::LogEvent::ptr(new leo::LogEvent(leo::Timer::getCurrentMs(), leo::Thread::CurrentThreadTid(), leo::LogLevel::WARN, \
 									__FILE__, __LINE__))).getStream()
 
-#define LOG_ERROR leo::LogWrapper(leo::LogEvent::ptr(new leo::LogEvent(leo::Timestamp::now(), leo::Thread::CurrentThreadTid(), leo::LogLevel::ERROR, \
+#define LOG_ERROR leo::LogWrapper(leo::LogEvent::ptr(new leo::LogEvent(leo::Timer::getCurrentMs(), leo::Thread::CurrentThreadTid(), leo::LogLevel::ERROR, \
 									__FILE__, __LINE__))).getStream()
 
-#define LOG_FATAL leo::LogWrapper(leo::LogEvent::ptr(new leo::LogEvent(leo::Timestamp::now(), leo::Thread::CurrentThreadTid(), leo::LogLevel::FATAL, \
+#define LOG_FATAL leo::LogWrapper(leo::LogEvent::ptr(new leo::LogEvent(leo::Timer::getCurrentMs(), leo::Thread::CurrentThreadTid(), leo::LogLevel::FATAL, \
 									__FILE__, __LINE__))).getStream()
 
 #endif

@@ -19,11 +19,13 @@ const char* LogLevelName[] {
 
 LogLevel g_logLevel = LogLevel::DEBUG;
 
-LogEvent::LogEvent(Timestamp timestamp, pid_t tid, LogLevel logLevel, 
-					const char* file_name,
-					int line) 
-	: timestamp_(timestamp), tid_(tid), logLevel_(logLevel), 
-	  file_name_(file_name), line_(line) {}
+LogEvent::LogEvent(uint64_t time, pid_t tid, LogLevel logLevel, 
+				   const char* file_name, int line) 
+  : time_(time), 
+	tid_(tid), 
+	logLevel_(logLevel), 
+	file_name_(file_name), 
+	line_(line) {}
 
 std::ostream& LogEvent::getStream() { return content_; }
 
@@ -51,8 +53,8 @@ std::string Logger::format(LogEvent::ptr event) {
 	//TODO:待优化
 	std::ostringstream ss;
 	char buf[50];
-	time_t sec = event->timestamp_.getSec();
-	suseconds_t nsec = event->timestamp_.getUsec();
+	time_t sec = event->time_ / kMicrosecondsPerSecond;
+	suseconds_t nsec = event->time_ % kMicrosecondsPerSecond;
 	struct tm tm;
 	localtime_r(&sec, &tm);
 	strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tm);

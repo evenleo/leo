@@ -261,7 +261,7 @@ int timerfd_settime(int fd, int flags,
 2. TimerManager维护一个定时器队列。每一项包含定时器触发时间和对应的回调。
 3. TimerManager.addTimer()将新的<timer, 回调>加入到队列中。如果这个定时器是最先到期的那么调用timerfd_settime()重新设置timer fd的到期时间。timer fd到期后，将从Poll协程中返回，然后执行定时器协程，该协程中读取timer fd，然后根据现在的时间，将定时器队列中超时的项删除，并将超时的项的回调作为新的协程执行。
 4. 这个队列可以由multimap来实现，multimap由红黑树实现，内部是有序的。红黑树本质就是一颗二叉树，只不过为了防止多次的操作变得不平衡，增加了一些维持平衡的操作。
-5. 如何删除定时器，每个定时器分配一个id，TimerManager内部维护一个id到定时器时间戳的映射sequence_2_timestamp_.cancel()时，根据id去sequence_2_timestamp_中找有没有对应的定时器，如果有，将这个时间戳从时间戳队列中删除，必要时重新调用timerfd_settime()。
+5. 如何删除定时器，每个定时器分配一个id，TimerManager内部维护一个id到定时器时间戳的映射sequence_2_time_.cancel()时，根据id去sequence_2_time_中找有没有对应的定时器，如果有，将这个时间戳从时间戳队列中删除，必要时重新调用timerfd_settime()。
 
 ```c++
 int main() {
@@ -272,7 +272,7 @@ int main() {
 	 *  当timer_fd没有cancel之前，会每隔2s执行以下timeout回调，休眠10scancel，测试执行4次回调
 	 *  当第一个参数为0时，只调用一次回调
 	 */ 
-	int64_t timer_id = scheduler.runEvery(2 * Timestamp::kMicrosecondsPerSecond, std::make_shared<Coroutine>([](){
+	int64_t timer_id = scheduler.runEvery(2 * kMicrosecondsPerSecond, std::make_shared<Coroutine>([](){
 									printf("timeout\n");
 								}));
 	sleep(10);  
@@ -297,7 +297,7 @@ unsigned int sleep(unsigned int seconds) {
 
 	leo::Scheduler* scheduler = processer->getScheduler();
 	assert(scheduler != nullptr);
-	scheduler->runAt(leo::Timestamp::now() + seconds * leo::Timestamp::kMicrosecondsPerSecond, leo::Coroutine::GetCurrentCoroutine());
+	scheduler->runAt(leo::Timer::getCurrentMs() + seconds * leo::kMicrosecondsPerSecond, leo::Coroutine::GetCurrentCoroutine());
 	leo::Coroutine::SwapOut();
 	return 0;
 }

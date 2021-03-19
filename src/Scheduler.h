@@ -6,7 +6,7 @@
 #include "ProcesserThread.h"
 #include "Processer.h"
 #include "Singleton.h"
-#include "Timestamp.h"
+#include "Timer.h"
 #include "Mutex.h"
 
 #include <vector>
@@ -32,7 +32,7 @@ public:
 
 	void addTask(Coroutine::Func task, const std::string& name = "");
 
-	int64_t runAt(Timestamp when, Coroutine::ptr coroutine);
+	int64_t runAt(uint64_t when, Coroutine::ptr coroutine);
 
 	int64_t runAfter(uint64_t micro_delay, Coroutine::ptr coroutine);
 

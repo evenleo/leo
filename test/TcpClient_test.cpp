@@ -68,7 +68,7 @@ public:
 			session->start();
 		}
 
-		scheduler_->runAfter(timeout * Timestamp::kMicrosecondsPerSecond, 
+		scheduler_->runAfter(timeout * kMicrosecondsPerSecond, 
 								std::make_shared<Coroutine>([&](){
 											quit_.store(true);
 											LOG_INFO << "timeout";

@@ -3,7 +3,7 @@
 #include "Processer.h"
 #include "Hook.h"
 #include "Log.h"
-#include "Timestamp.h"
+#include "Timer.h"
 #include "Scheduler.h"
 #include "Socket.h"
 
@@ -39,7 +39,7 @@ struct HookIniter {
 
 static HookIniter hook_initer;
 
-static __thread bool t_hook_enabled = false;
+static thread_local bool t_hook_enabled = false;
 
 bool isHookEnabled() {
 	return t_hook_enabled;
@@ -107,7 +107,7 @@ unsigned int sleep(unsigned int seconds) {
 
 	leo::Scheduler* scheduler = processer->getScheduler();
 	assert(scheduler != nullptr);
-	scheduler->runAt(leo::Timestamp::now() + seconds * leo::Timestamp::kMicrosecondsPerSecond, leo::Coroutine::GetCurrentCoroutine());
+	scheduler->runAt(leo::Timer::getCurrentMs() + seconds * leo::kMicrosecondsPerSecond, leo::Coroutine::GetCurrentCoroutine());
 	leo::Coroutine::SwapOut();
 	return 0;
 }
@@ -120,7 +120,7 @@ unsigned int usleep(uint64_t us) {
 
 	leo::Scheduler* scheduler = processer->getScheduler();
 	assert(scheduler != nullptr);
-	scheduler->runAt(leo::Timestamp::now() + us, leo::Coroutine::GetCurrentCoroutine());
+	scheduler->runAt(leo::Timer::getCurrentMs() + us, leo::Coroutine::GetCurrentCoroutine());
 	leo::Coroutine::SwapOut();
 	return 0;
 }
