@@ -16,6 +16,12 @@ int createTimerFd() {
 	return timerfd;
 }
 
+TimerManager::TimerManager() : timer_fd_(createTimerFd()) {}
+
+TimerManager::~TimerManager() { 
+	::close(timer_fd_); 
+}
+
 bool TimerManager::findFirstTime(const uint64_t& now, uint64_t& time) {
 	for (const auto& x : timer_map_) {
 		if (now < x.first) {
@@ -28,7 +34,7 @@ bool TimerManager::findFirstTime(const uint64_t& now, uint64_t& time) {
 
 int64_t TimerManager::addTimer(uint64_t when, Coroutine::ptr coroutine, Processer* processer, uint64_t interval) {
 	Timer::ptr timer = std::make_shared<Timer>(when, processer, coroutine, interval);
-	bool earliest_timer_changed = false;  // 最早到期的时间
+	bool earliest_timer_changed = false;  // 最早定时器到期的时间
 	{
 		MutexGuard lock(mutex_);
 		auto it = timer_map_.begin();
@@ -39,7 +45,7 @@ int64_t TimerManager::addTimer(uint64_t when, Coroutine::ptr coroutine, Processe
 		sequence_2_time_.insert({timer->getSequence(), when});
 
 		if (earliest_timer_changed) {
-			resetTimerFd(when);	
+			resetTimerFd(when);	  // 如果最早定时器时间改变则需要重置timer_fd
 		}
 	}
 	return timer->getSequence();
@@ -72,7 +78,7 @@ void TimerManager::resetTimerFd(uint64_t when) {
 
 ssize_t TimerManager::readTimerFd() {
 	uint64_t num_of_expirations;
-	// 将timer_fd注册到epoll反应堆中
+	// 将timer_fd注册到epoll反应堆中, 这步是关键，将协程注册到epoll
 	ssize_t n = read(timer_fd_, &num_of_expirations, sizeof(uint64_t));
 	if (n != sizeof(num_of_expirations)) {
 		LOG_ERROR << "read " << n << " bytes instead of 8";
@@ -86,6 +92,10 @@ void TimerManager::dealExpiredTimer() {
 
 	std::vector<std::pair<uint64_t, Timer::ptr>> expired;
 	{
+		/**
+		 * 获取列表中不小于当前时间的迭代器it_not_less_now，
+		 * 截取[begin(), it_not_less_now)的区间复制到超时数组expired中
+		 */ 
 		MutexGuard lock(mutex_);
 		auto it_not_less_now = timer_map_.lower_bound(Timer::getCurrentMs());
 		std::copy(timer_map_.begin(), it_not_less_now, back_inserter(expired));
