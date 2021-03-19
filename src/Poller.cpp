@@ -6,6 +6,8 @@
 #include <assert.h>
 #include <string.h>
 #include <sstream>
+#include <stdio.h>
+#include <unistd.h>
 
 namespace leo {
 
@@ -42,6 +44,7 @@ EventPoller::EventPoller(Processer* processer)
 }	
 
 EventPoller::~EventPoller() {
+    ::close(epfd_);
 	// LOG_INFO << "~EventPoller";
 }
 
